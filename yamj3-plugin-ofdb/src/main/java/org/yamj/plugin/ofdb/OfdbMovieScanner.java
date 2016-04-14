@@ -9,7 +9,9 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.PluginConfigService;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.metadata.Credit;
+import org.yamj.plugin.api.metadata.Movie;
+import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.tools.Constants;
 import org.yamj.plugin.api.tools.MetadataTools;
 import org.yamj.plugin.api.type.JobType;
@@ -22,7 +24,7 @@ import ro.fortsoft.pf4j.Extension;
 public class OfdbMovieScanner implements MovieScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(OfdbMovieScanner.class);
-    private static final String SCANNER_NAME = "ofdb2";
+    private static final String SCANNER_NAME = "ofdb";
     private static final String HTML_FONT = "</font>";
     private static final String HTML_TABLE_END = "</table>";
     private static final String HTML_TR_START = "<tr";
@@ -32,10 +34,12 @@ public class OfdbMovieScanner implements MovieScanner {
     private CommonHttpClient httpClient;
     private SearchEngineTools searchEngineTools;
     
+    @Override
     public String getScannerName() {
         return SCANNER_NAME;
     }
 
+    @Override
     public void init(PluginConfigService configService, CommonHttpClient httpClient, Locale locale) {
         this.configService = configService;
         this.httpClient = httpClient;
@@ -44,6 +48,7 @@ public class OfdbMovieScanner implements MovieScanner {
         this.searchEngineTools.setSearchSites("google");
     }
 
+    @Override
     public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
         String ofdbUrl = ids.get(SCANNER_NAME);
         if (StringUtils.isNotBlank(ofdbUrl)) {
@@ -157,13 +162,14 @@ public class OfdbMovieScanner implements MovieScanner {
         return null;
     }
 
+    @Override
     public Movie scanMovie(String ofdbUrl, boolean throwTempError) {
         try {
             DigestedResponse response = httpClient.requestContent(ofdbUrl, Constants.UTF8);
             if (throwTempError && ResponseTools.isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("OFDb service is temporary not available: " + response.getStatusCode());
             } else if (ResponseTools.isNotOK(response)) {
-                throw new MetadataScannerException("OFDb request failed: " + response.getStatusCode());
+                throw new RuntimeException("OFDb request failed: " + response.getStatusCode());
             }
             
             String xml = response.getContent();
@@ -195,7 +201,7 @@ public class OfdbMovieScanner implements MovieScanner {
                 if (throwTempError && ResponseTools.isTemporaryError(response)) {
                     throw new TemporaryUnavailableException("OFDb service failed to get plot: " + response.getStatusCode());
                 } else if (ResponseTools.isNotOK(response)) {
-                    throw new MetadataScannerException("OFDb plot request failed: " + response.getStatusCode());
+                    throw new RuntimeException("OFDb plot request failed: " + response.getStatusCode());
                 }
                 
                 int firstindex = response.getContent().indexOf("gelesen</b></b><br><br>") + 23;
@@ -221,8 +227,9 @@ public class OfdbMovieScanner implements MovieScanner {
             if (throwTempError && ResponseTools.isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("OFDb service failed to get details: " + response.getStatusCode());
             } else if (ResponseTools.isNotOK(response)) {
-                throw new MetadataScannerException("OFDb details request failed: " + response.getStatusCode());
+                throw new RuntimeException("OFDb details request failed: " + response.getStatusCode());
             }
+            
             // get detail XML
             xml = response.getContent();
             
@@ -289,8 +296,7 @@ public class OfdbMovieScanner implements MovieScanner {
             // everything is fine
             return movie;
         } catch (IOException ioe) {
-            LOG.error("OFDb scanner error: '{}': {}", ofdbUrl, ioe.getMessage());
-            return null;
+            throw new RuntimeException("OFDb scanning error", ioe);
         }
     }
 
@@ -312,11 +318,11 @@ public class OfdbMovieScanner implements MovieScanner {
         return role;
     }
     
-
-    public String scanForIdInNFO(String nfoContent) {
+    @Override
+    public String scanNFO(String nfoContent) {
         int beginIndex = nfoContent.indexOf("http://www.ofdb.de/film/");
         if (beginIndex != -1) {
-            StringTokenizer st = new StringTokenizer(nfoContent.substring(beginIndex), " \n\t\r\f!&ι\"'(θηΰ)=$<>");
+            StringTokenizer st = new StringTokenizer(nfoContent.substring(beginIndex), " \n\t\r\f!&Γ©\"'(Γ¨Γ§Γ )=$<>");
             return st.nextToken();
         }
         return null;
