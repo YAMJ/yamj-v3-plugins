@@ -163,7 +163,9 @@ public class OfdbMovieScanner implements MovieScanner {
     }
 
     @Override
-    public Movie scanMovie(String ofdbUrl, boolean throwTempError) {
+    public boolean scanMovie(Movie movie, boolean throwTempError) {
+        final String ofdbUrl = movie.getIds().get(getScannerName());
+        
         try {
             DigestedResponse response = httpClient.requestContent(ofdbUrl, Constants.UTF8);
             if (throwTempError && ResponseTools.isTemporaryError(response)) {
@@ -177,15 +179,12 @@ public class OfdbMovieScanner implements MovieScanner {
             // check for movie type change
             if (title.contains("[TV-Serie]")) {
                 LOG.warn("{} is a TV Show, skipping", title);
-                return null;
+                return false;
             }
-            
-            // create a new movie object
-            Movie movie = new Movie();
             
             // set IMDb id
             String imdbId = HTMLTools.extractTag(xml, "href=\"http://www.imdb.com/Title?", "\"");
-            movie.getIds().put("imdb", "tt" + imdbId);
+            movie.addId("imdb", "tt" + imdbId);
     
             String titleShort = HTMLTools.extractTag(xml, "<title>OFDb -", "</title>");
             if (titleShort.indexOf('(') > 0) {
@@ -219,7 +218,7 @@ public class OfdbMovieScanner implements MovieScanner {
             int beginIndex = xml.indexOf("view.php?page=film_detail");
             if (beginIndex < 0) {
                 // nothing to do anymore
-                return movie;
+                return true;
             }
             
             String detailUrl = "http://www.ofdb.de/" + xml.substring(beginIndex, xml.indexOf('\"', beginIndex));
@@ -294,7 +293,7 @@ public class OfdbMovieScanner implements MovieScanner {
             }
             
             // everything is fine
-            return movie;
+            return true;
         } catch (IOException ioe) {
             throw new RuntimeException("OFDb scanning error", ioe);
         }
