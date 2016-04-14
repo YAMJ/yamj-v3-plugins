@@ -1,0 +1,334 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
+
+    <!-- Main Project Information -->
+    <name>Yet Another Movie Jukebox Plugins</name>
+    <description>YAMJ plugins v3</description>
+    <groupId>org.yamj.plugins</groupId>
+    <artifactId>yamj3-plugins</artifactId>
+    <version>3.0</version>
+    <packaging>pom</packaging>
+
+    <organization>
+        <name>Yet Another Movie Jukebox</name>
+        <url>https://github.com/YAMJ/</url>
+    </organization>
+
+    <prerequisites>
+        <maven>3.0.3</maven>
+    </prerequisites>
+
+    <developers>
+        <developer>
+            <name>modmax</name>
+            <email>modmax@abwesend.de</email>
+            <roles>
+                <role>Owner</role>
+                <role>Lead Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>scm:git:git@github.com:YAMJ/yamj-v3-plugins.git</url>
+        <connection>scm:git:git@github.com:YAMJ/yamj-v3-plugins.git</connection>
+        <developerConnection>scm:git:git@github.com:YAMJ/yamj-v3-plugins.git</developerConnection>
+    </scm>
+
+    <modules>
+        <module>yamj3-plugin-ofdb</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd-HHmm</maven.build.timestamp.format>
+        <yamj3.plugin.api.version>3.0-SNAPSHOT</yamj3.plugin.api.version>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>        
+	        <dependency>
+	            <groupId>org.yamj</groupId>
+	            <artifactId>yamj3-plugin-api</artifactId>
+	            <version>${yamj3.plugin.api.version}</version>
+	            <scope>provided</scope>
+	        </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>        
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.8</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.6</version>
+	                <configuration>
+	                    <descriptors>
+	                        <descriptor>
+	                            src/main/assembly/assembly.xml
+	                        </descriptor>
+	                    </descriptors>
+	                    <appendAssemblyId>false</appendAssemblyId>
+	                </configuration>
+	                <executions>
+	                    <execution>
+	                        <id>make-assembly</id>
+	                        <phase>package</phase>
+	                        <goals>
+	                            <goal>attached</goal>
+	                        </goals>
+	                    </execution>
+	                </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.5.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.2</version>
+	                <configuration>
+	                    <skip>true</skip>
+	                </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.6</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.5.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.10</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>pl.project13.maven</groupId>
+                    <artifactId>git-commit-id-plugin</artifactId>
+                    <version>2.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-dependency-plugin</artifactId>
+                                        <versionRange>[2.0,)</versionRange>
+                                        <goals>
+                                            <goal>copy-dependencies</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <!--
+                                        <execute />
+                                        -->
+                                        <execute>
+                                            <runOnIncremental>true</runOnIncremental>
+                                            <runOnConfiguration>true</runOnConfiguration>
+                                        </execute>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>            
+        </pluginManagement>
+
+        <resources>
+            <!-- Filtering for the git-commit-id-plugin -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>version.txt</include>
+                    <include>build-*.properties</include>
+                </includes>
+            </resource>
+            <!-- Add the remainder of the resources -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>*</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <dateFormat>yyyy-MM-dd HH:mm:ss Z</dateFormat>
+                    <generateGitPropertiesFile>false</generateGitPropertiesFile>
+                    <abbrevLength>7</abbrevLength>
+                    <injectAllReactorProjects>true</injectAllReactorProjects>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <configuration>
+                    <reportPlugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <version>2.2</version>
+                            <reports>
+                                <report>index</report>
+                                <report>scm</report>
+                                <report>issue-tracking</report>
+                                <report>help</report>
+                                <report>dependency-convergence</report>
+                                <report>summary</report>
+                                <report>dependency-management</report>
+                                <report>dependencies</report>
+                                <report>license</report>
+                                <report>modules</report>
+                            </reports>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <version>2.9</version>
+                        </plugin>
+                    </reportPlugins>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <failOnError>true</failOnError>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>false</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                        <manifestEntries>
+                            <Implementation-Title>${project.name}</Implementation-Title>
+                            <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                            <Implementation-Version>${project.version}-${git.commit.id}</Implementation-Version>
+
+                            <Specification-Title>${project.name}</Specification-Title>
+                            <Specification-Vendor>${project.organization.name}</Specification-Vendor>
+                            <Specification-Version>${project.version}</Specification-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>
