@@ -165,6 +165,9 @@ public class OfdbMovieScanner implements MovieScanner {
     @Override
     public boolean scanMovie(Movie movie, boolean throwTempError) {
         final String ofdbUrl = movie.getIds().get(getScannerName());
+        if (StringUtils.isBlank(ofdbUrl)) {
+            return false;
+        }
         
         try {
             DigestedResponse response = httpClient.requestContent(ofdbUrl, Constants.UTF8);
@@ -210,8 +213,7 @@ public class OfdbMovieScanner implements MovieScanner {
                                       .replaceAll("<br />", " ")
                                       .trim();
     
-                movie.setPlot(plot);
-                movie.setOutline(plot);
+                movie.setPlot(plot).setOutline(plot);
             }
     
             // scrape additional informations
