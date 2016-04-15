@@ -43,6 +43,7 @@
 
     <modules>
         <module>yamj3-plugin-ofdb</module>
+        <module>yamj3-plugin-moviemeter</module>
     </modules>
 
     <properties>
