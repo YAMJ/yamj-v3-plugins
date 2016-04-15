@@ -20,9 +20,9 @@
  *      Web: https://github.com/YAMJ/yamj-v3-plugins
  *
  */
-package org.yamj.plugin.moviemeter;
+package org.yamj.plugin.tvrage;
 
-import com.omertron.moviemeter.MovieMeterApi;
+import com.omertron.tvrageapi.TVRageApi;
 import java.io.InputStream;
 import java.util.Properties;
 import org.slf4j.Logger;
@@ -31,38 +31,38 @@ import org.yamj.plugin.api.YamjPlugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public class MovieMeterPlugin extends YamjPlugin {
+public class TVRagePlugin extends YamjPlugin {
     
-    private static final Logger LOG = LoggerFactory.getLogger(MovieMeterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TVRagePlugin.class);
 
-    public MovieMeterPlugin(PluginWrapper wrapper) {
+    public TVRagePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
     public void start() throws PluginException {
-        LOG.trace("Start MovieMeterPlugin");
+        LOG.trace("Start TvRagePlugin");
 
         // load API key
         final Properties apikeyProps = new Properties();
-        try (InputStream stream = getClass().getResourceAsStream("/moviemeter.apikey.properties")) {
+        try (InputStream stream = getClass().getResourceAsStream("/tvrage.apikey.properties")) {
             apikeyProps.load(stream);
         } catch (Exception ex) {
             throw new PluginException("Failed to load apikey properties", ex);
         }
-        
+
         // create API
         try {
-            final String apiKey = apikeyProps.getProperty("apikey.moviemeter");
-            MovieMeterApiWrapper wrapper = MovieMeterApiWrapper.getInstance();
-            wrapper.setMovieMeterApi(new MovieMeterApi(apiKey, httpClient));
+            final String apiKey = apikeyProps.getProperty("apikey.tvrage");
+            TVRageApiWrapper wrapper = TVRageApiWrapper.getInstance();
+            wrapper.setMovieMeterApi(new TVRageApi(apiKey, httpClient));
         } catch (Exception ex) {
-            throw new PluginException("Failed to create moviemeter api", ex);
+            throw new PluginException("Failed to create tvrage api", ex);
         }
     }
 
     @Override
     public void stop() throws PluginException {
-        LOG.trace("Stop MovieMeterPlugin");
+        LOG.trace("Stop TvRagePlugin");
     }
 }
