@@ -45,7 +45,7 @@ public class MovieMeterPlugin extends YamjPlugin {
 
         // load apikey properties
         final Properties apikeyProps = new Properties();
-        try (InputStream stream = getClass().getResourceAsStream("/apikey.properties")) {
+        try (InputStream stream = getClass().getResourceAsStream("/moviemeter.apikey.properties")) {
             apikeyProps.load(stream);
         } catch (Exception ex) {
             throw new PluginException("Failed to load apikey properties", ex);
