@@ -5,14 +5,15 @@
     <parent>
         <groupId>org.yamj.plugins</groupId>
         <artifactId>yamj3-plugins</artifactId>
-        <version>3.0</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
     <!-- Project Information -->
+    <!-- Version naming: 3.x.y where x is the YAMJv3 minor version and y is the plugin version for that YAMJv3 release -->
     <artifactId>yamj3-plugin-moviemeter</artifactId>
     <name>YAMJ3 Plugin Moviemeter</name>
     <description>YAMJ v3 Plugin for MovieMeter</description>
-    <version>1.0.0</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <properties>
