@@ -37,7 +37,9 @@ import org.yamj.plugin.api.metadata.*;
 import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
+import ro.fortsoft.pf4j.Extension;
  
+@Extension
 public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implements SeriesScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComingSoonSeriesScanner.class);

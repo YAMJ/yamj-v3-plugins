@@ -36,7 +36,9 @@ import org.yamj.plugin.api.metadata.Credit;
 import org.yamj.plugin.api.metadata.Movie;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.type.JobType;
+import ro.fortsoft.pf4j.Extension;
 
+@Extension
 public class MovieMeterScanner implements MovieScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieMeterScanner.class);

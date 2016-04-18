@@ -37,7 +37,9 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.PluginConfigService;
 import org.yamj.plugin.api.metadata.*;
 import org.yamj.plugin.api.tools.MetadataTools;
+import ro.fortsoft.pf4j.Extension;
  
+@Extension
 public class TVRageScanner implements SeriesScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(TVRageScanner.class);

@@ -41,7 +41,9 @@ import org.yamj.plugin.api.tools.MetadataTools;
 import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
+import ro.fortsoft.pf4j.Extension;
  
+@Extension
 public class ComingSoonMovieScanner extends AbstractComingSoonScanner implements MovieScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComingSoonMovieScanner.class);
