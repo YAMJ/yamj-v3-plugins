@@ -68,7 +68,7 @@ public class ComingSoonMovieScanner extends AbstractComingSoonScanner implements
         // search coming soon with search engine tools
         if (isNoValidComingSoonId(comingSoonId)) {
             comingSoonId = this.searchEngineTools.searchURL(title, year, "www.comingsoon.it/film", throwTempError);
-            int beginIndex = comingSoonId.indexOf("film/");
+            int beginIndex = StringUtils.indexOf(comingSoonId, "film/");
             if (beginIndex < 0) {
                 comingSoonId = null;
             } else {
