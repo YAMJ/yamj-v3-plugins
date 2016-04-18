@@ -79,7 +79,6 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
             return null;
         }
         
-        ids.put(SCANNER_NAME, comingSoonId);
         return comingSoonId;
     }
 
@@ -175,7 +174,7 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
         for (Episode episode : season.getEpisodes()) {
             Episode dto = dtos.get(episode.getEpisodeNumber());
             if (dto == null) {
-                episode.setFound(false);
+                episode.setValid(false);
                 continue;
             }
             
@@ -184,8 +183,7 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
                    .setTitle(dto.getTitle())
                    .setOriginalTitle(dto.getOriginalTitle())
                    .addCredits(actors)
-                   .addCredits(dto.getCredits())
-                   .setFound(true);
+                   .addCredits(dto.getCredits());
         }
     }
     

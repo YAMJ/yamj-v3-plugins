@@ -101,8 +101,6 @@ public class OfdbScanner implements MovieScanner {
             ofdbUrl = searchEngineTools.searchURL(title, year, "www.ofdb.de/film", false);
         }
 
-        // add id in id map
-        ids.put(SCANNER_NAME, ofdbUrl);
         return ofdbUrl;
     }
 

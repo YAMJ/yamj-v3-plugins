@@ -80,9 +80,7 @@ public class TVRageScanner implements SeriesScanner {
         }
 
         if (showInfo != null && showInfo.isValid() && showInfo.getShowID()>0) {
-            tvRageId = Integer.toString(showInfo.getShowID());
-            ids.put(SOURCE_TVRAGE, tvRageId);
-            return tvRageId;
+            return Integer.toString(showInfo.getShowID());
         }
         
         return null;
@@ -165,7 +163,7 @@ public class TVRageScanner implements SeriesScanner {
             // get the episode
             com.omertron.tvrageapi.model.Episode tvEpisode = episodeList.getEpisode(season.getSeasonNumber(), episode.getEpisodeNumber());
             if (tvEpisode == null || !tvEpisode.isValid()) {
-                episode.setFound(false);
+                episode.setValid(false);
                 continue;
             }
             
@@ -180,8 +178,7 @@ public class TVRageScanner implements SeriesScanner {
             episode.setTitle(tvEpisode.getTitle())
                 .setPlot(tvEpisode.getSummary())
                 .setReleaseDate(tvEpisode.getAirDate())
-                .setRating(MetadataTools.parseRating(tvEpisode.getRating()))
-                .setFound(true);
+                .setRating(MetadataTools.parseRating(tvEpisode.getRating()));
         }
     }
     

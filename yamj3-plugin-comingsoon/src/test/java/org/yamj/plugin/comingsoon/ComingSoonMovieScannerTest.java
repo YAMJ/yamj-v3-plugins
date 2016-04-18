@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import org.junit.BeforeClass;
@@ -50,7 +50,7 @@ public class ComingSoonMovieScannerTest {
 
     @Test
     public void testGetMovieId() {
-        Map<String,String> ids = new HashMap<>();
+        Map<String,String> ids = Collections.emptyMap();
         String id = movieScanner.getMovieId("Avatar", null, 2009, ids, false);
         assertEquals("846", id);
     }

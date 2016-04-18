@@ -25,7 +25,7 @@ package org.yamj.plugin.comingsoon;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import org.junit.BeforeClass;
@@ -48,7 +48,7 @@ public class ComingSoonSeriesScannerTest {
         
     @Test
     public void testGetSeriesId() {
-        Map<String,String> ids = new HashMap<>();
+        Map<String,String> ids = Collections.emptyMap();
         String id = seriesScanner.getSeriesId("Two and a half men", null, 2003, ids, false);
         assertEquals("28", id);
     }

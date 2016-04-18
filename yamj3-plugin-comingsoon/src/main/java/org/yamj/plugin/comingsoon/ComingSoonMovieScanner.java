@@ -84,7 +84,6 @@ public class ComingSoonMovieScanner extends AbstractComingSoonScanner implements
             return null;
         }
         
-        ids.put(SCANNER_NAME, comingSoonId);
         return comingSoonId;
     }
 

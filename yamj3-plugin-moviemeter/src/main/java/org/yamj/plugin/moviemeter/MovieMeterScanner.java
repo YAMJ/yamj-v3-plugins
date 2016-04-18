@@ -79,8 +79,6 @@ public class MovieMeterScanner implements MovieScanner {
             movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(originalTitle, year, throwTempError);
         }
         
-        // add id in id map
-        ids.put(SCANNER_NAME, movieMeterId);
         return movieMeterId;
     }
     
