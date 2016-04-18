@@ -48,7 +48,7 @@ public class TVRageApiWrapper {
         return INSTANCE;
     }
     
-    public void setMovieMeterApi(TVRageApi tvRageApi) {
+    public void setTVRageApi(TVRageApi tvRageApi) {
         this.tvRageApi = tvRageApi;
     }
 

@@ -86,7 +86,7 @@ public class MovieMeterScanner implements MovieScanner {
     
     @Override
     public boolean scanMovie(Movie movie, boolean throwTempError) {
-        final String movieMeterId = movie.getIds().get(getScannerName());
+        final String movieMeterId = movie.getIds().get(SCANNER_NAME);
         if (!StringUtils.isNumeric(movieMeterId)) {
             return false;
         }

@@ -44,7 +44,7 @@ public class OfdbMovieScannerTest {
     @BeforeClass
     @SuppressWarnings("resource")
     public static void setUpClass() {
-        movieScanner = new OfdbMovieScanner();
+        movieScanner = new OfdbScanner();
         movieScanner.init(new PluginConfigServiceImpl(), new HttpClientWrapper(new SimpleHttpClientBuilder().build()), Locale.getDefault());
     }
 

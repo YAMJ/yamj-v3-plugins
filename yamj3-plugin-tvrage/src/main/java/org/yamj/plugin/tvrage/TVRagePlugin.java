@@ -55,7 +55,7 @@ public class TVRagePlugin extends YamjPlugin {
         try {
             final String apiKey = apikeyProps.getProperty("apikey.tvrage");
             TVRageApiWrapper wrapper = TVRageApiWrapper.getInstance();
-            wrapper.setMovieMeterApi(new TVRageApi(apiKey, httpClient));
+            wrapper.setTVRageApi(new TVRageApi(apiKey, httpClient));
         } catch (Exception ex) {
             throw new PluginException("Failed to create tvrage api", ex);
         }
