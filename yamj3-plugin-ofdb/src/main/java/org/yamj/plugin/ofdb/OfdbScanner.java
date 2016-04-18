@@ -187,7 +187,7 @@ public class OfdbScanner implements MovieScanner {
 
     @Override
     public boolean scanMovie(Movie movie, boolean throwTempError) {
-        final String ofdbUrl = movie.getIds().get(getScannerName());
+        final String ofdbUrl = movie.getIds().get(SCANNER_NAME);
         if (StringUtils.isBlank(ofdbUrl)) {
             return false;
         }

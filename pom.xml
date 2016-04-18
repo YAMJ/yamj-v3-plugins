@@ -42,6 +42,7 @@
     </scm>
 
     <modules>
+        <module>yamj3-plugin-comingsoon</module>
         <module>yamj3-plugin-moviemeter</module>
         <module>yamj3-plugin-ofdb</module>
         <module>yamj3-plugin-tvrage</module>

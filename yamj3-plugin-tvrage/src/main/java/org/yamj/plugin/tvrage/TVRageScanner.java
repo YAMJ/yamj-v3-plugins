@@ -146,8 +146,7 @@ public class TVRageScanner implements SeriesScanner {
                     .setTitle(series.getTitle())
                     .setOriginalTitle(series.getOriginalTitle())
                     .setPlot(series.getPlot())
-                    .setOutline(series.getOutline())
-                    .setFound(true);
+                    .setOutline(series.getOutline());
                 
                 // get season year from minimal first aired of episodes
                 com.omertron.tvrageapi.model.Episode tvEpisode = episodeList.getEpisode(season.getSeasonNumber(), 1);
