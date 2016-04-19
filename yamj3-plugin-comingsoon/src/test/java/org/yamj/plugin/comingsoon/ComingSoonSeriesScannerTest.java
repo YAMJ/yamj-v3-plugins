@@ -32,8 +32,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.PluginConfigServiceImpl;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.common.PluginConfigServiceImpl;
+import org.yamj.plugin.api.metadata.SeriesScanner;
+import org.yamj.plugin.api.metadata.model.Episode;
+import org.yamj.plugin.api.metadata.model.Season;
+import org.yamj.plugin.api.metadata.model.Series;
 
 public class ComingSoonSeriesScannerTest {
 

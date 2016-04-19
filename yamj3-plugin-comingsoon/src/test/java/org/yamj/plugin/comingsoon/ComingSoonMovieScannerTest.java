@@ -33,9 +33,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.PluginConfigServiceImpl;
-import org.yamj.plugin.api.metadata.Movie;
+import org.yamj.plugin.api.common.PluginConfigServiceImpl;
 import org.yamj.plugin.api.metadata.MovieScanner;
+import org.yamj.plugin.api.metadata.model.Movie;
 
 public class ComingSoonMovieScannerTest {
 

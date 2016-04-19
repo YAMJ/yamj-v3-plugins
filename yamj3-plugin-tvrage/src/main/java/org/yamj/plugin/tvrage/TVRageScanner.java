@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.tvrage;
 
-import static org.yamj.plugin.api.tools.Constants.SOURCE_TVRAGE;
+import static org.yamj.plugin.api.common.Constants.SOURCE_TVRAGE;
 
 import com.omertron.tvrageapi.model.CountryDetail;
 import com.omertron.tvrageapi.model.EpisodeList;
@@ -34,11 +34,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
-import org.yamj.plugin.api.PluginConfigService;
-import org.yamj.plugin.api.metadata.*;
-import org.yamj.plugin.api.tools.MetadataTools;
+import org.yamj.plugin.api.common.PluginConfigService;
+import org.yamj.plugin.api.metadata.SeriesScanner;
+import org.yamj.plugin.api.metadata.model.Episode;
+import org.yamj.plugin.api.metadata.model.Season;
+import org.yamj.plugin.api.metadata.model.Series;
+import org.yamj.plugin.api.metadata.tools.MetadataTools;
 import ro.fortsoft.pf4j.Extension;
- 
+
 @Extension
 public class TVRageScanner implements SeriesScanner {
 

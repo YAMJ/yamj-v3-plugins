@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.comingsoon;
 
-import static org.yamj.plugin.api.tools.Constants.UTF8;
+import static org.yamj.plugin.api.common.Constants.UTF8;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,8 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
-import org.yamj.plugin.api.metadata.*;
-import org.yamj.plugin.api.type.JobType;
+import org.yamj.plugin.api.common.JobType;
+import org.yamj.plugin.api.metadata.SeriesScanner;
+import org.yamj.plugin.api.metadata.model.*;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 import ro.fortsoft.pf4j.Extension;
