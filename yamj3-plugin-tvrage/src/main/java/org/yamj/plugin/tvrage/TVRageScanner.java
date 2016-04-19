@@ -24,6 +24,10 @@ package org.yamj.plugin.tvrage;
 
 import static org.yamj.plugin.api.common.Constants.SOURCE_TVRAGE;
 
+import org.yamj.plugin.api.metadata.dto.EpisodeDTO;
+import org.yamj.plugin.api.metadata.dto.SeasonDTO;
+import org.yamj.plugin.api.metadata.dto.SeriesDTO;
+
 import com.omertron.tvrageapi.model.CountryDetail;
 import com.omertron.tvrageapi.model.EpisodeList;
 import com.omertron.tvrageapi.model.ShowInfo;
@@ -36,9 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.metadata.SeriesScanner;
-import org.yamj.plugin.api.metadata.model.Episode;
-import org.yamj.plugin.api.metadata.model.Season;
-import org.yamj.plugin.api.metadata.model.Series;
 import org.yamj.plugin.api.metadata.tools.MetadataTools;
 import ro.fortsoft.pf4j.Extension;
 
@@ -92,7 +93,7 @@ public class TVRageScanner implements SeriesScanner {
     }
 
     @Override
-    public boolean scanSeries(Series series, boolean throwTempError) {
+    public boolean scanSeries(SeriesDTO series, boolean throwTempError) {
         // get series id
         final String tvRageId = series.getIds().get(SOURCE_TVRAGE);
         if (!StringUtils.isNumeric(tvRageId)) {
@@ -140,9 +141,9 @@ public class TVRageScanner implements SeriesScanner {
         return true;
     }
     
-    private static void scanSeasons(Series series, EpisodeList episodeList) {
+    private static void scanSeasons(SeriesDTO series, EpisodeList episodeList) {
         
-        for (Season season : series.getSeasons()) {
+        for (SeasonDTO season : series.getSeasons()) {
             if (season.isScanNeeded()) {
                 // use values from series
                 season.addId(SOURCE_TVRAGE, series.getIds().get(SOURCE_TVRAGE))
@@ -163,8 +164,8 @@ public class TVRageScanner implements SeriesScanner {
         }
     }
 
-    private static void scanEpisodes(Season season, EpisodeList episodeList) {
-        for (Episode episode : season.getEpisodes()) {
+    private static void scanEpisodes(SeasonDTO season, EpisodeList episodeList) {
+        for (EpisodeDTO episode : season.getEpisodes()) {
             // get the episode
             com.omertron.tvrageapi.model.Episode tvEpisode = episodeList.getEpisode(season.getSeasonNumber(), episode.getEpisodeNumber());
             if (tvEpisode == null || !tvEpisode.isValid()) {

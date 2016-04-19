@@ -24,6 +24,9 @@ package org.yamj.plugin.comingsoon;
 
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
+import org.yamj.plugin.api.metadata.dto.CreditDTO;
+import org.yamj.plugin.api.metadata.dto.MovieDTO;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -36,8 +39,6 @@ import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.common.JobType;
 import org.yamj.plugin.api.metadata.MovieScanner;
-import org.yamj.plugin.api.metadata.model.Credit;
-import org.yamj.plugin.api.metadata.model.Movie;
 import org.yamj.plugin.api.metadata.tools.MetadataTools;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
@@ -90,7 +91,7 @@ public class ComingSoonMovieScanner extends AbstractComingSoonScanner implements
     }
 
     @Override
-    public boolean scanMovie(Movie movie, boolean throwTempError) {
+    public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
         final String comingSoonId = movie.getIds().get(SCANNER_NAME);
         if (isNoValidComingSoonId(comingSoonId)) {
             return false;
@@ -178,7 +179,7 @@ public class ComingSoonMovieScanner extends AbstractComingSoonScanner implements
         }
     }
 
-    private static void parseCredits(Movie movie, String xml, String startTag, JobType jobType) {
+    private static void parseCredits(MovieDTO movie, String xml, String startTag, JobType jobType) {
         for (String tag : HTMLTools.extractTags(xml, startTag, "</li>", "<a", "</a>", false)) {
             int beginIndex = tag.indexOf(">");
             if (beginIndex > -1) {
@@ -193,7 +194,7 @@ public class ComingSoonMovieScanner extends AbstractComingSoonScanner implements
                         sourceId = tag.substring(beginIndex+1, endIndex);
                     }
                 }
-                movie.addCredit(new Credit(sourceId, jobType, name));
+                movie.addCredit(new CreditDTO(sourceId, jobType, name));
             }
         }
     }

@@ -24,6 +24,8 @@ package org.yamj.plugin.comingsoon;
 
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
+import org.yamj.plugin.api.metadata.dto.*;
+
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +37,6 @@ import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.common.JobType;
 import org.yamj.plugin.api.metadata.SeriesScanner;
-import org.yamj.plugin.api.metadata.model.*;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 import ro.fortsoft.pf4j.Extension;
@@ -86,7 +87,7 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
     }
 
     @Override
-    public boolean scanSeries(Series series, boolean throwTempError) {
+    public boolean scanSeries(SeriesDTO series, boolean throwTempError) {
         final String comingSoonId = series.getIds().get(SCANNER_NAME);
         if (isNoValidComingSoonId(comingSoonId)) {
             return false;
@@ -131,7 +132,7 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
             }
     
             // ACTORS
-            List<Credit> actors;
+            List<CreditDTO> actors;
             if (configService.isCastScanEnabled(JobType.ACTOR)) {
                 actors = parseActors(xml);
             } else {
@@ -147,9 +148,9 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
         }
     }
 
-    private void scanSeasons(Series series, String comingSoonId, Collection<Credit> actors) {
+    private void scanSeasons(SeriesDTO series, String comingSoonId, Collection<CreditDTO> actors) {
         
-        for (Season season : series.getSeasons()) {
+        for (SeasonDTO season : series.getSeasons()) {
             
             String seasonXML = getSeasonXml(comingSoonId, season.getSeasonNumber());
 
@@ -169,13 +170,13 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
         }
     }
 
-    private void scanEpisodes(Season season, String comingSoonId, String seasonXML, Collection<Credit> actors) {
+    private void scanEpisodes(SeasonDTO season, String comingSoonId, String seasonXML, Collection<CreditDTO> actors) {
         
         // parse episodes from season XML
-        Map<Integer,Episode> dtos = this.parseEpisodes(seasonXML);
+        Map<Integer,EpisodeDTO> dtos = this.parseEpisodes(seasonXML);
 
-        for (Episode episode : season.getEpisodes()) {
-            Episode dto = dtos.get(episode.getEpisodeNumber());
+        for (EpisodeDTO episode : season.getEpisodes()) {
+            EpisodeDTO dto = dtos.get(episode.getEpisodeNumber());
             if (dto == null) {
                 episode.setValid(false);
                 continue;
@@ -207,15 +208,15 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
         return xml;
     }
     
-    private Map<Integer,Episode> parseEpisodes(String seasonXML) {
-        Map<Integer,Episode> episodes = new HashMap<>();
+    private Map<Integer,EpisodeDTO> parseEpisodes(String seasonXML) {
+        Map<Integer,EpisodeDTO> episodes = new HashMap<>();
         if (StringUtils.isBlank(seasonXML)) return episodes;
         
         List<String> tags = HTMLTools.extractTags(seasonXML, "BOX LISTA EPISODI SERIE TV", "BOX LISTA EPISODI SERIE TV", "<div class=\"box-contenitore", "<!-");
         for (String tag : tags) {
             int episode = NumberUtils.toInt(HTMLTools.extractTag(tag, "episode=\"", "\""), -1);
             if (episode > -1) {
-                Episode dto = new Episode()
+                EpisodeDTO dto = new EpisodeDTO()
                     .setEpisodeNumber(episode)
                     .setTitle(HTMLTools.extractTag(tag, "img title=\"", "\""))
                     .setOriginalTitle(HTMLTools.extractTag(tag, " descrizione\">", "</div>"));
@@ -235,10 +236,10 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
         return episodes;
     }
     
-    private static void parseEpisodeCredits(Episode episode, String xml, String startTag, JobType jobType) {
+    private static void parseEpisodeCredits(EpisodeDTO episode, String xml, String startTag, JobType jobType) {
         for (String name : HTMLTools.extractTag(xml, startTag, "</li>").split(",")) {
             if (StringUtils.isNotBlank(name)) {
-                episode.addCredit(new Credit(jobType, name));
+                episode.addCredit(new CreditDTO(jobType, name));
             }
         }
     }

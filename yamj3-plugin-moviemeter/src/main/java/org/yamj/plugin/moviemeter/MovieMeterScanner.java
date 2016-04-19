@@ -22,6 +22,9 @@
  */
 package org.yamj.plugin.moviemeter;
 
+import org.yamj.plugin.api.metadata.dto.CreditDTO;
+import org.yamj.plugin.api.metadata.dto.MovieDTO;
+
 import com.omertron.moviemeter.model.Actor;
 import com.omertron.moviemeter.model.FilmInfo;
 import java.util.Locale;
@@ -34,8 +37,6 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.common.JobType;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.metadata.MovieScanner;
-import org.yamj.plugin.api.metadata.model.Credit;
-import org.yamj.plugin.api.metadata.model.Movie;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
@@ -85,7 +86,7 @@ public class MovieMeterScanner implements MovieScanner {
     }
     
     @Override
-    public boolean scanMovie(Movie movie, boolean throwTempError) {
+    public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
         final String movieMeterId = movie.getIds().get(SCANNER_NAME);
         if (!StringUtils.isNumeric(movieMeterId)) {
             return false;
@@ -112,7 +113,7 @@ public class MovieMeterScanner implements MovieScanner {
         if (configService.isCastScanEnabled(JobType.ACTOR)) {
             for (Actor actor : filmInfo.getActors()) {
                 if (StringUtils.isNotBlank(actor.getName())) {
-                    movie.addCredit(new Credit(JobType.ACTOR, actor.getName()).setVoice(actor.isVoice()));
+                    movie.addCredit(new CreditDTO(JobType.ACTOR, actor.getName()).setVoice(actor.isVoice()));
                 }
             }
         }
@@ -120,7 +121,7 @@ public class MovieMeterScanner implements MovieScanner {
         if (configService.isCastScanEnabled(JobType.DIRECTOR)) {
             for (String director : filmInfo.getDirectors()) {
                 if (StringUtils.isNotBlank(director)) {
-                    movie.addCredit(new Credit(JobType.DIRECTOR, director));
+                    movie.addCredit(new CreditDTO(JobType.DIRECTOR, director));
                 }
             }
         }

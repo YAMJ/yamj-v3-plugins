@@ -25,6 +25,10 @@ package org.yamj.plugin.comingsoon;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.yamj.plugin.api.metadata.dto.EpisodeDTO;
+import org.yamj.plugin.api.metadata.dto.SeasonDTO;
+import org.yamj.plugin.api.metadata.dto.SeriesDTO;
+
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -34,9 +38,6 @@ import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
 import org.yamj.plugin.api.common.PluginConfigServiceImpl;
 import org.yamj.plugin.api.metadata.SeriesScanner;
-import org.yamj.plugin.api.metadata.model.Episode;
-import org.yamj.plugin.api.metadata.model.Season;
-import org.yamj.plugin.api.metadata.model.Series;
 
 public class ComingSoonSeriesScannerTest {
 
@@ -58,10 +59,10 @@ public class ComingSoonSeriesScannerTest {
 
     @Test
     public void testScanSeries() {
-        Series series = new Series().addId(seriesScanner.getScannerName(), "28");
-        Season season = new Season().setSeasonNumber(1);
-        season.addEpisode(new Episode().setEpisodeNumber(1));
-        season.addEpisode(new Episode().setEpisodeNumber(2));
+        SeriesDTO series = new SeriesDTO().addId(seriesScanner.getScannerName(), "28");
+        SeasonDTO season = new SeasonDTO().setSeasonNumber(1);
+        season.addEpisode(new EpisodeDTO().setEpisodeNumber(1));
+        season.addEpisode(new EpisodeDTO().setEpisodeNumber(2));
         series.addSeason(season);
 
         seriesScanner.scanSeries(series, false);

@@ -24,6 +24,8 @@ package org.yamj.plugin.comingsoon;
 
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
+import org.yamj.plugin.api.metadata.dto.CreditDTO;
+
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +39,6 @@ import org.yamj.plugin.api.common.JobType;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.metadata.MetadataScanner;
 import org.yamj.plugin.api.metadata.NfoIdScanner;
-import org.yamj.plugin.api.metadata.model.Credit;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
@@ -328,8 +329,8 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
         return genreNames;
     }
 
-    protected static List<Credit> parseActors(String xml) {
-        List<Credit> credits = new ArrayList<>();
+    protected static List<CreditDTO> parseActors(String xml) {
+        List<CreditDTO> credits = new ArrayList<>();
         for (String tag : HTMLTools.extractTags(xml, "Il Cast</div>", "IL CAST -->", "<a href=\"/personaggi/", "</a>", false)) {
             String name = HTMLTools.extractTag(tag, "<div class=\"h6 titolo\">", "</div>");
             String role = HTMLTools.extractTag(tag, "<div class=\"h6 descrizione\">", "</div>");
@@ -343,7 +344,7 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
                 }
             }
             
-            Credit credit = new Credit(sourceId, JobType.ACTOR, name, role);
+            CreditDTO credit = new CreditDTO(sourceId, JobType.ACTOR, name, role);
             
             final String posterURL = HTMLTools.extractTag(tag, "<img src=\"", "\"");
             if (posterURL.contains("http")) {

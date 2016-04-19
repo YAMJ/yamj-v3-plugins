@@ -26,6 +26,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.yamj.plugin.api.metadata.dto.MovieDTO;
+
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -35,7 +37,6 @@ import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
 import org.yamj.plugin.api.common.PluginConfigServiceImpl;
 import org.yamj.plugin.api.metadata.MovieScanner;
-import org.yamj.plugin.api.metadata.model.Movie;
 
 public class OfdbScannerTest {
 
@@ -57,7 +58,7 @@ public class OfdbScannerTest {
 
     @Test
     public void testScanMovie() {
-        Movie movie = new Movie();
+        MovieDTO movie = new MovieDTO();
         movie.addId(movieScanner.getScannerName(), "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
         boolean result = movieScanner.scanMovie(movie, false);
         

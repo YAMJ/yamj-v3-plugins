@@ -25,6 +25,9 @@ package org.yamj.plugin.ofdb;
 import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
+import org.yamj.plugin.api.metadata.dto.CreditDTO;
+import org.yamj.plugin.api.metadata.dto.MovieDTO;
+
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -36,8 +39,6 @@ import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.common.JobType;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.metadata.MovieScanner;
-import org.yamj.plugin.api.metadata.model.Credit;
-import org.yamj.plugin.api.metadata.model.Movie;
 import org.yamj.plugin.api.metadata.tools.MetadataTools;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
@@ -184,7 +185,7 @@ public class OfdbScanner implements MovieScanner {
     }
 
     @Override
-    public boolean scanMovie(Movie movie, boolean throwTempError) {
+    public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
         final String ofdbUrl = movie.getIds().get(SCANNER_NAME);
         if (StringUtils.isBlank(ofdbUrl)) {
             return false;
@@ -288,7 +289,7 @@ public class OfdbScanner implements MovieScanner {
                 for (String tag : tags) {
                     final String name = extractName(tag);
                     if (StringUtils.isNotBlank(name)) {
-                        movie.addCredit(new Credit(JobType.DIRECTOR, name));
+                        movie.addCredit(new CreditDTO(JobType.DIRECTOR, name));
                     }
                 }
             }
@@ -299,7 +300,7 @@ public class OfdbScanner implements MovieScanner {
                 for (String tag : tags) {
                     final String name = extractName(tag);
                     if (StringUtils.isNotBlank(name)) {
-                        movie.addCredit(new Credit(JobType.WRITER, name));
+                        movie.addCredit(new CreditDTO(JobType.WRITER, name));
                     }
                 }
             }
@@ -310,7 +311,7 @@ public class OfdbScanner implements MovieScanner {
                 for (String tag : tags) {
                     final String name = extractName(tag);
                     if (StringUtils.isNotBlank(name)) {
-                        movie.addCredit(new Credit(JobType.ACTOR, name, extractRole(tag)));
+                        movie.addCredit(new CreditDTO(JobType.ACTOR, name, extractRole(tag)));
                     }
                 }
             }
