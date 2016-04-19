@@ -13,7 +13,7 @@
     <artifactId>yamj3-plugin-comingsoon</artifactId>
     <name>YAMJ3 Plugin ComingSoon</name>
     <description>YAMJ v3 Plugin for ComingSoon</description>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <packaging>jar</packaging>
 
     <properties>

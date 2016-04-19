@@ -24,13 +24,7 @@ package org.yamj.plugin.tvrage;
 
 import static org.yamj.plugin.api.common.Constants.SOURCE_TVRAGE;
 
-import org.yamj.plugin.api.metadata.dto.EpisodeDTO;
-import org.yamj.plugin.api.metadata.dto.SeasonDTO;
-import org.yamj.plugin.api.metadata.dto.SeriesDTO;
-
-import com.omertron.tvrageapi.model.CountryDetail;
-import com.omertron.tvrageapi.model.EpisodeList;
-import com.omertron.tvrageapi.model.ShowInfo;
+import com.omertron.tvrageapi.model.*;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -40,6 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.metadata.SeriesScanner;
+import org.yamj.plugin.api.metadata.dto.EpisodeDTO;
+import org.yamj.plugin.api.metadata.dto.SeasonDTO;
+import org.yamj.plugin.api.metadata.dto.SeriesDTO;
 import org.yamj.plugin.api.metadata.tools.MetadataTools;
 import ro.fortsoft.pf4j.Extension;
 
@@ -153,7 +150,7 @@ public class TVRageScanner implements SeriesScanner {
                     .setOutline(series.getOutline());
                 
                 // get season year from minimal first aired of episodes
-                com.omertron.tvrageapi.model.Episode tvEpisode = episodeList.getEpisode(season.getSeasonNumber(), 1);
+                Episode tvEpisode = episodeList.getEpisode(season.getSeasonNumber(), 1);
                 if (tvEpisode != null && tvEpisode.getAirDate() != null) {
                     season.setYear(MetadataTools.extractYearAsInt(tvEpisode.getAirDate()));
                 }
@@ -167,7 +164,7 @@ public class TVRageScanner implements SeriesScanner {
     private static void scanEpisodes(SeasonDTO season, EpisodeList episodeList) {
         for (EpisodeDTO episode : season.getEpisodes()) {
             // get the episode
-            com.omertron.tvrageapi.model.Episode tvEpisode = episodeList.getEpisode(season.getSeasonNumber(), episode.getEpisodeNumber());
+            Episode tvEpisode = episodeList.getEpisode(season.getSeasonNumber(), episode.getEpisodeNumber());
             if (tvEpisode == null || !tvEpisode.isValid()) {
                 episode.setValid(false);
                 continue;

@@ -22,9 +22,10 @@
  */
 package org.yamj.plugin.moviemeter;
 
+import org.yamj.plugin.api.type.JobType;
+
 import org.yamj.plugin.api.metadata.dto.CreditDTO;
 import org.yamj.plugin.api.metadata.dto.MovieDTO;
-
 import com.omertron.moviemeter.model.Actor;
 import com.omertron.moviemeter.model.FilmInfo;
 import java.util.Locale;
@@ -34,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
-import org.yamj.plugin.api.common.JobType;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import ro.fortsoft.pf4j.Extension;

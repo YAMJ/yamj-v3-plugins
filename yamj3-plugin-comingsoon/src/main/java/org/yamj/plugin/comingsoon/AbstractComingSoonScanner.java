@@ -24,8 +24,9 @@ package org.yamj.plugin.comingsoon;
 
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
-import org.yamj.plugin.api.metadata.dto.CreditDTO;
+import org.yamj.plugin.api.type.JobType;
 
+import org.yamj.plugin.api.metadata.dto.CreditDTO;
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
-import org.yamj.plugin.api.common.JobType;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.metadata.MetadataScanner;
 import org.yamj.plugin.api.metadata.NfoIdScanner;
