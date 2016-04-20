@@ -24,10 +24,6 @@ package org.yamj.plugin.comingsoon;
 
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
-import org.yamj.plugin.api.type.JobType;
-
-import org.yamj.plugin.api.metadata.dto.CreditDTO;
-import org.yamj.plugin.api.metadata.dto.MovieDTO;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -39,13 +35,16 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
+import org.yamj.plugin.api.metadata.dto.CreditDTO;
+import org.yamj.plugin.api.metadata.dto.MovieDTO;
 import org.yamj.plugin.api.metadata.tools.MetadataTools;
+import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 import ro.fortsoft.pf4j.Extension;
  
 @Extension
-public class ComingSoonMovieScanner extends AbstractComingSoonScanner implements MovieScanner {
+public final class ComingSoonMovieScanner extends AbstractComingSoonScanner implements MovieScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComingSoonMovieScanner.class);
     private static final String COMINGSOON_MOVIE_URL = "film/scheda/?";
@@ -62,7 +61,7 @@ public class ComingSoonMovieScanner extends AbstractComingSoonScanner implements
         comingSoonId = getComingSoonId(title, year, false, throwTempError);
 
         // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && StringUtils.isNotBlank(originalTitle) && !StringUtils.equalsIgnoreCase(title, originalTitle)) {
+        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
             comingSoonId = getComingSoonId(originalTitle, year, false, throwTempError);
         }
 
@@ -83,11 +82,7 @@ public class ComingSoonMovieScanner extends AbstractComingSoonScanner implements
             }
         }
         
-        if (isNoValidComingSoonId(comingSoonId)) {
-            return null;
-        }
-        
-        return comingSoonId;
+        return isNoValidComingSoonId(comingSoonId) ? null : comingSoonId;
     }
 
     @Override

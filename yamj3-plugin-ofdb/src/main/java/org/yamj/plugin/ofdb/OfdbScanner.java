@@ -25,10 +25,6 @@ package org.yamj.plugin.ofdb;
 import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
-import org.yamj.plugin.api.type.JobType;
-
-import org.yamj.plugin.api.metadata.dto.CreditDTO;
-import org.yamj.plugin.api.metadata.dto.MovieDTO;
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -38,15 +34,20 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.common.PluginConfigService;
+import org.yamj.plugin.api.common.PluginLocaleService;
+import org.yamj.plugin.api.common.PluginMetadataService;
 import org.yamj.plugin.api.metadata.MovieScanner;
+import org.yamj.plugin.api.metadata.dto.CreditDTO;
+import org.yamj.plugin.api.metadata.dto.MovieDTO;
 import org.yamj.plugin.api.metadata.tools.MetadataTools;
+import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public class OfdbScanner implements MovieScanner {
+public final class OfdbScanner implements MovieScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(OfdbScanner.class);
     private static final String SCANNER_NAME = "ofdb";
@@ -65,7 +66,7 @@ public class OfdbScanner implements MovieScanner {
     }
 
     @Override
-    public void init(PluginConfigService configService, CommonHttpClient httpClient, Locale locale) {
+    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
         this.configService = configService;
         this.httpClient = httpClient;
 
@@ -92,7 +93,7 @@ public class OfdbScanner implements MovieScanner {
             ofdbUrl = getOfdbIdByTitleAndYear(title, year, throwTempError);
         }
 
-        if (StringUtils.isBlank(ofdbUrl) && StringUtils.isNotBlank(originalTitle) && !StringUtils.equalsIgnoreCase(title, originalTitle)) {
+        if (StringUtils.isBlank(ofdbUrl) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
             // try by original title and year
             ofdbUrl = getOfdbIdByTitleAndYear(originalTitle, year, throwTempError);
         }
@@ -342,11 +343,17 @@ public class OfdbScanner implements MovieScanner {
     }
     
     @Override
-    public String scanNFO(String nfoContent) {
+    public Map<String,String> scanNFO(String nfoContent) {
+        Map<String,String> result = new HashMap<>(1);
+        LOG.trace("Scanning NFO for OFDb URL");
+
         int beginIndex = nfoContent.indexOf("http://www.ofdb.de/film/");
         if (beginIndex != -1) {
-            return new StringTokenizer(nfoContent.substring(beginIndex), " \n\t\r\f!&é\"'(èçà)=$<>").nextToken();
+            String id = new StringTokenizer(nfoContent.substring(beginIndex), " \n\t\r\f!&é\"'(èçà)=$<>").nextToken();
+            LOG.debug("OFDb URL found in NFO: {}", id);
+            result.put(SCANNER_NAME, id);
         }
-        return null;
+        
+        return result;
     }
 }

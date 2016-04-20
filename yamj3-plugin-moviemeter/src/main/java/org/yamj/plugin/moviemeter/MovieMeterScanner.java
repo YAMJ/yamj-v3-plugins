@@ -22,13 +22,9 @@
  */
 package org.yamj.plugin.moviemeter;
 
-import org.yamj.plugin.api.type.JobType;
-
-import org.yamj.plugin.api.metadata.dto.CreditDTO;
-import org.yamj.plugin.api.metadata.dto.MovieDTO;
 import com.omertron.moviemeter.model.Actor;
 import com.omertron.moviemeter.model.FilmInfo;
-import java.util.Locale;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
@@ -36,11 +32,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.common.PluginConfigService;
+import org.yamj.plugin.api.common.PluginLocaleService;
+import org.yamj.plugin.api.common.PluginMetadataService;
 import org.yamj.plugin.api.metadata.MovieScanner;
+import org.yamj.plugin.api.metadata.dto.CreditDTO;
+import org.yamj.plugin.api.metadata.dto.MovieDTO;
+import org.yamj.plugin.api.metadata.tools.MetadataTools;
+import org.yamj.plugin.api.type.JobType;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public class MovieMeterScanner implements MovieScanner {
+public final class MovieMeterScanner implements MovieScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieMeterScanner.class);
     private static final String SCANNER_NAME = "moviemeter";
@@ -54,7 +56,7 @@ public class MovieMeterScanner implements MovieScanner {
     }
 
     @Override
-    public void init(PluginConfigService configService, CommonHttpClient httpClient, Locale locale) {
+    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
         this.configService = configService;
         this.movieMeterApiWrapper = MovieMeterApiWrapper.getInstance();
     }
@@ -78,10 +80,10 @@ public class MovieMeterScanner implements MovieScanner {
         }
 
         // try to get the MovieMeter ID using original title and year
-        if (!StringUtils.isNumeric(movieMeterId) && StringUtils.isNotBlank(originalTitle) && !StringUtils.equalsIgnoreCase(title, originalTitle)) {
+        if (!StringUtils.isNumeric(movieMeterId) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
             movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(originalTitle, year, throwTempError);
         }
-        
+
         return movieMeterId;
     }
     
@@ -130,11 +132,17 @@ public class MovieMeterScanner implements MovieScanner {
     }
 
     @Override
-    public String scanNFO(String nfoContent) {
+    public Map<String,String> scanNFO(String nfoContent) {
+        Map<String,String> result = new HashMap<>(1);
+        LOG.trace("Scanning NFO for MovieMeter ID");
+        
         int beginIndex = nfoContent.indexOf("www.moviemeter.nl/film/");
         if (beginIndex != -1) {
-            return new StringTokenizer(nfoContent.substring(beginIndex + 23), "/ \n,:!&é\"'(--è_çà)=$").nextToken();
+            String id = new StringTokenizer(nfoContent.substring(beginIndex + 23), "/ \n,:!&é\"'(--è_çà)=$").nextToken();
+            LOG.debug("MovieMeter ID found in NFO: {}", id);
+            result.put(SCANNER_NAME, id);
         }
-        return null;
+        
+        return result;
     }
 }

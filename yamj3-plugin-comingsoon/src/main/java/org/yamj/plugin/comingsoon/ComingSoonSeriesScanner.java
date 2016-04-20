@@ -35,13 +35,14 @@ import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.metadata.dto.*;
+import org.yamj.plugin.api.metadata.tools.MetadataTools;
 import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 import ro.fortsoft.pf4j.Extension;
  
 @Extension
-public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implements SeriesScanner {
+public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner implements SeriesScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComingSoonSeriesScanner.class);
     private static final String COMINGSOON_SERIES_URL = "serietv/scheda/?";
@@ -57,7 +58,7 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
         comingSoonId = getComingSoonId(title, year, true, throwTempError);
 
         // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && StringUtils.isNotBlank(originalTitle) && !StringUtils.equalsIgnoreCase(title, originalTitle)) {
+        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
             comingSoonId = getComingSoonId(originalTitle, year, true, throwTempError);
         }
 
@@ -78,11 +79,7 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
             }
         }
         
-        if (isNoValidComingSoonId(comingSoonId)) {
-            return null;
-        }
-        
-        return comingSoonId;
+        return isNoValidComingSoonId(comingSoonId) ? null : comingSoonId;
     }
 
     @Override

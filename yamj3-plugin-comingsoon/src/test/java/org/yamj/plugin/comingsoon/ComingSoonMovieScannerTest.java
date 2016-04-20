@@ -26,14 +26,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.yamj.plugin.api.mockobjects.PluginConfigServiceMock;
+import org.yamj.plugin.api.mockobjects.PluginLocaleServiceMock;
+import org.yamj.plugin.api.mockobjects.PluginMetadataServiceMock;
+
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.common.PluginConfigServiceImpl;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.dto.MovieDTO;
 
@@ -45,12 +48,12 @@ public class ComingSoonMovieScannerTest {
     @SuppressWarnings("resource")
     public static void setUpClass() {
         movieScanner = new ComingSoonMovieScanner();
-        movieScanner.init(new PluginConfigServiceImpl(), new HttpClientWrapper(new SimpleHttpClientBuilder().build()), Locale.getDefault());
+        movieScanner.init(new PluginConfigServiceMock(), new PluginMetadataServiceMock(), new PluginLocaleServiceMock(), new HttpClientWrapper(new SimpleHttpClientBuilder().build()));
     }
 
     @Test
     public void testGetMovieId() {
-        Map<String,String> ids = new HashMap<>();
+        Map<String,String> ids = Collections.emptyMap();
         String id = movieScanner.getMovieId("Avatar", null, 2009, ids, false);
         assertEquals("846", id);
     }

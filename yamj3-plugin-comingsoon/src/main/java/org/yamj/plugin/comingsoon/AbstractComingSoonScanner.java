@@ -24,9 +24,6 @@ package org.yamj.plugin.comingsoon;
 
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
-import org.yamj.plugin.api.type.JobType;
-
-import org.yamj.plugin.api.metadata.dto.CreditDTO;
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -37,8 +34,12 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.common.PluginConfigService;
+import org.yamj.plugin.api.common.PluginLocaleService;
+import org.yamj.plugin.api.common.PluginMetadataService;
 import org.yamj.plugin.api.metadata.MetadataScanner;
 import org.yamj.plugin.api.metadata.NfoIdScanner;
+import org.yamj.plugin.api.metadata.dto.CreditDTO;
+import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
@@ -66,19 +67,25 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
     }
 
     @Override
-    public final void init(PluginConfigService configService, CommonHttpClient httpClient, Locale locale) {
+    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
         this.configService = configService;
         this.httpClient = httpClient;
         this.searchEngineTools = new SearchEngineTools(httpClient, Locale.ITALY);
     }
 
     @Override
-    public String scanNFO(String nfoContent) {
+    public Map<String,String> scanNFO(String nfoContent) {
+        Map<String,String> result = new HashMap<>(1);
+        LOG.trace("Scanning NFO for ComingSoon ID");
+
         int beginIndex = nfoContent.indexOf("?key=");
         if (beginIndex != -1) {
-            return new StringTokenizer(nfoContent.substring(beginIndex + 5), "/ \n,:!&é\"'(--è_çà)=$").nextToken();
+            String id = new StringTokenizer(nfoContent.substring(beginIndex + 5), "/ \n,:!&é\"'(--è_çà)=$").nextToken();
+            LOG.debug("ComingSoon ID found in NFO: {}", id);
+            result.put(SCANNER_NAME, id);
         }
-        return null;
+        
+        return result;
     }
 
     protected static boolean isNoValidComingSoonId(String comingSoonId) {
