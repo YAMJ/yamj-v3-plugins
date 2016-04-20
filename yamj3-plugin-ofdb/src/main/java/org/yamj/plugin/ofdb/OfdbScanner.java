@@ -344,8 +344,28 @@ public final class OfdbScanner implements MovieScanner {
     
     @Override
     public Map<String,String> scanNFO(String nfoContent) {
-        Map<String,String> result = new HashMap<>(1);
+        Map<String,String> result = new HashMap<>(2);
         LOG.trace("Scanning NFO for OFDb URL");
+
+        try {
+            // first scan for IMDb ID
+            int beginIndex = nfoContent.indexOf("/tt");
+            if (beginIndex != -1) {
+                String imdbId = new StringTokenizer(nfoContent.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$<>").nextToken();
+                LOG.debug("IMDb ID found in NFO: {}", imdbId);
+                result.put(SOURCE_IMDB, imdbId);
+            } else {
+                // OFDb specific URL for IMDb id
+                beginIndex = nfoContent.indexOf("/Title?");
+                if (beginIndex != -1 && beginIndex + 7 < nfoContent.length()) {
+                    String imdbId = "tt" + new StringTokenizer(nfoContent.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$<>").nextToken();
+                    LOG.debug("IMDb ID found in NFO: {}", imdbId);
+                    result.put(SOURCE_IMDB, imdbId);
+                }
+            }
+        } catch (Exception ex) {
+            LOG.error("Failed to scan for IMDb ID in NFO", ex);
+        }
 
         int beginIndex = nfoContent.indexOf("http://www.ofdb.de/film/");
         if (beginIndex != -1) {
