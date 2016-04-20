@@ -25,11 +25,7 @@ package org.yamj.plugin.comingsoon;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.yamj.plugin.api.metadata.dto.EpisodeDTO;
-import org.yamj.plugin.api.metadata.dto.SeasonDTO;
-import org.yamj.plugin.api.metadata.dto.SeriesDTO;
-
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import org.junit.BeforeClass;
@@ -38,6 +34,9 @@ import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
 import org.yamj.plugin.api.common.PluginConfigServiceImpl;
 import org.yamj.plugin.api.metadata.SeriesScanner;
+import org.yamj.plugin.api.metadata.dto.EpisodeDTO;
+import org.yamj.plugin.api.metadata.dto.SeasonDTO;
+import org.yamj.plugin.api.metadata.dto.SeriesDTO;
 
 public class ComingSoonSeriesScannerTest {
 
@@ -52,7 +51,7 @@ public class ComingSoonSeriesScannerTest {
         
     @Test
     public void testGetSeriesId() {
-        Map<String,String> ids = Collections.emptyMap();
+        Map<String,String> ids = new HashMap<>();
         String id = seriesScanner.getSeriesId("Two and a half men", null, 2003, ids, false);
         assertEquals("28", id);
     }

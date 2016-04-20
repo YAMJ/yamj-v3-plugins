@@ -5,11 +5,20 @@ Project for YAMJ v3 PlugIns
 
 Modules
 -------
+### yamj3-plugin-comingsoon
+> Holds the ComingSoon plugin for movie scanning
+
 ### yamj3-plugin-moviemeter
-> Holds the moviemeter plugin for movie scanning
+> Holds the MovieMeter plugin for movie scanning
 
 ### yamj3-plugin-ofdb
-> Holds the ofdb plugin for movie scanning
+> Holds the OFDb plugin for movie scanning
+
+### yamj3-plugin-transliterate
+> Holds the transliteration plugin for transliterating identifiers
+
+### yamj3-plugin-tvrage
+> Holds the TVRage plugin for movie scanning
 
 Installing YAMJv3 plugins
 -------------------------
