@@ -58,10 +58,13 @@ public class ComingSoonSeriesScannerTest {
 
     @Test
     public void testScanSeries() {
-        SeriesDTO series = new SeriesDTO().addId(seriesScanner.getScannerName(), "28");
-        SeasonDTO season = new SeasonDTO().setSeasonNumber(1);
-        season.addEpisode(new EpisodeDTO().setEpisodeNumber(1));
-        season.addEpisode(new EpisodeDTO().setEpisodeNumber(2));
+        Map<String,String> ids = new HashMap<>();
+        ids.put(seriesScanner.getScannerName(), "28");
+        
+        SeriesDTO series = new SeriesDTO(ids);
+        SeasonDTO season = new SeasonDTO(new HashMap<String,String>(), 1);
+        season.addEpisode(new EpisodeDTO(new HashMap<String,String>(), 1));
+        season.addEpisode(new EpisodeDTO(new HashMap<String,String>(), 2));
         series.addSeason(season);
 
         seriesScanner.scanSeries(series, false);

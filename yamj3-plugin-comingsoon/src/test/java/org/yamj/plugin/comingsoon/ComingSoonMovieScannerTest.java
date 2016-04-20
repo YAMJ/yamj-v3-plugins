@@ -57,8 +57,9 @@ public class ComingSoonMovieScannerTest {
 
     @Test
     public void testScanMovie() {
-        MovieDTO movie = new MovieDTO();
-        movie.addId(movieScanner.getScannerName(), "846");
+        Map<String,String> ids = new HashMap<>();
+        ids.put(movieScanner.getScannerName(), "846");
+        MovieDTO movie = new MovieDTO(ids);
         movieScanner.scanMovie(movie, false);
 
         assertEquals("Avatar", movie.getTitle());

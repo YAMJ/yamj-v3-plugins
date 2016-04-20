@@ -24,9 +24,6 @@ package org.yamj.plugin.comingsoon;
 
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
-import org.yamj.plugin.api.type.JobType;
-
-import org.yamj.plugin.api.metadata.dto.*;
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.metadata.SeriesScanner;
+import org.yamj.plugin.api.metadata.dto.*;
+import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 import ro.fortsoft.pf4j.Extension;
@@ -216,8 +215,7 @@ public class ComingSoonSeriesScanner extends AbstractComingSoonScanner implement
         for (String tag : tags) {
             int episode = NumberUtils.toInt(HTMLTools.extractTag(tag, "episode=\"", "\""), -1);
             if (episode > -1) {
-                EpisodeDTO dto = new EpisodeDTO()
-                    .setEpisodeNumber(episode)
+                EpisodeDTO dto = new EpisodeDTO(null, episode)
                     .setTitle(HTMLTools.extractTag(tag, "img title=\"", "\""))
                     .setOriginalTitle(HTMLTools.extractTag(tag, " descrizione\">", "</div>"));
                     

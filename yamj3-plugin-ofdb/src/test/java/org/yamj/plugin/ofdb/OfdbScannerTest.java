@@ -57,8 +57,9 @@ public class OfdbScannerTest {
 
     @Test
     public void testScanMovie() {
-        MovieDTO movie = new MovieDTO();
-        movie.addId(movieScanner.getScannerName(), "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
+        Map<String,String> ids = new HashMap<>();
+        ids.put(movieScanner.getScannerName(), "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
+        MovieDTO movie = new MovieDTO(ids);
         boolean result = movieScanner.scanMovie(movie, false);
         
         assertTrue(result);
