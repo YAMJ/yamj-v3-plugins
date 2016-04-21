@@ -190,7 +190,7 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
 
     protected CreditDTO createCredit(CastMember member, JobType jobType, String role) {
         final String sourceId = (member.getShortPerson().getCode() > 0 ?  String.valueOf(member.getShortPerson().getCode()) : null);
-        return new CreditDTO(sourceId, jobType, member.getShortPerson().getName(), role);
+        return new CreditDTO(SCANNER_NAME, sourceId, jobType, member.getShortPerson().getName(), role);
     }
 
     protected CreditDTO createCredit(MoviePerson person, JobType jobType) {
@@ -199,7 +199,7 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
 
     protected CreditDTO createCredit(MoviePerson person, JobType jobType, String role) {
         String sourceId = (person.getCode() > 0 ?  String.valueOf(person.getCode()) : null);
-        return new CreditDTO(sourceId, jobType, person.getName(), role);
+        return new CreditDTO(SCANNER_NAME, sourceId, jobType, person.getName(), role);
     }
 }
 

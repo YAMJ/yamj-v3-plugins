@@ -111,7 +111,7 @@ public final class MovieMeterScanner implements MovieScanner {
         if (configService.isCastScanEnabled(JobType.ACTOR)) {
             for (Actor actor : filmInfo.getActors()) {
                 if (StringUtils.isNotBlank(actor.getName())) {
-                    movie.addCredit(new CreditDTO(JobType.ACTOR, actor.getName()).setVoice(actor.isVoice()));
+                    movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.ACTOR, actor.getName()).setVoice(actor.isVoice()));
                 }
             }
         }
@@ -119,7 +119,7 @@ public final class MovieMeterScanner implements MovieScanner {
         if (configService.isCastScanEnabled(JobType.DIRECTOR)) {
             for (String director : filmInfo.getDirectors()) {
                 if (StringUtils.isNotBlank(director)) {
-                    movie.addCredit(new CreditDTO(JobType.DIRECTOR, director));
+                    movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.DIRECTOR, director));
                 }
             }
         }

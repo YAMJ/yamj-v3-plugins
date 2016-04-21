@@ -289,7 +289,7 @@ public final class OfdbScanner implements MovieScanner {
                 for (String tag : tags) {
                     final String name = extractName(tag);
                     if (StringUtils.isNotBlank(name)) {
-                        movie.addCredit(new CreditDTO(JobType.DIRECTOR, name));
+                        movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.DIRECTOR, name));
                     }
                 }
             }
@@ -300,7 +300,7 @@ public final class OfdbScanner implements MovieScanner {
                 for (String tag : tags) {
                     final String name = extractName(tag);
                     if (StringUtils.isNotBlank(name)) {
-                        movie.addCredit(new CreditDTO(JobType.WRITER, name));
+                        movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.WRITER, name));
                     }
                 }
             }
@@ -311,7 +311,7 @@ public final class OfdbScanner implements MovieScanner {
                 for (String tag : tags) {
                     final String name = extractName(tag);
                     if (StringUtils.isNotBlank(name)) {
-                        movie.addCredit(new CreditDTO(JobType.ACTOR, name, extractRole(tag)));
+                        movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.ACTOR, name, extractRole(tag)));
                     }
                 }
             }

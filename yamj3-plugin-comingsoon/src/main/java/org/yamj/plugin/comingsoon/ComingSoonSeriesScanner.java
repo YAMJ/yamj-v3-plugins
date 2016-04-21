@@ -232,7 +232,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
     private static void parseEpisodeCredits(EpisodeDTO episode, String xml, String startTag, JobType jobType) {
         for (String name : HTMLTools.extractTag(xml, startTag, "</li>").split(",")) {
             if (StringUtils.isNotBlank(name)) {
-                episode.addCredit(new CreditDTO(jobType, name));
+                episode.addCredit(new CreditDTO(SCANNER_NAME, jobType, name));
             }
         }
     }

@@ -186,7 +186,7 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
                         sourceId = tag.substring(beginIndex+1, endIndex);
                     }
                 }
-                movie.addCredit(new CreditDTO(sourceId, jobType, name));
+                movie.addCredit(new CreditDTO(SCANNER_NAME, sourceId, jobType, name));
             }
         }
     }

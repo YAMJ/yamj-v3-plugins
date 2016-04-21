@@ -369,11 +369,11 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
                 }
             }
             
-            CreditDTO credit = new CreditDTO(sourceId, JobType.ACTOR, name, role);
+            CreditDTO credit = new CreditDTO(SCANNER_NAME, sourceId, JobType.ACTOR, name, role);
             
             final String posterURL = HTMLTools.extractTag(tag, "<img src=\"", "\"");
             if (posterURL.contains("http")) {
-                credit.addPhoto(posterURL.replace("_ico.jpg", ".jpg"));
+                credit.addPhoto(SCANNER_NAME, posterURL.replace("_ico.jpg", ".jpg"));
             }
             
             credits.add(credit);
