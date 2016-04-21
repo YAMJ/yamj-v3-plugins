@@ -26,10 +26,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.yamj.plugin.api.mockobjects.PluginConfigServiceMock;
-import org.yamj.plugin.api.mockobjects.PluginLocaleServiceMock;
-import org.yamj.plugin.api.mockobjects.PluginMetadataServiceMock;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,8 +33,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
+import org.yamj.plugin.api.common.mock.PluginConfigServiceMock;
+import org.yamj.plugin.api.common.mock.PluginLocaleServiceMock;
+import org.yamj.plugin.api.common.mock.PluginMetadataServiceMock;
+import org.yamj.plugin.api.metadata.MovieDTO;
 import org.yamj.plugin.api.metadata.MovieScanner;
-import org.yamj.plugin.api.metadata.dto.MovieDTO;
 
 public class ComingSoonMovieScannerTest {
 

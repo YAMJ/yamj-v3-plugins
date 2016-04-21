@@ -37,18 +37,10 @@ import org.yamj.plugin.api.web.TemporaryUnavailableException;
 public class TVRageApiWrapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(TVRageApiWrapper.class);
-    private static TVRageApiWrapper INSTANCE;
     
-    private TVRageApi tvRageApi;
-    
-    public static TVRageApiWrapper getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new TVRageApiWrapper();
-        }
-        return INSTANCE;
-    }
-    
-    public void setTVRageApi(TVRageApi tvRageApi) {
+    private final TVRageApi tvRageApi;
+
+    public TVRageApiWrapper(TVRageApi tvRageApi) {
         this.tvRageApi = tvRageApi;
     }
 

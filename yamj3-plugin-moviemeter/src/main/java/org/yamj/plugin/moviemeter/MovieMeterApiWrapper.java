@@ -38,18 +38,10 @@ public class MovieMeterApiWrapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieMeterApiWrapper.class);
     private static final String API_ERROR = "MovieMeter error";
-    private static MovieMeterApiWrapper INSTANCE;
-    
-    private MovieMeterApi movieMeterApi;
-    
-    public static MovieMeterApiWrapper getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new MovieMeterApiWrapper();
-        }
-        return INSTANCE;
-    }
-    
-    public void setMovieMeterApi(MovieMeterApi movieMeterApi) {
+
+    private final MovieMeterApi movieMeterApi;
+
+    public MovieMeterApiWrapper(MovieMeterApi movieMeterApi) {
         this.movieMeterApi = movieMeterApi;
     }
 

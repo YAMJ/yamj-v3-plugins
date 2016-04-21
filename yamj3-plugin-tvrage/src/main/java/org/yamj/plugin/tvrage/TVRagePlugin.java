@@ -34,7 +34,8 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class TVRagePlugin extends YamjPlugin {
     
     private static final Logger LOG = LoggerFactory.getLogger(TVRagePlugin.class);
-
+    private static TVRageApiWrapper tvRageApiWrapper;
+    
     public TVRagePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -49,8 +50,7 @@ public class TVRagePlugin extends YamjPlugin {
             props.load(stream);
 
             final String apiKey = props.getProperty("apikey.tvrage");
-            TVRageApiWrapper wrapper = TVRageApiWrapper.getInstance();
-            wrapper.setTVRageApi(new TVRageApi(apiKey, httpClient));
+            tvRageApiWrapper = new TVRageApiWrapper(new TVRageApi(apiKey, httpClient));
         } catch (Exception ex) {
             throw new PluginException("Failed to create tvrage api", ex);
         }
@@ -68,5 +68,9 @@ public class TVRagePlugin extends YamjPlugin {
     @Override
     public void stop() throws PluginException {
         LOG.trace("Stop TvRagePlugin");
+    }
+
+    public static TVRageApiWrapper getTVRageApiWrapper() {
+        return tvRageApiWrapper;
     }
 }

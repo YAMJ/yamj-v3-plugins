@@ -22,6 +22,7 @@
  */
 package org.yamj.plugin.comingsoon;
 
+import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.common.Constants.UTF8;
 
 import java.io.IOException;
@@ -36,10 +37,7 @@ import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.common.PluginLocaleService;
 import org.yamj.plugin.api.common.PluginMetadataService;
-import org.yamj.plugin.api.metadata.IdMap;
-import org.yamj.plugin.api.metadata.MetadataScanner;
-import org.yamj.plugin.api.metadata.NfoIdScanner;
-import org.yamj.plugin.api.metadata.dto.CreditDTO;
+import org.yamj.plugin.api.metadata.*;
 import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
@@ -59,6 +57,7 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
     private static final int COMINGSOON_MAX_SEARCH_PAGES = 5;
 
     protected PluginConfigService configService;
+    protected PluginMetadataService metadataService;
     protected CommonHttpClient httpClient;
     protected SearchEngineTools searchEngineTools;
     
@@ -76,9 +75,19 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
 
     @Override
     public boolean scanNFO(String nfoContent, IdMap idMap) {
-        boolean ignorePresentId = configService.getBooleanProperty("comingsoon.nfo.ignore.present.id", false);
+        if (configService.getBooleanProperty("comingsoon.search.imdb", false)) {
+            try {
+                MovieScanner imdbScanner = metadataService.getMovieScanner(SOURCE_IMDB);
+                if (imdbScanner != null) { 
+                    imdbScanner.scanNFO(nfoContent, idMap);
+                }
+            } catch (Exception ex) {
+                LOG.error("Failed to scan for IMDb ID in NFO", ex);
+            }
+        }
 
         // if we already have the ID, skip the scanning of the NFO file
+        final boolean ignorePresentId = configService.getBooleanProperty("comingsoon.nfo.ignore.present.id", false);
         if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SCANNER_NAME))) {
             return true;
         }

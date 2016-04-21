@@ -35,12 +35,7 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.common.PluginLocaleService;
 import org.yamj.plugin.api.common.PluginMetadataService;
-import org.yamj.plugin.api.metadata.IdMap;
-import org.yamj.plugin.api.metadata.SeriesScanner;
-import org.yamj.plugin.api.metadata.dto.EpisodeDTO;
-import org.yamj.plugin.api.metadata.dto.SeasonDTO;
-import org.yamj.plugin.api.metadata.dto.SeriesDTO;
-import org.yamj.plugin.api.metadata.tools.MetadataTools;
+import org.yamj.plugin.api.metadata.*;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
@@ -61,7 +56,7 @@ public final class TVRageScanner implements SeriesScanner {
     public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
         this.configService = configService;
         this.locale = localeService.getLocale();
-        this.tvRageApiWrapper = TVRageApiWrapper.getInstance();
+        this.tvRageApiWrapper = TVRagePlugin.getTVRageApiWrapper();
     }
 
     @Override
@@ -192,9 +187,8 @@ public final class TVRageScanner implements SeriesScanner {
     
     @Override
     public boolean scanNFO(String nfoContent, IdMap idMap) {
-        boolean ignorePresentId = configService.getBooleanProperty("tvrage.nfo.ignore.present.id", false);
-
         // if we already have the ID, skip the scanning of the NFO file
+        final boolean ignorePresentId = configService.getBooleanProperty("tvrage.nfo.ignore.present.id", false);
         if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SOURCE_TVRAGE))) {
             return true;
         }

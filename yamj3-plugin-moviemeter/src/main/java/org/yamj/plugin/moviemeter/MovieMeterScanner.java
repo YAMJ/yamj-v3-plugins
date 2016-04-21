@@ -33,11 +33,7 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.common.PluginLocaleService;
 import org.yamj.plugin.api.common.PluginMetadataService;
-import org.yamj.plugin.api.metadata.IdMap;
-import org.yamj.plugin.api.metadata.MovieScanner;
-import org.yamj.plugin.api.metadata.dto.CreditDTO;
-import org.yamj.plugin.api.metadata.dto.MovieDTO;
-import org.yamj.plugin.api.metadata.tools.MetadataTools;
+import org.yamj.plugin.api.metadata.*;
 import org.yamj.plugin.api.type.JobType;
 import ro.fortsoft.pf4j.Extension;
 
@@ -58,7 +54,7 @@ public final class MovieMeterScanner implements MovieScanner {
     @Override
     public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
         this.configService = configService;
-        this.movieMeterApiWrapper = MovieMeterApiWrapper.getInstance();
+        this.movieMeterApiWrapper = MovieMeterPlugin.getMovieMeterApiWrapper();
     }
     
     @Override
@@ -133,10 +129,9 @@ public final class MovieMeterScanner implements MovieScanner {
 
     @Override
     public boolean scanNFO(String nfoContent, IdMap idMap) {
-        boolean ignorePresentId = configService.getBooleanProperty("moviemeter.nfo.ignore.present.id", false);
-
         // if we already have the ID, skip the scanning of the NFO file
-        if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SCANNER_NAME))) {
+        final boolean ignorePresentId = configService.getBooleanProperty("moviemeter.nfo.ignore.present.id", false);
+        if (!ignorePresentId && StringUtils.isNumeric(idMap.getId(SCANNER_NAME))) {
             return true;
         }
 
@@ -145,9 +140,11 @@ public final class MovieMeterScanner implements MovieScanner {
         int beginIndex = nfoContent.indexOf("www.moviemeter.nl/film/");
         if (beginIndex != -1) {
             String id = new StringTokenizer(nfoContent.substring(beginIndex + 23), "/ \n,:!&é\"'(--è_çà)=$").nextToken();
-            LOG.debug("MovieMeter ID found in NFO: {}", id);
-            idMap.addId(SCANNER_NAME, id);
-            return true;
+            if (StringUtils.isNumeric(id)) {
+                LOG.debug("MovieMeter ID found in NFO: {}", id);
+                idMap.addId(SCANNER_NAME, id);
+                return true;
+            }
         }
         
         LOG.debug("No MovieMeter ID found in NFO");

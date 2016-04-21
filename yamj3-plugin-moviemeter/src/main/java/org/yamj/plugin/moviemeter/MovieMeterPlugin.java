@@ -34,7 +34,8 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class MovieMeterPlugin extends YamjPlugin {
     
     private static final Logger LOG = LoggerFactory.getLogger(MovieMeterPlugin.class);
-
+    private static MovieMeterApiWrapper movieMeterApiWrapper;
+    
     public MovieMeterPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -49,8 +50,7 @@ public class MovieMeterPlugin extends YamjPlugin {
             props.load(stream);
 
             final String apiKey = props.getProperty("apikey.moviemeter");
-            MovieMeterApiWrapper wrapper = MovieMeterApiWrapper.getInstance();
-            wrapper.setMovieMeterApi(new MovieMeterApi(apiKey, httpClient));
+            movieMeterApiWrapper = new MovieMeterApiWrapper(new MovieMeterApi(apiKey, httpClient));
         } catch (Exception ex) {
             throw new PluginException("Failed to create moviemeter api", ex);
         }
@@ -68,5 +68,9 @@ public class MovieMeterPlugin extends YamjPlugin {
     @Override
     public void stop() throws PluginException {
         LOG.trace("Stop MovieMeterPlugin");
+    }
+    
+    public static MovieMeterApiWrapper getMovieMeterApiWrapper() {
+        return movieMeterApiWrapper;
     }
 }
