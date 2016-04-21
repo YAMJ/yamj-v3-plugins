@@ -36,6 +36,7 @@ import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.common.PluginLocaleService;
 import org.yamj.plugin.api.common.PluginMetadataService;
+import org.yamj.plugin.api.metadata.IdMap;
 import org.yamj.plugin.api.metadata.MetadataScanner;
 import org.yamj.plugin.api.metadata.NfoIdScanner;
 import org.yamj.plugin.api.metadata.dto.CreditDTO;
@@ -74,18 +75,26 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
     }
 
     @Override
-    public Map<String,String> scanNFO(String nfoContent) {
-        Map<String,String> result = new HashMap<>(1);
+    public boolean scanNFO(String nfoContent, IdMap idMap) {
+        boolean ignorePresentId = configService.getBooleanProperty("comingsoon.nfo.ignore.present.id", false);
+
+        // if we already have the ID, skip the scanning of the NFO file
+        if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SCANNER_NAME))) {
+            return true;
+        }
+
         LOG.trace("Scanning NFO for ComingSoon ID");
 
         int beginIndex = nfoContent.indexOf("?key=");
         if (beginIndex != -1) {
             String id = new StringTokenizer(nfoContent.substring(beginIndex + 5), "/ \n,:!&é\"'(--è_çà)=$").nextToken();
             LOG.debug("ComingSoon ID found in NFO: {}", id);
-            result.put(SCANNER_NAME, id);
+            idMap.addId(SCANNER_NAME, id);
+            return true;
         }
         
-        return result;
+        LOG.debug("No ComingSoon ID found in NFO");
+        return false;
     }
 
     protected static boolean isNoValidComingSoonId(String comingSoonId) {

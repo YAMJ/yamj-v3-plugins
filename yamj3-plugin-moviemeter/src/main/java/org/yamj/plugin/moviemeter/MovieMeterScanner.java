@@ -24,7 +24,6 @@ package org.yamj.plugin.moviemeter;
 
 import com.omertron.moviemeter.model.Actor;
 import com.omertron.moviemeter.model.FilmInfo;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +33,7 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.common.PluginLocaleService;
 import org.yamj.plugin.api.common.PluginMetadataService;
+import org.yamj.plugin.api.metadata.IdMap;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.dto.CreditDTO;
 import org.yamj.plugin.api.metadata.dto.MovieDTO;
@@ -132,17 +132,25 @@ public final class MovieMeterScanner implements MovieScanner {
     }
 
     @Override
-    public Map<String,String> scanNFO(String nfoContent) {
-        Map<String,String> result = new HashMap<>(1);
+    public boolean scanNFO(String nfoContent, IdMap idMap) {
+        boolean ignorePresentId = configService.getBooleanProperty("moviemeter.nfo.ignore.present.id", false);
+
+        // if we already have the ID, skip the scanning of the NFO file
+        if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SCANNER_NAME))) {
+            return true;
+        }
+
         LOG.trace("Scanning NFO for MovieMeter ID");
-        
+
         int beginIndex = nfoContent.indexOf("www.moviemeter.nl/film/");
         if (beginIndex != -1) {
             String id = new StringTokenizer(nfoContent.substring(beginIndex + 23), "/ \n,:!&é\"'(--è_çà)=$").nextToken();
             LOG.debug("MovieMeter ID found in NFO: {}", id);
-            result.put(SCANNER_NAME, id);
+            idMap.addId(SCANNER_NAME, id);
+            return true;
         }
         
-        return result;
+        LOG.debug("No MovieMeter ID found in NFO");
+        return false;
     }
 }

@@ -22,6 +22,8 @@
  */
 package org.yamj.plugin.comingsoon;
 
+import java.io.InputStream;
+import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.YamjPlugin;
@@ -39,6 +41,15 @@ public class ComingSoonPlugin extends YamjPlugin {
     @Override
     public void start() throws PluginException {
         LOG.trace("Start ComingSoonPlugin");
+        
+        // load properties
+        try (InputStream stream = getClass().getResourceAsStream("/comingsoon.plugin.properties")) {
+            Properties props = new Properties();
+            props.load(stream);
+            configService.pluginConfiguration(props);
+        } catch (Exception ex) {
+            throw new PluginException("Failed to load plugin properties", ex);
+        }
     }
 
     @Override

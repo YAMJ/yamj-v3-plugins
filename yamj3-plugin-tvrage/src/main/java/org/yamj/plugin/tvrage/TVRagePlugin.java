@@ -43,21 +43,25 @@ public class TVRagePlugin extends YamjPlugin {
     public void start() throws PluginException {
         LOG.trace("Start TvRagePlugin");
 
-        // load API key
-        final Properties apikeyProps = new Properties();
-        try (InputStream stream = getClass().getResourceAsStream("/tvrage.apikey.properties")) {
-            apikeyProps.load(stream);
-        } catch (Exception ex) {
-            throw new PluginException("Failed to load apikey properties", ex);
-        }
-
         // create API
-        try {
-            final String apiKey = apikeyProps.getProperty("apikey.tvrage");
+        try (InputStream stream = getClass().getResourceAsStream("/tvrage.apikey.properties")) {
+            Properties props = new Properties();
+            props.load(stream);
+
+            final String apiKey = props.getProperty("apikey.tvrage");
             TVRageApiWrapper wrapper = TVRageApiWrapper.getInstance();
             wrapper.setTVRageApi(new TVRageApi(apiKey, httpClient));
         } catch (Exception ex) {
             throw new PluginException("Failed to create tvrage api", ex);
+        }
+        
+        // load properties
+        try (InputStream stream = getClass().getResourceAsStream("/tvrage.plugin.properties")) {
+            Properties props = new Properties();
+            props.load(stream);
+            configService.pluginConfiguration(props);
+        } catch (Exception ex) {
+            throw new PluginException("Failed to load plugin properties", ex);
         }
     }
 

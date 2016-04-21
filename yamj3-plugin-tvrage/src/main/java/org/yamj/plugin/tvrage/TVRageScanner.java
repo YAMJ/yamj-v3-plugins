@@ -25,7 +25,9 @@ package org.yamj.plugin.tvrage;
 import static org.yamj.plugin.api.common.Constants.SOURCE_TVRAGE;
 
 import com.omertron.tvrageapi.model.*;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,7 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.common.PluginLocaleService;
 import org.yamj.plugin.api.common.PluginMetadataService;
+import org.yamj.plugin.api.metadata.IdMap;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.metadata.dto.EpisodeDTO;
 import org.yamj.plugin.api.metadata.dto.SeasonDTO;
@@ -45,6 +48,7 @@ public final class TVRageScanner implements SeriesScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(TVRageScanner.class);
 
+    private PluginConfigService configService;
     private TVRageApiWrapper tvRageApiWrapper;
     private Locale locale;
     
@@ -55,6 +59,7 @@ public final class TVRageScanner implements SeriesScanner {
 
     @Override
     public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
+        this.configService = configService;
         this.locale = localeService.getLocale();
         this.tvRageApiWrapper = TVRageApiWrapper.getInstance();
     }
@@ -186,8 +191,14 @@ public final class TVRageScanner implements SeriesScanner {
     }
     
     @Override
-    public Map<String,String> scanNFO(String nfoContent) {
-        Map<String,String> result = new HashMap<>(1);
+    public boolean scanNFO(String nfoContent, IdMap idMap) {
+        boolean ignorePresentId = configService.getBooleanProperty("tvrage.nfo.ignore.present.id", false);
+
+        // if we already have the ID, skip the scanning of the NFO file
+        if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SOURCE_TVRAGE))) {
+            return true;
+        }
+
         LOG.trace("Scanning NFO for TVRage ID");
 
         // There are two formats for the URL. The first is a vanity URL with the show name in it,
@@ -202,17 +213,20 @@ public final class TVRageScanner implements SeriesScanner {
             // Remove the "id-" from the front of the ID
             String id = st.nextToken().substring("id-".length());
             LOG.debug("TVRage ID found in NFO: {}", id);
-            result.put(SOURCE_TVRAGE, id);
-        } else {
-            text = "tvrage.com/";
-            beginIndex = nfoContent.indexOf(text);
-            if (beginIndex > -1) {
-                String id = new StringTokenizer(nfoContent.substring(beginIndex + text.length()), "/ \n,:!&\"'=$").nextToken();
-                LOG.debug("TVRage vanity ID found in NFO: {}", id);
-                result.put(SOURCE_TVRAGE, id);
-            }
+            idMap.addId(SOURCE_TVRAGE, id);
+            return true;
         }
-        
-        return result;
+         
+        text = "tvrage.com/";
+        beginIndex = nfoContent.indexOf(text);
+        if (beginIndex > -1) {
+            String id = new StringTokenizer(nfoContent.substring(beginIndex + text.length()), "/ \n,:!&\"'=$").nextToken();
+            LOG.debug("TVRage vanity ID found in NFO: {}", id);
+            idMap.addId(SOURCE_TVRAGE, id);
+            return true;
+        }
+
+        LOG.debug("No TVRage ID found in NFO");
+        return false;
     }
 }

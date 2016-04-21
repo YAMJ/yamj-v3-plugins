@@ -36,6 +36,7 @@ import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.common.PluginLocaleService;
 import org.yamj.plugin.api.common.PluginMetadataService;
+import org.yamj.plugin.api.metadata.IdMap;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.dto.CreditDTO;
 import org.yamj.plugin.api.metadata.dto.MovieDTO;
@@ -343,8 +344,14 @@ public final class OfdbScanner implements MovieScanner {
     }
     
     @Override
-    public Map<String,String> scanNFO(String nfoContent) {
-        Map<String,String> result = new HashMap<>(2);
+    public boolean scanNFO(String nfoContent, IdMap idMap) {
+        boolean ignorePresentId = configService.getBooleanProperty("ofdb.nfo.ignore.present.id", false);
+
+        // if we already have the ID, skip the scanning of the NFO file
+        if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SCANNER_NAME))) {
+            return true;
+        }
+
         LOG.trace("Scanning NFO for OFDb URL");
 
         try {
@@ -353,14 +360,14 @@ public final class OfdbScanner implements MovieScanner {
             if (beginIndex != -1) {
                 String imdbId = new StringTokenizer(nfoContent.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$<>").nextToken();
                 LOG.debug("IMDb ID found in NFO: {}", imdbId);
-                result.put(SOURCE_IMDB, imdbId);
+                idMap.addId(SOURCE_IMDB, imdbId);
             } else {
                 // OFDb specific URL for IMDb id
                 beginIndex = nfoContent.indexOf("/Title?");
                 if (beginIndex != -1 && beginIndex + 7 < nfoContent.length()) {
                     String imdbId = "tt" + new StringTokenizer(nfoContent.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$<>").nextToken();
                     LOG.debug("IMDb ID found in NFO: {}", imdbId);
-                    result.put(SOURCE_IMDB, imdbId);
+                    idMap.addId(SOURCE_IMDB, imdbId);
                 }
             }
         } catch (Exception ex) {
@@ -371,9 +378,11 @@ public final class OfdbScanner implements MovieScanner {
         if (beginIndex != -1) {
             String id = new StringTokenizer(nfoContent.substring(beginIndex), " \n\t\r\f!&é\"'(èçà)=$<>").nextToken();
             LOG.debug("OFDb URL found in NFO: {}", id);
-            result.put(SCANNER_NAME, id);
+            idMap.addId(SCANNER_NAME, id);
+            return true;
         }
         
-        return result;
+        LOG.debug("No OFDb URL found in NFO");
+        return false;
     }
 }

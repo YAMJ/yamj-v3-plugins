@@ -43,21 +43,25 @@ public class MovieMeterPlugin extends YamjPlugin {
     public void start() throws PluginException {
         LOG.trace("Start MovieMeterPlugin");
 
-        // load API key
-        final Properties apikeyProps = new Properties();
-        try (InputStream stream = getClass().getResourceAsStream("/moviemeter.apikey.properties")) {
-            apikeyProps.load(stream);
-        } catch (Exception ex) {
-            throw new PluginException("Failed to load apikey properties", ex);
-        }
-        
         // create API
-        try {
-            final String apiKey = apikeyProps.getProperty("apikey.moviemeter");
+        try (InputStream stream = getClass().getResourceAsStream("/moviemeter.apikey.properties")) {
+            Properties props = new Properties();
+            props.load(stream);
+
+            final String apiKey = props.getProperty("apikey.moviemeter");
             MovieMeterApiWrapper wrapper = MovieMeterApiWrapper.getInstance();
             wrapper.setMovieMeterApi(new MovieMeterApi(apiKey, httpClient));
         } catch (Exception ex) {
             throw new PluginException("Failed to create moviemeter api", ex);
+        }
+        
+        // load properties
+        try (InputStream stream = getClass().getResourceAsStream("/moviemeter.plugin.properties")) {
+            Properties props = new Properties();
+            props.load(stream);
+            configService.pluginConfiguration(props);
+        } catch (Exception ex) {
+            throw new PluginException("Failed to load plugin properties", ex);
         }
     }
 
