@@ -105,12 +105,21 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
         }
 
         // add awards
-        if (configService.getBooleanProperty("allocine.movie.awards", false) && movieInfos.getFestivalAwards() != null) {
+        if (movieInfos.getFestivalAwards() != null && configService.getBooleanProperty("allocine.movie.awards", false)) {
             for (FestivalAward festivalAward : movieInfos.getFestivalAwards()) {
                 movie.addAward(new AwardDTO(SCANNER_NAME, festivalAward.getFestival(), festivalAward.getName(), festivalAward.getYear()));
             }
         }
         
         return true;
+    }
+
+    private static CreditDTO createCredit(MoviePerson person, JobType jobType) {
+        return createCredit(person, jobType, null);
+    }
+
+    private static CreditDTO createCredit(MoviePerson person, JobType jobType, String role) {
+        String sourceId = (person.getCode() > 0 ?  String.valueOf(person.getCode()) : null);
+        return new CreditDTO(SCANNER_NAME, sourceId, jobType, person.getName(), role);
     }
 }

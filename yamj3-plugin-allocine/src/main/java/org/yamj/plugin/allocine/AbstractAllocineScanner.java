@@ -25,8 +25,6 @@ package org.yamj.plugin.allocine;
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
 
-import com.moviejukebox.allocine.model.CastMember;
-import com.moviejukebox.allocine.model.MoviePerson;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -39,7 +37,6 @@ import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.common.PluginLocaleService;
 import org.yamj.plugin.api.common.PluginMetadataService;
 import org.yamj.plugin.api.metadata.*;
-import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
  
@@ -182,24 +179,6 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
         }
         
         return allocineId;
-    }
-
-    protected CreditDTO createCredit(CastMember member, JobType jobType) {
-        return createCredit(member, jobType, null);
-    }
-
-    protected CreditDTO createCredit(CastMember member, JobType jobType, String role) {
-        final String sourceId = (member.getShortPerson().getCode() > 0 ?  String.valueOf(member.getShortPerson().getCode()) : null);
-        return new CreditDTO(SCANNER_NAME, sourceId, jobType, member.getShortPerson().getName(), role);
-    }
-
-    protected CreditDTO createCredit(MoviePerson person, JobType jobType) {
-        return createCredit(person, jobType, null);
-    }
-
-    protected CreditDTO createCredit(MoviePerson person, JobType jobType, String role) {
-        String sourceId = (person.getCode() > 0 ?  String.valueOf(person.getCode()) : null);
-        return new CreditDTO(SCANNER_NAME, sourceId, jobType, person.getName(), role);
     }
 }
 
