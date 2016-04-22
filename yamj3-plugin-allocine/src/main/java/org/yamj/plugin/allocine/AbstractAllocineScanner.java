@@ -25,8 +25,8 @@ package org.yamj.plugin.allocine;
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
 
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +34,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.artwork.ArtworkDTO;
+import org.yamj.plugin.api.artwork.ArtworkTools;
 import org.yamj.plugin.api.common.PluginConfigService;
 import org.yamj.plugin.api.common.PluginLocaleService;
 import org.yamj.plugin.api.common.PluginMetadataService;
@@ -194,6 +196,21 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
         }
         
         return (id > 0 ? Integer.toString(id) : null);
+    }
+
+    protected List<ArtworkDTO> buildArtworkDetails(Map<String,Long> artworks) {
+        List<ArtworkDTO> dtos = new ArrayList<>(artworks.size());
+        for (Entry<String,Long> entry : artworks.entrySet()) {
+            final String hashCode;
+            if (entry.getValue() == null || entry.getValue().longValue() == 0) {
+                hashCode = ArtworkTools.getSimpleHashCode(entry.getKey());
+            } else {
+                hashCode = entry.getValue().toString();
+            }
+            ArtworkDTO dto = new ArtworkDTO(getScannerName(), entry.getKey(), hashCode);
+            dtos.add(dto);
+        }
+        return dtos;
     }
 }
 

@@ -193,6 +193,7 @@ public final class OfdbScanner implements MovieScanner {
     public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
         final String ofdbUrl = movie.getIds().get(SCANNER_NAME);
         if (!isValidMovieId(ofdbUrl)) {
+            LOG.debug("OFDb URL not available '{}'", movie.getTitle());
             return false;
         }
         
@@ -324,7 +325,7 @@ public final class OfdbScanner implements MovieScanner {
             // everything is fine
             return true;
         } catch (IOException ioe) {
-            throw new RuntimeException("OFDb scanning error", ioe);
+            throw new RuntimeException("OFDb scanning error for movie '"+movie.getTagline()+"'", ioe);
         }
     }
 

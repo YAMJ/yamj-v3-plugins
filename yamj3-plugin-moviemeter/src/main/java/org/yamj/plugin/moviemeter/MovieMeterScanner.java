@@ -92,13 +92,14 @@ public final class MovieMeterScanner implements MovieScanner {
     public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
         final String movieMeterId = movie.getIds().get(SCANNER_NAME);
         if (!isValidMovieId(movieMeterId)) {
+            LOG.debug("Moviemeter id not available '{}'", movie.getTitle());
             return false;
         }
 
         // get movie info 
         FilmInfo filmInfo = movieMeterApiWrapper.getFilmInfo(movieMeterId, throwTempError);
         if (filmInfo == null) {
-            LOG.error("Can't find informations for moviemeter ID '{}'", movieMeterId);
+            LOG.error("Can't find informations for movie '{}'", movie.getTitle());
             return false;
         }
 

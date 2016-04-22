@@ -91,6 +91,7 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
     public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
         final String comingSoonId = movie.getIds().get(SCANNER_NAME);
         if (isNoValidComingSoonId(comingSoonId)) {
+            LOG.debug("ComingSoon id not available '{}'", movie.getTitle());
             return false;
         }
 

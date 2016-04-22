@@ -89,6 +89,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
     public boolean scanSeries(SeriesDTO series, boolean throwTempError) {
         final String comingSoonId = series.getIds().get(SCANNER_NAME);
         if (isNoValidComingSoonId(comingSoonId)) {
+            LOG.debug("ComingSoon id not available '{}'", series.getTitle());
             return false;
         }
 
