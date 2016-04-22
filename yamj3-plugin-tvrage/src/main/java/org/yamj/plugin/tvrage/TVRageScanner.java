@@ -60,9 +60,14 @@ public final class TVRageScanner implements SeriesScanner {
     }
 
     @Override
+    public boolean isValidSeriesId(String seriesId) {
+        return StringUtils.isNumeric(seriesId);
+    }
+
+    @Override
     public String getSeriesId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
         String tvRageId = ids.get(SOURCE_TVRAGE);
-        if (StringUtils.isNumeric(tvRageId)) {
+        if (isValidSeriesId(tvRageId)) {
             return tvRageId;
         }
 
@@ -93,7 +98,7 @@ public final class TVRageScanner implements SeriesScanner {
     public boolean scanSeries(SeriesDTO series, boolean throwTempError) {
         // get series id
         final String tvRageId = series.getIds().get(SOURCE_TVRAGE);
-        if (!StringUtils.isNumeric(tvRageId)) {
+        if (!isValidSeriesId(tvRageId)) {
             return false;
         }
 
@@ -189,7 +194,7 @@ public final class TVRageScanner implements SeriesScanner {
     public boolean scanNFO(String nfoContent, IdMap idMap) {
         // if we already have the ID, skip the scanning of the NFO file
         final boolean ignorePresentId = configService.getBooleanProperty("tvrage.nfo.ignore.present.id", false);
-        if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SOURCE_TVRAGE))) {
+        if (!ignorePresentId && isValidSeriesId(idMap.getId(SOURCE_TVRAGE))) {
             return true;
         }
 

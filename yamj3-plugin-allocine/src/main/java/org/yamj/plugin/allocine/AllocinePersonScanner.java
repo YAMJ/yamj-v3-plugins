@@ -25,7 +25,6 @@ package org.yamj.plugin.allocine;
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 
 import com.moviejukebox.allocine.model.PersonInfos;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.metadata.MetadataTools;
@@ -39,9 +38,14 @@ public final class AllocinePersonScanner extends AbstractAllocineScanner impleme
     private static final Logger LOG = LoggerFactory.getLogger(AllocinePersonScanner.class);
 
     @Override
+    public boolean isValidPersonId(String personId) {
+        return isValidAllocineId(personId);
+    }
+    
+    @Override
     public boolean scanPerson(PersonDTO person, boolean throwTempError) {
         final String allocineId = person.getIds().get(SCANNER_NAME);
-        if (StringUtils.isBlank(allocineId)) {
+        if (isNoValidAllocineId(allocineId)) {
             return false;
         }
 

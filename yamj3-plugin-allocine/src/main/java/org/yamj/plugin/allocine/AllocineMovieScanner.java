@@ -28,7 +28,6 @@ import com.moviejukebox.allocine.model.FestivalAward;
 import com.moviejukebox.allocine.model.MovieInfos;
 import com.moviejukebox.allocine.model.MoviePerson;
 import java.util.Locale;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.metadata.*;
@@ -41,10 +40,15 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
     private static final Logger LOG = LoggerFactory.getLogger(AllocineMovieScanner.class);
 
     @Override
+    public boolean isValidMovieId(String movieId) {
+        return isValidAllocineId(movieId);
+    }
+
+    @Override
     public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
         // get movie id
         final String allocineId = movie.getIds().get(SCANNER_NAME);
-        if (StringUtils.isBlank(allocineId)) {
+        if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}'", movie.getTitle());
             return false;
         }

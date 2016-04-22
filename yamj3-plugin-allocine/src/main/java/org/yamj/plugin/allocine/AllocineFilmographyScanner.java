@@ -42,6 +42,11 @@ public final class AllocineFilmographyScanner extends AbstractAllocineScanner im
     private static final Logger LOG = LoggerFactory.getLogger(AllocineFilmographyScanner.class);
 
     @Override
+    public boolean isValidPersonId(String personId) {
+        return isValidAllocineId(personId);
+    }
+
+    @Override
     public List<FilmographyDTO> scanFilmography(String allocineId, boolean throwTempError) {
         FilmographyInfos filmographyInfos = allocineApiWrapper.getFilmographyInfos(allocineId, throwTempError);
         if (filmographyInfos == null || filmographyInfos.isNotValid() || filmographyInfos.getParticipances() == null) {

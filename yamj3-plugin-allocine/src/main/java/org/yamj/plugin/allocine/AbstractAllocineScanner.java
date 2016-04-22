@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
@@ -80,7 +81,7 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
 
         // if we already have the ID, skip the scanning of the NFO file
         final boolean ignorePresentId = configService.getBooleanProperty("allocine.nfo.ignore.present.id", false);
-        if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SCANNER_NAME))) {
+        if (!ignorePresentId && isValidAllocineId(idMap.getId(SCANNER_NAME))) {
             return true;
         }
 
@@ -93,10 +94,13 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
             if (beginIdIndex != -1) {
                 int endIdIndex = nfoContent.indexOf('.', beginIdIndex);
                 if (endIdIndex != -1) {
-                    String sourceId = nfoContent.substring(beginIdIndex + 1, endIdIndex);
-                    LOG.debug("Allocine ID found in NFO: {}", sourceId);
-                    idMap.addId(SCANNER_NAME, sourceId);
-                    return true;
+                    int id = NumberUtils.toInt(nfoContent.substring(beginIdIndex + 1, endIdIndex), -1);
+                    if (id > 0) {
+                        String sourceId = Integer.toString(id);
+                        LOG.debug("Allocine ID found in NFO: {}", sourceId);
+                        idMap.addId(SCANNER_NAME, sourceId);
+                        return true;
+                    }
                 }
             }
         }
@@ -105,80 +109,91 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
         return false;
     }
 
+    protected static boolean isValidAllocineId(String allocineId) {
+        return StringUtils.isNumeric(allocineId);
+    }
+
+    protected static boolean isNoValidAllocineId(String allocineId) {
+        return !isValidAllocineId(allocineId);
+    }
+
     public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
         String allocineId = ids.get(SCANNER_NAME);
+        if (isValidAllocineId(allocineId)) {
+            return allocineId;
+        }
         
-        if (StringUtils.isBlank(allocineId)) {
-            allocineId = allocineApiWrapper.getAllocineMovieId(title, year, throwTempError);
+        int id = allocineApiWrapper.getAllocineMovieId(title, year, throwTempError);
 
-            if (StringUtils.isBlank(allocineId) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
-                // try with original title
-                allocineId = allocineApiWrapper.getAllocineMovieId(originalTitle, year, throwTempError);
-            }
-            
-            if (StringUtils.isBlank(allocineId)) {
-                // try search engines
-                searchEngineLock.lock();
-                try {
-                    searchEngineTools.setSearchSuffix("/fichefilm_gen_cfilm");
-                    String url = searchEngineTools.searchURL(title, year, "www.allocine.fr/film", throwTempError);
-                    allocineId = HTMLTools.extractTag(url, "fichefilm_gen_cfilm=", ".html");
-                } finally {
-                    searchEngineLock.unlock();
-                }
+        if (id < 0 && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
+            // try with original title
+            id = allocineApiWrapper.getAllocineMovieId(originalTitle, year, throwTempError);
+        }
+        
+        if (id < 0) {
+            // try search engines
+            searchEngineLock.lock();
+            try {
+                searchEngineTools.setSearchSuffix("/fichefilm_gen_cfilm");
+                String url = searchEngineTools.searchURL(title, year, "www.allocine.fr/film", throwTempError);
+                id = NumberUtils.toInt(HTMLTools.extractTag(url, "fichefilm_gen_cfilm=", ".html"), -1);
+            } finally {
+                searchEngineLock.unlock();
             }
         }
         
-        return allocineId;
+        return (id > 0 ? Integer.toString(id) : null);
     }
 
     public String getSeriesId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
         String allocineId = ids.get(SCANNER_NAME);
+        if (isValidAllocineId(allocineId)) {
+            return allocineId;
+        }
         
-        if (StringUtils.isBlank(allocineId)) {
-            allocineId = allocineApiWrapper.getAllocineSeriesId(title, year, throwTempError);
+        int id = allocineApiWrapper.getAllocineSeriesId(title, year, throwTempError);
 
-            if (StringUtils.isBlank(allocineId) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
-                // try with original title
-                allocineId = allocineApiWrapper.getAllocineSeriesId(originalTitle, year, throwTempError);
-            }
+        if (id < 0 && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
+            // try with original title
+            id = allocineApiWrapper.getAllocineSeriesId(originalTitle, year, throwTempError);
+        }
 
-            if (StringUtils.isBlank(allocineId)) {
-                // try search engines
-                searchEngineLock.lock();
-                try {
-                    searchEngineTools.setSearchSuffix("/ficheserie_gen_cserie");
-                    String url = searchEngineTools.searchURL(title, year, "www.allocine.fr/series", throwTempError);
-                    allocineId = HTMLTools.extractTag(url, "ficheserie_gen_cserie=", ".html");
-                } finally {
-                    searchEngineLock.unlock();
-                }
+        if (id < 0) {
+            // try search engines
+            searchEngineLock.lock();
+            try {
+                searchEngineTools.setSearchSuffix("/ficheserie_gen_cserie");
+                String url = searchEngineTools.searchURL(title, year, "www.allocine.fr/series", throwTempError);
+                id = NumberUtils.toInt(HTMLTools.extractTag(url, "ficheserie_gen_cserie=", ".html"), -1);
+            } finally {
+                searchEngineLock.unlock();
             }
         }
         
-        return allocineId;
+        return (id > 0 ? Integer.toString(id) : null);
     }
     
     public String getPersonId(String name, Map<String, String> ids, boolean throwTempError) {
         String allocineId = ids.get(SCANNER_NAME);
+        if (isValidAllocineId(allocineId)) {
+            return allocineId;
+        }
 
-        if (StringUtils.isBlank(allocineId)) {
-            allocineId = allocineApiWrapper.getAllocinePersonId(name, throwTempError);
+        int id = allocineApiWrapper.getAllocinePersonId(name, throwTempError);
             
-            if (StringUtils.isBlank(allocineId)) {
-                // try search engines
-                searchEngineLock.lock();
-                try {
-                    searchEngineTools.setSearchSuffix("/fichepersonne_gen_cpersonne");
-                    String url = searchEngineTools.searchURL(name, -1, "www.allocine.fr/personne", throwTempError);
-                    allocineId = HTMLTools.extractTag(url, "fichepersonne_gen_cpersonne=", ".html");
-                } finally {
-                    searchEngineLock.unlock();
-                }
+        if (id < 0) {
+            // try search engines
+            searchEngineLock.lock();
+            try {
+                searchEngineTools.setSearchSuffix("/fichepersonne_gen_cpersonne");
+                String url = searchEngineTools.searchURL(name, -1, "www.allocine.fr/personne", throwTempError);
+                id = NumberUtils.toInt(HTMLTools.extractTag(url, "fichepersonne_gen_cpersonne=", ".html"), -1);
+            } finally {
+                searchEngineLock.unlock();
             }
         }
         
-        return allocineId;
+        return (id > 0 ? Integer.toString(id) : null);
     }
 }
 

@@ -58,9 +58,14 @@ public final class MovieMeterScanner implements MovieScanner {
     }
     
     @Override
+    public boolean isValidMovieId(String movieId) {
+        return StringUtils.isNumeric(movieId);
+    }
+
+    @Override
     public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
         String movieMeterId = ids.get(SCANNER_NAME);
-        if (StringUtils.isNumeric(movieMeterId)) {
+        if (isValidMovieId(movieMeterId)) {
             return movieMeterId;
         }
         
@@ -86,7 +91,7 @@ public final class MovieMeterScanner implements MovieScanner {
     @Override
     public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
         final String movieMeterId = movie.getIds().get(SCANNER_NAME);
-        if (!StringUtils.isNumeric(movieMeterId)) {
+        if (!isValidMovieId(movieMeterId)) {
             return false;
         }
 
@@ -131,7 +136,7 @@ public final class MovieMeterScanner implements MovieScanner {
     public boolean scanNFO(String nfoContent, IdMap idMap) {
         // if we already have the ID, skip the scanning of the NFO file
         final boolean ignorePresentId = configService.getBooleanProperty("moviemeter.nfo.ignore.present.id", false);
-        if (!ignorePresentId && StringUtils.isNumeric(idMap.getId(SCANNER_NAME))) {
+        if (!ignorePresentId && isValidMovieId(idMap.getId(SCANNER_NAME))) {
             return true;
         }
 

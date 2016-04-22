@@ -52,7 +52,7 @@ public class AllocineApiWrapper {
         }
     }
 
-    public String getAllocineMovieId(String title, int year, boolean throwTempError) {
+    public int getAllocineMovieId(String title, int year, boolean throwTempError) {
         Search search = null;
         try {
             search = allocineApi.searchMovies(title);
@@ -63,7 +63,7 @@ public class AllocineApiWrapper {
         }
         
         if (search == null || !search.isValid()) {
-            return null;
+            return -1;
         }
         
         // if we have a valid year try to find the first movie that match
@@ -75,7 +75,7 @@ public class AllocineApiWrapper {
                         continue;
                     }
                     if (movieProductionYear == year) {
-                        return String.valueOf(movie.getCode());
+                        return movie.getCode();
                     }
                 }
             }
@@ -85,15 +85,15 @@ public class AllocineApiWrapper {
         if (!search.getMovies().isEmpty()) {
             Movie movie = search.getMovies().get(0);
             if (movie != null) {
-                return String.valueOf(movie.getCode());
+                return movie.getCode();
             }
         }
         
         // no id found
-        return null;
+        return -1;
     }
 
-    public String getAllocineSeriesId(String title, int year, boolean throwTempError) {
+    public int getAllocineSeriesId(String title, int year, boolean throwTempError) {
         Search search = null;
         try {
             search = allocineApi.searchTvSeries(title);
@@ -104,7 +104,7 @@ public class AllocineApiWrapper {
         }
         
         if (search == null || !search.isValid()) {
-            return null;
+            return -1;
         }
 
         // if we have a valid year try to find the first series that match
@@ -120,7 +120,7 @@ public class AllocineApiWrapper {
                         serieEnd = serieStart;
                     }
                     if (year >= serieStart && year <= serieEnd) {
-                        return String.valueOf(serie.getCode());
+                        return serie.getCode();
                     }
                 }
             }
@@ -130,15 +130,15 @@ public class AllocineApiWrapper {
         if (!search.getTvSeries().isEmpty()) {
             TvSeries serie = search.getTvSeries().get(0);
             if (serie != null) {
-                return String.valueOf(serie.getCode());
+                return serie.getCode();
             }
         }
         
         // no id found
-        return null;
+        return -1;
     }
 
-    public String getAllocinePersonId(String name, boolean throwTempError) {
+    public int getAllocinePersonId(String name, boolean throwTempError) {
         Search search = null;
         try {
             search = allocineApi.searchPersons(name);
@@ -149,7 +149,7 @@ public class AllocineApiWrapper {
         }
         
         if (search == null || !search.isValid()) {
-            return null;
+            return -1;
         }
         
         // find for matching person
@@ -158,7 +158,7 @@ public class AllocineApiWrapper {
                 if (person != null) {
                     // find exact name (ignoring case)
                     if (StringUtils.equalsIgnoreCase(name, person.getName())) {
-                        return String.valueOf(person.getCode());
+                        return person.getCode();
                     }
                 }
             }
@@ -168,12 +168,12 @@ public class AllocineApiWrapper {
         if (!search.getPersons().isEmpty()) {
             ShortPerson person = search.getPersons().get(0);
             if (person != null) {
-                return String.valueOf(person.getCode());
+                return person.getCode();
             }
         }
         
         // no id found
-        return null;
+        return -1;
     }
 
     public MovieInfos getMovieInfos(String allocineId, boolean throwTempError) {

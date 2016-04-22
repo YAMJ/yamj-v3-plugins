@@ -48,9 +48,14 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
     private static final String COMINGSOON_PERSONAGGI = "personaggi/";
 
     @Override
+    public boolean isValidMovieId(String movieId) {
+        return isValidComingSoonId(movieId);
+    }
+
+    @Override
     public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
         String comingSoonId = ids.get(SCANNER_NAME);
-        if (StringUtils.isNotBlank(comingSoonId)) {
+        if (isValidComingSoonId(comingSoonId)) {
             return comingSoonId;
         }
         

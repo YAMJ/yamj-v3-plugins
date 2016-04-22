@@ -39,10 +39,15 @@ public final class AllocineSeriesScanner extends AbstractAllocineScanner impleme
     private static final Logger LOG = LoggerFactory.getLogger(AllocineSeriesScanner.class);
 
     @Override
+    public boolean isValidSeriesId(String seriesId) {
+        return isValidAllocineId(seriesId);
+    }
+
+    @Override
     public boolean scanSeries(SeriesDTO seriesDTO, boolean throwTempError) {
         // get series id
         final String allocineId = seriesDTO.getIds().get(SCANNER_NAME);
-        if (StringUtils.isBlank(allocineId)) {
+        if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}'", seriesDTO.getTitle());
             return false;
         }

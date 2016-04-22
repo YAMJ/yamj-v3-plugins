@@ -46,9 +46,14 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
     private static final String COMINGSOON_SERIES_URL = "serietv/scheda/?";
 
     @Override
+    public boolean isValidSeriesId(String seriesId) {
+        return isValidComingSoonId(seriesId);
+    }
+    
+    @Override
     public String getSeriesId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
         String comingSoonId = ids.get(SCANNER_NAME);
-        if (StringUtils.isNotBlank(comingSoonId)) {
+        if (isValidComingSoonId(comingSoonId)) {
             return comingSoonId;
         }
         

@@ -74,9 +74,14 @@ public final class OfdbScanner implements MovieScanner {
     }
 
     @Override
+    public boolean isValidMovieId(String movieId) {
+        return StringUtils.isNotBlank(movieId);
+    }
+
+    @Override
     public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
         String ofdbUrl = ids.get(SCANNER_NAME);
-        if (StringUtils.isNotBlank(ofdbUrl)) {
+        if (isValidMovieId(ofdbUrl)) {
             return ofdbUrl;
         }
         
@@ -187,7 +192,7 @@ public final class OfdbScanner implements MovieScanner {
     @Override
     public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
         final String ofdbUrl = movie.getIds().get(SCANNER_NAME);
-        if (StringUtils.isBlank(ofdbUrl)) {
+        if (!isValidMovieId(ofdbUrl)) {
             return false;
         }
         
@@ -356,7 +361,7 @@ public final class OfdbScanner implements MovieScanner {
 
         // if we already have the ID, skip the scanning of the NFO file
         final boolean ignorePresentId = configService.getBooleanProperty("ofdb.nfo.ignore.present.id", false);
-        if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SCANNER_NAME))) {
+        if (!ignorePresentId && isValidMovieId(idMap.getId(SCANNER_NAME))) {
             return true;
         }
 

@@ -88,7 +88,7 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
 
         // if we already have the ID, skip the scanning of the NFO file
         final boolean ignorePresentId = configService.getBooleanProperty("comingsoon.nfo.ignore.present.id", false);
-        if (!ignorePresentId && StringUtils.isNotBlank(idMap.getId(SCANNER_NAME))) {
+        if (!ignorePresentId && isValidComingSoonId(idMap.getId(SCANNER_NAME))) {
             return true;
         }
 
@@ -104,6 +104,11 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
         
         LOG.debug("No ComingSoon ID found in NFO");
         return false;
+    }
+
+    protected static boolean isValidComingSoonId(String comingSoonId) {
+        if (StringUtils.isBlank(comingSoonId)) return false;
+        return !StringUtils.equalsIgnoreCase(comingSoonId, "na");
     }
 
     protected static boolean isNoValidComingSoonId(String comingSoonId) {
