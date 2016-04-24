@@ -22,6 +22,8 @@
  */
 package org.yamj.plugin.moviemeter;
 
+import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
+
 import com.omertron.moviemeter.model.Actor;
 import com.omertron.moviemeter.model.FilmInfo;
 import java.util.Map;
@@ -70,7 +72,7 @@ public final class MovieMeterScanner implements MovieScanner {
         }
         
         // try to get the MovieMeter ID using the IMDB ID
-        String imdbId = ids.get("imdb");
+        String imdbId = ids.get(SOURCE_IMDB);
         if (StringUtils.isNotBlank(imdbId)) {
             movieMeterId = movieMeterApiWrapper.getMovieIdByIMDbId(imdbId, throwTempError);
         }
@@ -104,7 +106,7 @@ public final class MovieMeterScanner implements MovieScanner {
         }
 
         // set IMDb id
-        movie.addId("imdb", filmInfo.getImdbId())
+        movie.addId(SOURCE_IMDB, filmInfo.getImdbId())
             .setRating(Math.round(filmInfo.getAverage() * 20f))
             .setTitle(filmInfo.getDisplayTitle())
             .setOriginalTitle(filmInfo.getAlternativeTitle())

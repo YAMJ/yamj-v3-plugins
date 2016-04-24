@@ -98,9 +98,9 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
                 if (endIdIndex != -1) {
                     int id = NumberUtils.toInt(nfoContent.substring(beginIdIndex + 1, endIdIndex), -1);
                     if (id > 0) {
-                        String sourceId = Integer.toString(id);
-                        LOG.debug("Allocine ID found in NFO: {}", sourceId);
-                        idMap.addId(SCANNER_NAME, sourceId);
+                        String allocineId = Integer.toString(id);
+                        LOG.debug("Allocine ID found in NFO: {}", allocineId);
+                        idMap.addId(SCANNER_NAME, allocineId);
                         return true;
                     }
                 }
