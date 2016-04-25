@@ -79,14 +79,14 @@ public final class OfdbScanner implements MovieScanner {
     }
 
     @Override
-    public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
-        String ofdbUrl = ids.get(SCANNER_NAME);
+    public String getMovieId(IMovie movie, boolean throwTempError) {
+        String ofdbUrl = movie.getId(SCANNER_NAME);
         if (isValidMovieId(ofdbUrl)) {
             return ofdbUrl;
         }
         
         // get and check IMDb id
-        String imdbId = ids.get(SOURCE_IMDB);
+        String imdbId = movie.getId(SOURCE_IMDB);
         if (StringUtils.isNotBlank(imdbId)) {
             // if IMDb id is present then use this
             ofdbUrl = getOfdbIdByImdbId(imdbId, throwTempError);
@@ -94,17 +94,17 @@ public final class OfdbScanner implements MovieScanner {
         
         if (StringUtils.isBlank(ofdbUrl)) {
             // try by title and year
-            ofdbUrl = getOfdbIdByTitleAndYear(title, year, throwTempError);
+            ofdbUrl = getOfdbIdByTitleAndYear(movie.getTitle(), movie.getYear(), throwTempError);
         }
 
-        if (StringUtils.isBlank(ofdbUrl) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
+        if (StringUtils.isBlank(ofdbUrl) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
             // try by original title and year
-            ofdbUrl = getOfdbIdByTitleAndYear(originalTitle, year, throwTempError);
+            ofdbUrl = getOfdbIdByTitleAndYear(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
 
         if (StringUtils.isBlank(ofdbUrl)) {
             // try with search engines (don't throw error if temporary not available)
-            ofdbUrl = searchEngineTools.searchURL(title, year, "www.ofdb.de/film", false);
+            ofdbUrl = searchEngineTools.searchURL(movie.getTitle(), movie.getYear(), "www.ofdb.de/film", false);
         }
 
         return ofdbUrl;
@@ -190,8 +190,8 @@ public final class OfdbScanner implements MovieScanner {
     }
 
     @Override
-    public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
-        final String ofdbUrl = movie.getIds().get(SCANNER_NAME);
+    public boolean scanMovie(IMovie movie, boolean throwTempError) {
+        final String ofdbUrl = movie.getId(SCANNER_NAME);
         if (!isValidMovieId(ofdbUrl)) {
             LOG.debug("OFDb URL not available '{}'", movie.getTitle());
             return false;
@@ -241,7 +241,8 @@ public final class OfdbScanner implements MovieScanner {
                                       .replaceAll("<br />", " ")
                                       .trim();
     
-                movie.setPlot(plot).setOutline(plot);
+                movie.setPlot(plot);
+                movie.setOutline(plot);
             }
     
             // scrape additional informations
@@ -277,15 +278,19 @@ public final class OfdbScanner implements MovieScanner {
                 }
     
                 if (tag.contains("Genre(s)")) {
+                    final HashSet<String> genres = new HashSet<>();
                     for (String genre : HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>")) {
-                        movie.addGenre(HTMLTools.removeHtmlTags(genre).trim());
+                        genres.add(HTMLTools.removeHtmlTags(genre).trim());
                     }
+                    movie.setGenres(genres);
                 }
     
                 if (tag.contains("Herstellungsland")) {
+                    final HashSet<String> countries = new HashSet<>();
                     for (String country : HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>")) {
-                        movie.addCountry(HTMLTools.removeHtmlTags(country).trim());
+                        countries.add(HTMLTools.removeHtmlTags(country).trim());
                     }
+                    movie.setCountries(countries);
                 }
             }
     
@@ -295,7 +300,7 @@ public final class OfdbScanner implements MovieScanner {
                 for (String tag : tags) {
                     final String name = extractName(tag);
                     if (StringUtils.isNotBlank(name)) {
-                        movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.DIRECTOR, name));
+                        movie.addCredit(JobType.DIRECTOR, name);
                     }
                 }
             }
@@ -306,7 +311,7 @@ public final class OfdbScanner implements MovieScanner {
                 for (String tag : tags) {
                     final String name = extractName(tag);
                     if (StringUtils.isNotBlank(name)) {
-                        movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.WRITER, name));
+                        movie.addCredit(JobType.WRITER, name);
                     }
                 }
             }
@@ -317,7 +322,7 @@ public final class OfdbScanner implements MovieScanner {
                 for (String tag : tags) {
                     final String name = extractName(tag);
                     if (StringUtils.isNotBlank(name)) {
-                        movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.ACTOR, name, extractRole(tag)));
+                        movie.addCredit(JobType.ACTOR, name, extractRole(tag));
                     }
                 }
             }
@@ -325,7 +330,7 @@ public final class OfdbScanner implements MovieScanner {
             // everything is fine
             return true;
         } catch (IOException ioe) {
-            throw new RuntimeException("OFDb scanning error for movie '"+movie.getTagline()+"'", ioe);
+            throw new RuntimeException("OFDb scanning error for movie '"+movie.getTitle()+"'", ioe);
         }
     }
 

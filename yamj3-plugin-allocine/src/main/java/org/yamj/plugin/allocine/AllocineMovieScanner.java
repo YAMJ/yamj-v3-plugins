@@ -27,10 +27,15 @@ import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 import com.moviejukebox.allocine.model.FestivalAward;
 import com.moviejukebox.allocine.model.MovieInfos;
 import com.moviejukebox.allocine.model.MoviePerson;
+import java.util.Collections;
 import java.util.Locale;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.metadata.IMovie;
+import org.yamj.plugin.api.metadata.MetadataTools;
+import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.type.JobType;
 import ro.fortsoft.pf4j.Extension;
 
@@ -45,9 +50,9 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
     }
 
     @Override
-    public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
+    public boolean scanMovie(IMovie movie, boolean throwTempError) {
         // get movie id
-        final String allocineId = movie.getIds().get(SCANNER_NAME);
+        final String allocineId = movie.getId(SCANNER_NAME);
         if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}'", movie.getTitle());
             return false;
@@ -60,70 +65,73 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
             return false;
         }
 
-        movie.setTitle(movieInfos.getTitle())
-            .setOriginalTitle(movieInfos.getOriginalTitle())
-            .setYear(movieInfos.getProductionYear())
-            .setPlot(movieInfos.getSynopsis())
-            .setOutline(movieInfos.getSynopsisShort())
-            .setReleaseCountry(movieInfos.getReleaseCountry())
-            .setReleaseDate(MetadataTools.parseToDate(movieInfos.getReleaseDate()))
-            .setGenres(movieInfos.getGenres())
-            .addStudio(movieInfos.getDistributor())
-            .setCountries(movieInfos.getNationalities())
-            .addCertification(Locale.FRANCE.getCountry(), movieInfos.getCertification())
-            .setRating(movieInfos.getUserRating());
+        movie.setTitle(movieInfos.getTitle());
+        movie.setOriginalTitle(movieInfos.getOriginalTitle());
+        movie.setYear(movieInfos.getProductionYear());
+        movie.setPlot(movieInfos.getSynopsis());
+        movie.setOutline(movieInfos.getSynopsisShort());
+        movie.setRelease(movieInfos.getReleaseCountry(), MetadataTools.parseToDate(movieInfos.getReleaseDate()));
+        movie.setGenres(movieInfos.getGenres());
+        movie.setCountries(movieInfos.getNationalities());
+        movie.addCertification(Locale.FRANCE.getCountry(), movieInfos.getCertification());
+        movie.setRating(movieInfos.getUserRating());
+
+        if (StringUtils.isNotBlank(movieInfos.getDistributor())) {
+            Set<String> studios = Collections.singleton(movieInfos.getDistributor());
+            movie.setStudios(studios);
+        }
 
         // DIRECTORS
         if (configService.isCastScanEnabled(JobType.DIRECTOR)) {
             for (MoviePerson person : movieInfos.getDirectors()) {
-                movie.addCredit(createCredit(person, JobType.DIRECTOR));
+                addCredit(movie, person, JobType.DIRECTOR);
             }
         }
         
         // WRITERS
         if (configService.isCastScanEnabled(JobType.WRITER)) {
             for (MoviePerson person : movieInfos.getWriters()) {
-                movie.addCredit(createCredit(person, JobType.WRITER));
+                addCredit(movie, person, JobType.WRITER);
             }
         }
         
         // ACTORS
         if (configService.isCastScanEnabled(JobType.ACTOR)) {
             for (MoviePerson person : movieInfos.getActors()) {
-                movie.addCredit(createCredit(person, JobType.ACTOR, person.getRole()));
+                addCredit(movie, person, JobType.ACTOR, person.getRole());
             }
         }
         
         // CAMERA    
         if (configService.isCastScanEnabled(JobType.CAMERA)) {
             for (MoviePerson person : movieInfos.getCamera()) {
-                movie.addCredit(createCredit(person, JobType.CAMERA));
+                addCredit(movie, person, JobType.CAMERA);
             }
         }
         
         // PRODUCERS        
         if (configService.isCastScanEnabled(JobType.PRODUCER)) {
             for (MoviePerson person : movieInfos.getProducers()) {
-                movie.addCredit(createCredit(person, JobType.PRODUCER));
+                addCredit(movie, person, JobType.PRODUCER);
             }
         }
 
         // add awards
         if (movieInfos.getFestivalAwards() != null && configService.getBooleanProperty("allocine.movie.awards", false)) {
             for (FestivalAward festivalAward : movieInfos.getFestivalAwards()) {
-                movie.addAward(new AwardDTO(SCANNER_NAME, festivalAward.getFestival(), festivalAward.getName(), festivalAward.getYear()));
+                movie.addAward(festivalAward.getFestival(), festivalAward.getName(), festivalAward.getYear());
             }
         }
         
         return true;
     }
 
-    private static CreditDTO createCredit(MoviePerson person, JobType jobType) {
-        return createCredit(person, jobType, null);
+    private static void addCredit(IMovie movie, MoviePerson person, JobType jobType) {
+        addCredit(movie, person, jobType, null);
     }
 
-    private static CreditDTO createCredit(MoviePerson person, JobType jobType, String role) {
+    private static void addCredit(IMovie movie, MoviePerson person, JobType jobType, String role) {
         String sourceId = (person.getCode() > 0 ?  String.valueOf(person.getCode()) : null);
-        return new CreditDTO(SCANNER_NAME, sourceId, jobType, person.getName(), role);
+        movie.addCredit(sourceId, jobType, person.getName(), role);
     }
 }

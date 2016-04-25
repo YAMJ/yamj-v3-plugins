@@ -32,7 +32,7 @@ import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.MovieArtworkScanner;
-import org.yamj.plugin.api.metadata.MovieDTO;
+import org.yamj.plugin.api.metadata.IMovie;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
@@ -58,7 +58,7 @@ public final class YahooArtworkScanner implements MovieArtworkScanner {
     }
 
     @Override
-    public List<ArtworkDTO> getPosters(MovieDTO movie) {
+    public List<ArtworkDTO> getPosters(IMovie movie) {
         List<ArtworkDTO> dtos = new ArrayList<>(1);
 
         try {
@@ -92,7 +92,7 @@ public final class YahooArtworkScanner implements MovieArtworkScanner {
     }
 
     @Override
-    public List<ArtworkDTO> getFanarts(MovieDTO movie) {
+    public List<ArtworkDTO> getFanarts(IMovie movie) {
         return Collections.emptyList();
     }
 }

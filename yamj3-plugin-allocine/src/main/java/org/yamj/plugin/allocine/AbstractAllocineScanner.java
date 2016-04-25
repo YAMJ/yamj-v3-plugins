@@ -119,17 +119,17 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
         return !isValidAllocineId(allocineId);
     }
 
-    public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
-        String allocineId = ids.get(SCANNER_NAME);
+    public String getMovieId(IMovie movie, boolean throwTempError) {
+        String allocineId = movie.getId(SCANNER_NAME);
         if (isValidAllocineId(allocineId)) {
             return allocineId;
         }
         
-        int id = allocineApiWrapper.getAllocineMovieId(title, year, throwTempError);
+        int id = allocineApiWrapper.getAllocineMovieId(movie.getTitle(), movie.getYear(), throwTempError);
 
-        if (id < 0 && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
+        if (id < 0 && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
             // try with original title
-            id = allocineApiWrapper.getAllocineMovieId(originalTitle, year, throwTempError);
+            id = allocineApiWrapper.getAllocineMovieId(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
         
         if (id < 0) {
@@ -137,7 +137,7 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
             searchEngineLock.lock();
             try {
                 searchEngineTools.setSearchSuffix("/fichefilm_gen_cfilm");
-                String url = searchEngineTools.searchURL(title, year, "www.allocine.fr/film", throwTempError);
+                String url = searchEngineTools.searchURL(movie.getTitle(), movie.getYear(), "www.allocine.fr/film", throwTempError);
                 id = NumberUtils.toInt(HTMLTools.extractTag(url, "fichefilm_gen_cfilm=", ".html"), -1);
             } finally {
                 searchEngineLock.unlock();

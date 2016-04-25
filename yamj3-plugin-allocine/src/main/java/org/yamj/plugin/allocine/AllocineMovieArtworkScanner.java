@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.MovieArtworkScanner;
-import org.yamj.plugin.api.metadata.MovieDTO;
+import org.yamj.plugin.api.metadata.IMovie;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
@@ -39,8 +39,8 @@ public final class AllocineMovieArtworkScanner extends AbstractAllocineScanner i
     private static final Logger LOG = LoggerFactory.getLogger(AllocineMovieArtworkScanner.class);
 
     @Override
-    public List<ArtworkDTO> getPosters(MovieDTO movie) {
-        String allocineId = getMovieId(movie.getTitle(), movie.getOriginalTitle(), movie.getYear(), movie.getIds(), false);
+    public List<ArtworkDTO> getPosters(IMovie movie) {
+        String allocineId = getMovieId(movie, false);
         if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}'", movie.getTitle());
             return Collections.emptyList();
@@ -55,7 +55,7 @@ public final class AllocineMovieArtworkScanner extends AbstractAllocineScanner i
     }
 
     @Override
-    public List<ArtworkDTO> getFanarts(MovieDTO movie) {
+    public List<ArtworkDTO> getFanarts(IMovie movie) {
         return Collections.emptyList();
     }
 }

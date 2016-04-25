@@ -26,7 +26,6 @@ import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
 
 import com.omertron.moviemeter.model.Actor;
 import com.omertron.moviemeter.model.FilmInfo;
-import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -65,34 +64,34 @@ public final class MovieMeterScanner implements MovieScanner {
     }
 
     @Override
-    public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
-        String movieMeterId = ids.get(SCANNER_NAME);
+    public String getMovieId(IMovie movie, boolean throwTempError) {
+        String movieMeterId = movie.getId(SCANNER_NAME);
         if (isValidMovieId(movieMeterId)) {
             return movieMeterId;
         }
         
         // try to get the MovieMeter ID using the IMDB ID
-        String imdbId = ids.get(SOURCE_IMDB);
+        String imdbId = movie.getId(SOURCE_IMDB);
         if (StringUtils.isNotBlank(imdbId)) {
             movieMeterId = movieMeterApiWrapper.getMovieIdByIMDbId(imdbId, throwTempError);
         }
 
         // try to get the MovieMeter ID using title and year
         if (!StringUtils.isNumeric(movieMeterId)) {
-            movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(title, year, throwTempError);
+            movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(movie.getTitle(), movie.getYear(), throwTempError);
         }
 
         // try to get the MovieMeter ID using original title and year
-        if (!StringUtils.isNumeric(movieMeterId) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
-            movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(originalTitle, year, throwTempError);
+        if (!StringUtils.isNumeric(movieMeterId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+            movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
 
         return movieMeterId;
     }
     
     @Override
-    public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
-        final String movieMeterId = movie.getIds().get(SCANNER_NAME);
+    public boolean scanMovie(IMovie movie, boolean throwTempError) {
+        final String movieMeterId = movie.getId(SCANNER_NAME);
         if (!isValidMovieId(movieMeterId)) {
             LOG.debug("Moviemeter id not available '{}'", movie.getTitle());
             return false;
@@ -106,20 +105,20 @@ public final class MovieMeterScanner implements MovieScanner {
         }
 
         // set IMDb id
-        movie.addId(SOURCE_IMDB, filmInfo.getImdbId())
-            .setRating(Math.round(filmInfo.getAverage() * 20f))
-            .setTitle(filmInfo.getDisplayTitle())
-            .setOriginalTitle(filmInfo.getAlternativeTitle())
-            .setYear(filmInfo.getYear())
-            .setPlot(filmInfo.getPlot())
-            .setOutline(filmInfo.getPlot())
-            .setCountries(filmInfo.getCountries())
-            .setGenres(filmInfo.getGenres());
+        movie.addId(SOURCE_IMDB, filmInfo.getImdbId());
+        movie.setRating(Math.round(filmInfo.getAverage() * 20f));
+        movie.setTitle(filmInfo.getDisplayTitle());
+        movie.setOriginalTitle(filmInfo.getAlternativeTitle());
+        movie.setYear(filmInfo.getYear());
+        movie.setPlot(filmInfo.getPlot());
+        movie.setOutline(filmInfo.getPlot());
+        movie.setCountries(filmInfo.getCountries());
+        movie.setGenres(filmInfo.getGenres());
 
         if (configService.isCastScanEnabled(JobType.ACTOR)) {
             for (Actor actor : filmInfo.getActors()) {
                 if (StringUtils.isNotBlank(actor.getName())) {
-                    movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.ACTOR, actor.getName()).setVoice(actor.isVoice()));
+                    movie.addCredit(JobType.ACTOR, actor.getName(), null, actor.isVoice());
                 }
             }
         }
@@ -127,7 +126,7 @@ public final class MovieMeterScanner implements MovieScanner {
         if (configService.isCastScanEnabled(JobType.DIRECTOR)) {
             for (String director : filmInfo.getDirectors()) {
                 if (StringUtils.isNotBlank(director)) {
-                    movie.addCredit(new CreditDTO(SCANNER_NAME, JobType.DIRECTOR, director));
+                    movie.addCredit(JobType.DIRECTOR, director);
                 }
             }
         }

@@ -87,18 +87,18 @@ public abstract class AbstractTheMovieDbScanner implements MetadataScanner, NfoI
         return false;
     }
 
-    public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
-        String tmdbId = ids.get(SOURCE_TMDB);
+    public String getMovieId(IMovie movie, boolean throwTempError) {
+        String tmdbId = movie.getId(SOURCE_TMDB);
         if (isValidTheMovieDbId(tmdbId)) {
             return tmdbId;
         }
 
         int id = -1;
         
-        String imdbId = ids.get(SOURCE_IMDB);
+        String imdbId = movie.getId(SOURCE_IMDB);
         if (StringUtils.isNotBlank(imdbId)) {
             // Search based on IMDb ID
-            LOG.debug("Using IMDb id {} for '{}'", imdbId, title);
+            LOG.debug("Using IMDb id {} for '{}'", imdbId, movie.getTitle());
             MovieInfo movieInfo = theMovieDbApiWrapper.getMovieInfoByIMDB(imdbId, locale, throwTempError);
             if (movieInfo != null) {
                 id = movieInfo.getId();
@@ -106,13 +106,13 @@ public abstract class AbstractTheMovieDbScanner implements MetadataScanner, NfoI
         }
 
         if (id<0) {
-            LOG.debug("No TMDb id found for '{}', searching title with year {}", title, year);
-            id = theMovieDbApiWrapper.getMovieId(title, year, locale, throwTempError);
+            LOG.debug("No TMDb id found for '{}', searching title with year {}", movie.getTitle(), movie.getYear());
+            id = theMovieDbApiWrapper.getMovieId(movie.getTitle(), movie.getYear(), locale, throwTempError);
         }
 
-        if (id<0 && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
-            LOG.debug("No TMDb id found for '{}', searching original title with year {}", title, year);
-            id = theMovieDbApiWrapper.getMovieId(originalTitle, year, locale, throwTempError);
+        if (id<0 && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+            LOG.debug("No TMDb id found for '{}', searching original title with year {}", movie.getTitle(), movie.getYear());
+            id = theMovieDbApiWrapper.getMovieId(movie.getOriginalTitle(), movie.getYear(), locale, throwTempError);
         }
 
         return (id > 0 ? Integer.toString(id) : null);

@@ -26,7 +26,6 @@ import static org.yamj.plugin.api.service.Constants.UTF8;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.text.WordUtils;
@@ -34,7 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.metadata.IMovie;
+import org.yamj.plugin.api.metadata.MetadataTools;
+import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
@@ -53,23 +54,23 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
     }
 
     @Override
-    public String getMovieId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
-        String comingSoonId = ids.get(SCANNER_NAME);
+    public String getMovieId(IMovie movie, boolean throwTempError) {
+        String comingSoonId = movie.getId(SCANNER_NAME);
         if (isValidComingSoonId(comingSoonId)) {
             return comingSoonId;
         }
         
         // search coming soon site by title
-        comingSoonId = getComingSoonId(title, year, false, throwTempError);
+        comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear(), false, throwTempError);
 
         // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
-            comingSoonId = getComingSoonId(originalTitle, year, false, throwTempError);
+        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+            comingSoonId = getComingSoonId(movie.getOriginalTitle(), movie.getYear(), false, throwTempError);
         }
 
         // search coming soon with search engine tools
         if (isNoValidComingSoonId(comingSoonId)) {
-            comingSoonId = this.searchEngineTools.searchURL(title, year, "www.comingsoon.it/film", throwTempError);
+            comingSoonId = this.searchEngineTools.searchURL(movie.getTitle(), movie.getYear(), "www.comingsoon.it/film", throwTempError);
             int beginIndex = StringUtils.indexOf(comingSoonId, "film/");
             if (beginIndex < 0) {
                 comingSoonId = null;
@@ -88,8 +89,8 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
     }
 
     @Override
-    public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
-        final String comingSoonId = movie.getIds().get(SCANNER_NAME);
+    public boolean scanMovie(IMovie movie, boolean throwTempError) {
+        final String comingSoonId = movie.getId(SCANNER_NAME);
         if (isNoValidComingSoonId(comingSoonId)) {
             LOG.debug("ComingSoon id not available '{}'", movie.getTitle());
             return false;
@@ -118,19 +119,19 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
 
             final String plot = parsePlot(xml);
 
-            movie.setTitle(WordUtils.capitalizeFully(title))
-                .setOriginalTitle(parseTitleOriginal(xml))
-                .setPlot(plot)
-                .setOutline(plot)
-                .setRating(parseRating(xml))
-                .setCountries(parseCountries(xml))
-                .setStudios(parseStudios(xml))
-                .setGenres(parseGenres(xml));
+            movie.setTitle(WordUtils.capitalizeFully(title));
+            movie.setOriginalTitle(parseTitleOriginal(xml));
+            movie.setPlot(plot);
+            movie.setOutline(plot);
+            movie.setRating(parseRating(xml));
+            movie.setCountries(parseCountries(xml));
+            movie.setStudios(parseStudios(xml));
+            movie.setGenres(parseGenres(xml));
 
             // RELEASE DATE
             String dateToParse = HTMLTools.stripTags(HTMLTools.extractTag(xml, "<time itemprop=\"datePublished\">", "</time>"));
             Date releaseDate = MetadataTools.parseToDate(dateToParse);
-            movie.setReleaseDate(releaseDate);
+            movie.setRelease(null, releaseDate);
             
             // YEAR
             String year = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ANNO</span>:", "</li>")).trim();
@@ -168,7 +169,7 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
             
             // CAST
             if (configService.isCastScanEnabled(JobType.ACTOR)) {
-                movie.addCredits(parseActors(xml));
+                parseActors(movie, xml);
             }
 
             return true;
@@ -177,7 +178,7 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
         }
     }
 
-    private static void parseCredits(MovieDTO movie, String xml, String startTag, JobType jobType) {
+    private static void parseCredits(IMovie movie, String xml, String startTag, JobType jobType) {
         for (String tag : HTMLTools.extractTags(xml, startTag, "</li>", "<a", "</a>", false)) {
             int beginIndex = tag.indexOf(">");
             if (beginIndex > -1) {
@@ -192,7 +193,30 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
                         sourceId = tag.substring(beginIndex+1, endIndex);
                     }
                 }
-                movie.addCredit(new CreditDTO(SCANNER_NAME, sourceId, jobType, name));
+                movie.addCredit(sourceId, jobType, name);
+            }
+        }
+    }
+    
+    protected static void parseActors(IMovie movie, String xml) {
+        for (String tag : HTMLTools.extractTags(xml, "Il Cast</div>", "IL CAST -->", "<a href=\"/personaggi/", "</a>", false)) {
+            String name = HTMLTools.extractTag(tag, "<div class=\"h6 titolo\">", "</div>");
+            String role = HTMLTools.extractTag(tag, "<div class=\"h6 descrizione\">", "</div>");
+            
+            String sourceId = null;
+            int beginIndex = tag.indexOf('/');
+            if (beginIndex >-1) {
+                int endIndex = tag.indexOf('/', beginIndex+1);
+                if (endIndex > beginIndex) {
+                    sourceId = tag.substring(beginIndex+1, endIndex);
+                }
+            }
+            
+            final String posterURL = HTMLTools.extractTag(tag, "<img src=\"", "\"");
+            if (posterURL.contains("http")) {
+                movie.addCredit(sourceId, JobType.ACTOR, name, role, posterURL.replace("_ico.jpg", ".jpg"));
+            } else {
+                movie.addCredit(sourceId, JobType.ACTOR, name, role);
             }
         }
     }

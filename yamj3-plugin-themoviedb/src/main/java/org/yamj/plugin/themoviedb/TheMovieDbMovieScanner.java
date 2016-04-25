@@ -31,11 +31,14 @@ import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCrew;
 import com.omertron.themoviedbapi.model.movie.*;
 import java.util.Date;
+import java.util.HashSet;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.metadata.IMovie;
+import org.yamj.plugin.api.metadata.MetadataTools;
+import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.type.JobType;
 import ro.fortsoft.pf4j.Extension;
 
@@ -50,9 +53,9 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
     }
 
     @Override
-    public boolean scanMovie(MovieDTO movie, boolean throwTempError) {
+    public boolean scanMovie(IMovie movie, boolean throwTempError) {
         // get movie id
-        final String tmdbId = movie.getIds().get(SOURCE_TMDB);
+        final String tmdbId = movie.getId(SOURCE_TMDB);
         if (isNoValidTheMovieDbId(tmdbId)) {
             LOG.debug("TheMovieDb id not available '{}'", movie.getTitle());
             return false;
@@ -65,14 +68,14 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
             return false;
         }
                         
-        movie.addId(SOURCE_IMDB, movieInfo.getImdbID())
-            .setTitle(movieInfo.getTitle())
-            .setOriginalTitle(movieInfo.getOriginalTitle())
-            .setYear(MetadataTools.extractYearAsInt(movieInfo.getReleaseDate()))
-            .setPlot(movieInfo.getOverview())
-            .setOutline(movieInfo.getOverview())
-            .setTagline(movieInfo.getTagline())
-            .setRating(MetadataTools.parseRating(movieInfo.getVoteAverage()));
+        movie.addId(SOURCE_IMDB, movieInfo.getImdbID());
+        movie.setTitle(movieInfo.getTitle());
+        movie.setOriginalTitle(movieInfo.getOriginalTitle());
+        movie.setYear(MetadataTools.extractYearAsInt(movieInfo.getReleaseDate()));
+        movie.setPlot(movieInfo.getOverview());
+        movie.setOutline(movieInfo.getOverview());
+        movie.setTagline(movieInfo.getTagline());
+        movie.setRating(MetadataTools.parseRating(movieInfo.getVoteAverage()));
 
         // RELEASE DATE
         Date releaseDate = null;
@@ -81,7 +84,7 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
                 if (locale.getCountry().equalsIgnoreCase(releaseInfo.getCountry())) {
                     releaseDate = parseTMDbDate(releaseInfo.getReleaseDate());
                     if (releaseDate != null) {
-                        movie.setReleaseCountry(releaseInfo.getCountry());
+                        movie.setRelease(releaseInfo.getCountry(), releaseDate);
                     }
                     break;
                 }
@@ -92,7 +95,7 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
                     if (releaseInfo.isPrimary()) {
                         releaseDate = parseTMDbDate(releaseInfo.getReleaseDate());
                         if (releaseDate != null) {
-                            movie.setReleaseCountry(releaseInfo.getCountry());
+                            movie.setRelease(releaseInfo.getCountry(), releaseDate);
                         }
                         break;
                     }
@@ -100,9 +103,8 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
             }
         }
         if (releaseDate == null) {
-            releaseDate = parseTMDbDate(movieInfo.getReleaseDate());
+            movie.setRelease(null, parseTMDbDate(movieInfo.getReleaseDate()));
         }
-        movie.setReleaseDate(releaseDate);
         
         // CERTIFICATIONS
         if (CollectionUtils.isNotEmpty(movieInfo.getReleases())) {
@@ -118,25 +120,31 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
         
         // COUNTRIES
         if (CollectionUtils.isNotEmpty(movieInfo.getProductionCountries())) {
+            final HashSet<String> countries = new HashSet<>(movieInfo.getProductionCountries().size());
             for (ProductionCountry productionCountry : movieInfo.getProductionCountries()) {
-                movie.addCountry(productionCountry.getCountry());
+                countries.add(productionCountry.getCountry());
             }
+            movie.setCountries(countries);
         }
 
         // GENRES
         if (CollectionUtils.isNotEmpty(movieInfo.getGenres())) {
+            final HashSet<String> genres = new HashSet<>(movieInfo.getGenres().size());
             for (Genre genre : movieInfo.getGenres()) {
-                movie.addGenre(genre.getName());
+                genres.add(genre.getName());
             }
+            movie.setGenres(genres);
         }
 
         // COMPANIES
         if (CollectionUtils.isNotEmpty(movieInfo.getProductionCompanies())) {
+            final HashSet<String> studios = new HashSet<>(movieInfo.getProductionCompanies().size());
             for (ProductionCompany company : movieInfo.getProductionCompanies()) {
                 if (StringUtils.isNotBlank(company.getName())) {
-                    movie.addStudio(StringUtils.trim(company.getName()));
+                    studios.add(StringUtils.trim(company.getName()));
                 }
             }
+            movie.setStudios(studios);
         }
 
         // CAST
@@ -148,7 +156,7 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
                 if (skipUncredited && StringUtils.indexOf(person.getCharacter(), "uncredited") > 0) {
                     continue;
                 }
-                movie.addCredit(new CreditDTO(SOURCE_TMDB, String.valueOf(person.getId()), JobType.ACTOR, person.getName(), person.getCharacter()));
+                movie.addCredit(String.valueOf(person.getId()), JobType.ACTOR, person.getName(), person.getCharacter());
             }
         }
 
@@ -159,15 +167,14 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
                 // scan not enabled for that job
                 continue;
             }
-            movie.addCredit(new CreditDTO(SOURCE_TMDB, String.valueOf(person.getId()), jobType, person.getName(), person.getJob()));
+            movie.addCredit(String.valueOf(person.getId()), jobType, person.getName(), person.getJob());
         }
 
         // store collection as boxed set
         if (configService.getBooleanProperty("themoviedb.include.collection", false)) {
             Collection collection = movieInfo.getBelongsToCollection();
             if (collection != null) {
-                movie.setCollectionName(collection.getName());
-                movie.setCollectionId(Integer.toString(collection.getId()));
+                movie.addCollection(collection.getName(), Integer.toString(collection.getId()));
             }
         }
         

@@ -26,15 +26,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.metadata.MovieDTO;
 import org.yamj.plugin.api.metadata.MovieScanner;
+import org.yamj.plugin.api.metadata.mock.MovieMock;
 import org.yamj.plugin.api.service.mock.PluginConfigServiceMock;
 import org.yamj.plugin.api.service.mock.PluginLocaleServiceMock;
 import org.yamj.plugin.api.service.mock.PluginMetadataServiceMock;
@@ -52,16 +49,18 @@ public class OfdbScannerTest {
 
     @Test
     public void testGetMovieId() {
-        Map<String,String> ids = Collections.emptyMap();
-        String id = movieScanner.getMovieId("Avatar", null, 2009, ids, false);
+        MovieMock movie = new MovieMock();
+        movie.setTitle("Avatar");
+        movie.setYear(2009);
+        String id = movieScanner.getMovieId(movie, false);
+        
         assertEquals("http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora", id);
     }
 
     @Test
     public void testScanMovie() {
-        Map<String,String> ids = new HashMap<>();
-        ids.put(movieScanner.getScannerName(), "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
-        MovieDTO movie = new MovieDTO(ids);
+        MovieMock movie = new MovieMock();
+        movie.addId(movieScanner.getScannerName(), "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
         boolean result = movieScanner.scanMovie(movie, false);
         
         assertTrue(result);
