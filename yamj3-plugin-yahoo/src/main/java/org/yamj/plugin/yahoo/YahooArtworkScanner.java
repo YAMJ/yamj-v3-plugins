@@ -32,7 +32,7 @@ import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.MovieArtworkScanner;
-import org.yamj.plugin.api.metadata.IMovie;
+import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;

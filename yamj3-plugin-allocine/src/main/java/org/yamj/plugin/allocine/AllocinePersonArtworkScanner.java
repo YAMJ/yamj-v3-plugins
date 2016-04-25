@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.PersonArtworkScanner;
-import org.yamj.plugin.api.metadata.IPerson;
+import org.yamj.plugin.api.model.IPerson;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension

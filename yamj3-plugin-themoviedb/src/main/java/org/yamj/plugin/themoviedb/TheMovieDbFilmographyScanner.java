@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.metadata.FilmographyDTO;
 import org.yamj.plugin.api.metadata.FilmographyScanner;
 import org.yamj.plugin.api.metadata.MetadataTools;
-import org.yamj.plugin.api.type.JobType;
-import org.yamj.plugin.api.type.ParticipationType;
+import org.yamj.plugin.api.model.type.JobType;
+import org.yamj.plugin.api.model.type.ParticipationType;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension

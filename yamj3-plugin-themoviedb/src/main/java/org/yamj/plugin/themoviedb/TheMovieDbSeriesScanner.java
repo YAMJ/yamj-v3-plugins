@@ -38,8 +38,12 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.*;
-import org.yamj.plugin.api.type.JobType;
+import org.yamj.plugin.api.metadata.MetadataTools;
+import org.yamj.plugin.api.metadata.SeriesScanner;
+import org.yamj.plugin.api.model.IEpisode;
+import org.yamj.plugin.api.model.ISeason;
+import org.yamj.plugin.api.model.ISeries;
+import org.yamj.plugin.api.model.type.JobType;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension

@@ -30,9 +30,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.IPerson;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.PersonScanner;
+import org.yamj.plugin.api.model.IPerson;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension

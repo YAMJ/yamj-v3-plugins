@@ -27,9 +27,9 @@ import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 import com.moviejukebox.allocine.model.PersonInfos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.IPerson;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.PersonScanner;
+import org.yamj.plugin.api.model.IPerson;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension

@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
 import org.yamj.plugin.api.metadata.MovieScanner;
-import org.yamj.plugin.api.metadata.mock.MovieMock;
+import org.yamj.plugin.api.model.mock.MovieMock;
 import org.yamj.plugin.api.service.mock.PluginConfigServiceMock;
 import org.yamj.plugin.api.service.mock.PluginLocaleServiceMock;
 import org.yamj.plugin.api.service.mock.PluginMetadataServiceMock;

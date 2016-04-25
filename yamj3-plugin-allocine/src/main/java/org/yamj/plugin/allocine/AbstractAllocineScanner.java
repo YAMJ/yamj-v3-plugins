@@ -37,6 +37,7 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.ArtworkTools;
 import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.model.*;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;

@@ -33,10 +33,10 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.IMovie;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
-import org.yamj.plugin.api.type.JobType;
+import org.yamj.plugin.api.model.IMovie;
+import org.yamj.plugin.api.model.type.JobType;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension

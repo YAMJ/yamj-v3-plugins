@@ -27,6 +27,7 @@ import static org.yamj.plugin.api.service.Constants.LANGUAGE_EN;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.enumeration.ArtworkType;
 import com.omertron.themoviedbapi.model.artwork.Artwork;
+import com.omertron.themoviedbapi.results.ResultList;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.yamj.plugin.api.artwork.ArtworkTools;
 public abstract class AbstractTheMovieDbArtworkScanner extends AbstractTheMovieDbScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTheMovieDbArtworkScanner.class);
+    protected static final String DEFAULT_SIZE = "original";
 
     /**
      * Get a list of the artwork matching type and size.
@@ -50,12 +52,13 @@ public abstract class AbstractTheMovieDbArtworkScanner extends AbstractTheMovieD
      * @param artworkSize
      * @return
      */
-    protected List<ArtworkDTO> filterArtwork(String tmdbId, List<Artwork> artworkList, String language, ArtworkType artworkType, String artworkSize) {
+    protected List<ArtworkDTO> filterArtwork(String tmdbId, ResultList<Artwork> resultList, String language, ArtworkType artworkType, String artworkSize) {
         List<ArtworkDTO> dtos = new ArrayList<>();
 
-        if (artworkList == null || artworkList.isEmpty()) {
+        if (resultList == null || resultList.isEmpty()) {
             LOG.debug("Got no {} artworks from TMDb for id {}", artworkType, tmdbId);
         } else {
+            final List<Artwork> artworkList = resultList.getResults();
             LOG.debug("Got {} {} artworks from TMDb for id {}", artworkList.size(), artworkType, tmdbId);
             
             for (Artwork artwork : artworkList) {

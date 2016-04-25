@@ -20,42 +20,34 @@
  *      Web: https://github.com/YAMJ/yamj-v3-plugins
  *
  */
-package org.yamj.plugin.allocine;
+package org.yamj.plugin.themoviedb;
 
-import com.moviejukebox.allocine.model.MovieInfos;
+import com.omertron.themoviedbapi.enumeration.ArtworkType;
+import com.omertron.themoviedbapi.model.artwork.Artwork;
+import com.omertron.themoviedbapi.results.ResultList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
-import org.yamj.plugin.api.artwork.MovieArtworkScanner;
-import org.yamj.plugin.api.model.IMovie;
+import org.yamj.plugin.api.artwork.PersonArtworkScanner;
+import org.yamj.plugin.api.model.IPerson;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class AllocineMovieArtworkScanner extends AbstractAllocineScanner implements MovieArtworkScanner {
+public final class TheMovieDbPersonArtworkScanner extends AbstractTheMovieDbArtworkScanner implements PersonArtworkScanner {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AllocineMovieArtworkScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbPersonArtworkScanner.class);
 
     @Override
-    public List<ArtworkDTO> getPosters(IMovie movie) {
-        String allocineId = getMovieId(movie, false);
-        if (isNoValidAllocineId(allocineId)) {
-            LOG.debug("Allocine id not available '{}'", movie.getTitle());
-            return Collections.emptyList();
-        }
-
-        MovieInfos movieInfos = allocineApiWrapper.getMovieInfos(allocineId, false);
-        if (movieInfos == null || movieInfos.isNotValid() || MapUtils.isEmpty(movieInfos.getPosters())) {
+    public List<ArtworkDTO> getPhotos(IPerson person) {
+        String tmdbId = getPersonId(person, false);
+        if (isNoValidTheMovieDbId(tmdbId)) {
+            LOG.debug("TheMovieDb id not available '{}'", person.getName());
             return Collections.emptyList();
         }
         
-        return buildArtworkDetails(movieInfos.getPosters());
-    }
-
-    @Override
-    public List<ArtworkDTO> getFanarts(IMovie movie) {
-        return Collections.emptyList();
+        ResultList<Artwork> resultList = theMovieDbApiWrapper.getPersonImages(Integer.parseInt(tmdbId));
+        return this.filterArtwork(tmdbId, resultList, TheMovieDbApiWrapper.NO_LANGUAGE, ArtworkType.PROFILE, DEFAULT_SIZE);
     }
 }

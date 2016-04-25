@@ -22,11 +22,14 @@
  */
 package org.yamj.plugin.themoviedb;
 
+import static org.yamj.plugin.api.service.Constants.LANGUAGE_EN;
+
 import com.omertron.themoviedbapi.Compare;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.enumeration.SearchType;
 import com.omertron.themoviedbapi.model.artwork.Artwork;
+import com.omertron.themoviedbapi.model.collection.Collection;
 import com.omertron.themoviedbapi.model.credits.CreditBasic;
 import com.omertron.themoviedbapi.model.movie.MovieInfo;
 import com.omertron.themoviedbapi.model.person.PersonCreditList;
@@ -50,6 +53,7 @@ public class TheMovieDbApiWrapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbApiWrapper.class);
     private static final String API_ERROR = "TheMovieDb error";
+    protected static final String NO_LANGUAGE = StringUtils.EMPTY;
                     
     private final TheMovieDbApi tmdbApi;
     private final PluginConfigService configService;
@@ -273,8 +277,8 @@ public class TheMovieDbApiWrapper {
             checkTempError(throwTempError, ex);
             LOG.error("Failed to get filmography for TMDb ID {}: {}", tmdbId, ex.getMessage());
             LOG.trace(API_ERROR, ex);
+            return null;
         }
-        return null;
     }
     
     private static void checkTempError(boolean throwTempError, MovieDbException ex) {
@@ -283,7 +287,131 @@ public class TheMovieDbApiWrapper {
         }
     }
     
+    public Collection findCollection(String name, String language) {
+        try {
+            ResultList<Collection> resultList = tmdbApi.searchCollection(name, 0, language);
+            if (resultList.isEmpty() && !StringUtils.equalsIgnoreCase(language, LANGUAGE_EN)) {
+                resultList = tmdbApi.searchCollection(name, 0, LANGUAGE_EN);
+            }
+
+            for (Collection collection : resultList.getResults()) {
+                if (StringUtils.isBlank(collection.getTitle())) {
+                    continue;
+                }
+
+                // 1. check name
+                if (StringUtils.equalsIgnoreCase(name, collection.getTitle())) {
+                    // found matching collection
+                    return collection;
+                }
+
+                
+                // 2. TODO find matching collection based on the collection members (not supported by TMDbApi until now)
+            }
+        } catch (MovieDbException ex) {
+            LOG.error("Failed retrieving collection for boxed set: {}", name);
+            LOG.warn(API_ERROR, ex);
+        }
+        
+        return null;
+    }
+    
     public URL createImageURL(Artwork artwork, String requiredSize) throws MovieDbException {
         return tmdbApi.createImageUrl(artwork.getFilePath(), requiredSize);
+    }
+
+    public ResultList<Artwork> getMovieImages(int tmdbId) {
+        try {
+            final String cacheKey = "movie###"+tmdbId;
+            ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);
+            if (resultList == null || resultList.isEmpty()) {
+                // use an empty language to get all artwork and then filter it
+                resultList = tmdbApi.getMovieImages(tmdbId, NO_LANGUAGE);
+                cache.store(cacheKey, resultList);
+            }
+            return resultList;
+        } catch (MovieDbException ex) {
+            LOG.error("Failed to get movie images for TMDb ID {}: {}", tmdbId, ex.getMessage());
+            LOG.trace(API_ERROR, ex);
+            return null;
+        }
+    }
+
+    public ResultList<Artwork> getSeriesImages(int tmdbId) {
+        try {
+            final String cacheKey = "series###"+tmdbId;
+            ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);
+            if (resultList == null || resultList.isEmpty()) {
+                // use an empty language to get all artwork and then filter it
+                resultList = tmdbApi.getTVImages(tmdbId, NO_LANGUAGE);
+                cache.store(cacheKey, resultList);
+            }
+            return resultList;
+        } catch (MovieDbException ex) {
+            LOG.error("Failed to get series images for TMDb ID {}: {}", tmdbId, ex.getMessage());
+            LOG.trace(API_ERROR, ex);
+            return null;
+        }
+    }
+
+    public ResultList<Artwork> getSeasonImages(int tmdbId, int season) {
+        try {
+            final String cacheKey = "season###"+tmdbId+"###"+season;
+            ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);
+            if (resultList == null || resultList.isEmpty()) {
+                // use an empty language to get all artwork and then filter it
+                resultList = tmdbApi.getSeasonImages(tmdbId, season, NO_LANGUAGE);
+                cache.store(cacheKey, resultList);
+            }
+            return resultList;
+        } catch (MovieDbException ex) {
+            LOG.error("Failed to get season images for TMDb ID {} and season {}: {}", tmdbId, season, ex.getMessage());
+            LOG.trace(API_ERROR, ex);
+            return null;
+        }
+    }
+
+    public ResultList<Artwork> getEpisodeImages(int tmdbId, int season, int episode) {
+        try {
+            final String cacheKey = "episode###"+tmdbId+"###"+season+"###"+episode;
+            ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);
+            if (resultList == null || resultList.isEmpty()) {
+                // use an empty language to get all artwork and then filter it
+                resultList = tmdbApi.getEpisodeImages(tmdbId, season, episode);
+                cache.store(cacheKey, resultList);
+            }
+            return resultList;
+        } catch (MovieDbException ex) {
+            LOG.error("Failed to get episode images for TMDb ID {} and season {} and episode: {}", tmdbId, season, episode, ex.getMessage());
+            LOG.trace(API_ERROR, ex);
+            return null;
+        }
+    }
+
+    public ResultList<Artwork> getPersonImages(int tmdbId) {
+        try {
+            return tmdbApi.getPersonImages(tmdbId);
+        } catch (MovieDbException ex) {
+            LOG.error("Failed to get person images for TMDb ID {}: {}", tmdbId, ex.getMessage());
+            LOG.trace(API_ERROR, ex);
+            return null;
+        }
+    }
+    
+    public ResultList<Artwork> getCollectionImages(int tmdbId) {
+        try {
+            final String cacheKey = "boxset###"+tmdbId;
+            ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);
+            if (resultList == null || resultList.isEmpty()) {
+                // use an empty language to get all artwork and then filter it
+                resultList = tmdbApi.getCollectionImages(tmdbId, NO_LANGUAGE);
+                cache.store(cacheKey, resultList);
+            }
+            return resultList;
+        } catch (MovieDbException ex) {
+            LOG.error("Failed to get collection images for TMDb ID {}: {}", tmdbId, ex.getMessage());
+            LOG.trace(API_ERROR, ex);
+            return null;
+        }
     }
 }

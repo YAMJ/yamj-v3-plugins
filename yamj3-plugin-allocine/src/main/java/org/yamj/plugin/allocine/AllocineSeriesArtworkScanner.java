@@ -31,9 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.SeriesArtworkScanner;
-import org.yamj.plugin.api.metadata.IEpisode;
-import org.yamj.plugin.api.metadata.ISeason;
-import org.yamj.plugin.api.metadata.ISeries;
+import org.yamj.plugin.api.model.IEpisode;
+import org.yamj.plugin.api.model.ISeason;
+import org.yamj.plugin.api.model.ISeries;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension

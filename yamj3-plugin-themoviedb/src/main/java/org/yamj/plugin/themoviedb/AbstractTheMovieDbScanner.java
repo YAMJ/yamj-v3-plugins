@@ -33,11 +33,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.metadata.MetadataScanner;
+import org.yamj.plugin.api.metadata.MetadataTools;
+import org.yamj.plugin.api.metadata.NfoIdScanner;
+import org.yamj.plugin.api.model.*;
+import org.yamj.plugin.api.model.type.JobType;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
-import org.yamj.plugin.api.type.JobType;
  
 public abstract class AbstractTheMovieDbScanner implements MetadataScanner, NfoIdScanner {
 
