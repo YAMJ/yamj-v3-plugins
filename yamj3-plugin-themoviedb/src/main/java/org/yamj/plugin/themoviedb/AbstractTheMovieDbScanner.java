@@ -26,7 +26,9 @@ import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.service.Constants.SOURCE_TMDB;
 
 import com.omertron.themoviedbapi.model.movie.MovieInfo;
-import java.util.*;
+import java.util.Date;
+import java.util.Locale;
+import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,18 +120,18 @@ public abstract class AbstractTheMovieDbScanner implements MetadataScanner, NfoI
         return (id > 0 ? Integer.toString(id) : null);
     }
 
-    public String getSeriesId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
-        String tmdbId = ids.get(SOURCE_TMDB);
+    public String getSeriesId(ISeries series, boolean throwTempError) {
+        String tmdbId = series.getId(SOURCE_TMDB);
         if (isValidTheMovieDbId(tmdbId)) {
             return tmdbId;
         }
 
-        LOG.debug("No TMDb id found for '{}', searching title with year {}", title, year);
-        int id = theMovieDbApiWrapper.getSeriesId(title, year, locale, throwTempError);
+        LOG.debug("No TMDb id found for '{}', searching title with year {}", series.getTitle(), series.getStartYear());
+        int id = theMovieDbApiWrapper.getSeriesId(series.getTitle(), series.getStartYear(), locale, throwTempError);
 
-        if (id<0 && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
-            LOG.debug("No TMDb id found for '{}', searching original title with year {}", title, year);
-            id = theMovieDbApiWrapper.getSeriesId(originalTitle, year, locale, throwTempError);
+        if (id<0 && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
+            LOG.debug("No TMDb id found for '{}', searching original title with year {}", series.getTitle(), series.getStartYear());
+            id = theMovieDbApiWrapper.getSeriesId(series.getOriginalTitle(), series.getStartYear(), locale, throwTempError);
         }
 
         return (id > 0 ? Integer.toString(id) : null);
@@ -160,9 +162,8 @@ public abstract class AbstractTheMovieDbScanner implements MetadataScanner, NfoI
         return null;
     }
 
-    protected static JobType retrieveJobType(String personName, String department) { //NOSONAR
+    protected static JobType retrieveJobType(String department) { //NOSONAR
         if (StringUtils.isBlank(department)) {
-            LOG.trace("No department found for person '{}'", personName);
             return JobType.UNKNOWN;
         }
 
@@ -190,7 +191,7 @@ public abstract class AbstractTheMovieDbScanner implements MetadataScanner, NfoI
             case "lighting":
                 return JobType.LIGHTING;
             default:
-                LOG.debug("Unknown department '{}' for person '{}'", department, personName);
+                LOG.debug("Unknown department '{}'", department);
                 return JobType.UNKNOWN;
         }
     }

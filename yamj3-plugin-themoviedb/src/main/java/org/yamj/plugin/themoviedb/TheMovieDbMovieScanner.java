@@ -162,7 +162,7 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
 
         // CREW
         for (MediaCreditCrew person : movieInfo.getCrew()) {
-            JobType jobType = retrieveJobType(person.getName(), person.getDepartment());
+            JobType jobType = retrieveJobType(person.getDepartment());
             if (!configService.isCastScanEnabled(jobType)) {
                 // scan not enabled for that job
                 continue;

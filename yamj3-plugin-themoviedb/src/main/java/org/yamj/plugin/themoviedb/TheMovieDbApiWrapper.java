@@ -26,6 +26,7 @@ import com.omertron.themoviedbapi.Compare;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.enumeration.SearchType;
+import com.omertron.themoviedbapi.model.artwork.Artwork;
 import com.omertron.themoviedbapi.model.credits.CreditBasic;
 import com.omertron.themoviedbapi.model.movie.MovieInfo;
 import com.omertron.themoviedbapi.model.person.PersonCreditList;
@@ -34,11 +35,14 @@ import com.omertron.themoviedbapi.model.person.PersonInfo;
 import com.omertron.themoviedbapi.model.tv.*;
 import com.omertron.themoviedbapi.results.ResultList;
 import com.omertron.themoviedbapi.tools.MethodSub;
+import java.net.URL;
 import java.util.Locale;
+import net.sf.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.tools.ResponseTools;
+import org.yamj.plugin.api.service.EhCacheWrapper;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 
@@ -49,10 +53,16 @@ public class TheMovieDbApiWrapper {
                     
     private final TheMovieDbApi tmdbApi;
     private final PluginConfigService configService;
+    private final EhCacheWrapper cache;
     
-    public TheMovieDbApiWrapper(TheMovieDbApi tmdbApi, PluginConfigService configService) {
+    public TheMovieDbApiWrapper(TheMovieDbApi tmdbApi, PluginConfigService configService, Cache cache) {
         this.tmdbApi = tmdbApi;
         this.configService = configService;
+        this.cache = new EhCacheWrapper(cache);
+    }
+    
+    protected TheMovieDbApi getTheMovieDbApi() {
+        return tmdbApi;
     }
     
     public int getMovieId(String title, int year, Locale locale, boolean throwTempError) { //NOSONAR
@@ -271,5 +281,9 @@ public class TheMovieDbApiWrapper {
         if (throwTempError && ResponseTools.isTemporaryError(ex)) {
             throw new TemporaryUnavailableException("TheMovieDb service temporary not available: " + ex.getResponseCode(), ex);
         }
+    }
+    
+    public URL createImageURL(Artwork artwork, String requiredSize) throws MovieDbException {
+        return tmdbApi.createImageUrl(artwork.getFilePath(), requiredSize);
     }
 }

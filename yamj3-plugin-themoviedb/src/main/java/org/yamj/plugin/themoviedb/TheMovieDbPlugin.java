@@ -22,9 +22,16 @@
  */
 package org.yamj.plugin.themoviedb;
 
+import static org.yamj.plugin.api.service.Constants.SOURCE_TMDB;
+
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import java.io.InputStream;
 import java.util.Properties;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.YamjPlugin;
@@ -52,7 +59,21 @@ public class TheMovieDbPlugin extends YamjPlugin {
             // create API
             final String apiKey = props.getProperty("apikey.themoviedb");
             TheMovieDbApi tmdbApi = new TheMovieDbApi(apiKey, httpClient);
-            theMovieDbApiWrapper = new TheMovieDbApiWrapper(tmdbApi, configService);
+            
+            // create cache
+            Cache cache = new Cache(new CacheConfiguration().name(SOURCE_TMDB)
+                            .eternal(false)
+                            .maxEntriesLocalHeap(200)
+                            .timeToIdleSeconds(0)
+                            .timeToLiveSeconds(1800)
+                            .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
+                            .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+                            .statistics(false));
+            
+            // normally the YAMJ cache manager will be used
+            CacheManager.getInstance().addCache(cache);
+            
+            theMovieDbApiWrapper = new TheMovieDbApiWrapper(tmdbApi, configService, cache);
         } catch (Exception ex) {
             throw new PluginException("Failed to create TheMovieDb api", ex);
         }
