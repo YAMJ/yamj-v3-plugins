@@ -32,10 +32,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.common.mock.PluginConfigServiceMock;
-import org.yamj.plugin.api.common.mock.PluginLocaleServiceMock;
-import org.yamj.plugin.api.common.mock.PluginMetadataServiceMock;
 import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.service.mock.PluginConfigServiceMock;
+import org.yamj.plugin.api.service.mock.PluginLocaleServiceMock;
+import org.yamj.plugin.api.service.mock.PluginMetadataServiceMock;
 
 public class ComingSoonSeriesScannerTest {
 

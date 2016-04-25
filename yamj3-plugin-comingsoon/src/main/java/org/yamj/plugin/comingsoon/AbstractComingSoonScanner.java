@@ -22,8 +22,8 @@
  */
 package org.yamj.plugin.comingsoon;
 
-import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
-import static org.yamj.plugin.api.common.Constants.UTF8;
+import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.service.Constants.UTF8;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
-import org.yamj.plugin.api.common.PluginConfigService;
-import org.yamj.plugin.api.common.PluginLocaleService;
-import org.yamj.plugin.api.common.PluginMetadataService;
 import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.service.PluginConfigService;
+import org.yamj.plugin.api.service.PluginLocaleService;
+import org.yamj.plugin.api.service.PluginMetadataService;
 import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;

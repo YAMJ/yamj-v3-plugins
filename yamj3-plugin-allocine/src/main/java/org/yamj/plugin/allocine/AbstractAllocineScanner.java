@@ -23,7 +23,7 @@
 package org.yamj.plugin.allocine;
 
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
-import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -36,10 +36,10 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.ArtworkTools;
-import org.yamj.plugin.api.common.PluginConfigService;
-import org.yamj.plugin.api.common.PluginLocaleService;
-import org.yamj.plugin.api.common.PluginMetadataService;
 import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.service.PluginConfigService;
+import org.yamj.plugin.api.service.PluginLocaleService;
+import org.yamj.plugin.api.service.PluginMetadataService;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
  
@@ -175,20 +175,20 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
         return (id > 0 ? Integer.toString(id) : null);
     }
     
-    public String getPersonId(String name, Map<String, String> ids, boolean throwTempError) {
-        String allocineId = ids.get(SCANNER_NAME);
+    public String getPersonId(IPerson person, boolean throwTempError) {
+        String allocineId = person.getId(SCANNER_NAME);
         if (isValidAllocineId(allocineId)) {
             return allocineId;
         }
 
-        int id = allocineApiWrapper.getAllocinePersonId(name, throwTempError);
+        int id = allocineApiWrapper.getAllocinePersonId(person.getName(), throwTempError);
             
         if (id < 0) {
             // try search engines
             searchEngineLock.lock();
             try {
                 searchEngineTools.setSearchSuffix("/fichepersonne_gen_cpersonne");
-                String url = searchEngineTools.searchURL(name, -1, "www.allocine.fr/personne", throwTempError);
+                String url = searchEngineTools.searchURL(person.getName(), -1, "www.allocine.fr/personne", throwTempError);
                 id = NumberUtils.toInt(HTMLTools.extractTag(url, "fichepersonne_gen_cpersonne=", ".html"), -1);
             } finally {
                 searchEngineLock.unlock();

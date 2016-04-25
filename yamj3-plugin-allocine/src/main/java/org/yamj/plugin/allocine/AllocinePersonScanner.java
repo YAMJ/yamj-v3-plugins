@@ -27,8 +27,8 @@ import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 import com.moviejukebox.allocine.model.PersonInfos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yamj.plugin.api.metadata.IPerson;
 import org.yamj.plugin.api.metadata.MetadataTools;
-import org.yamj.plugin.api.metadata.PersonDTO;
 import org.yamj.plugin.api.metadata.PersonScanner;
 import ro.fortsoft.pf4j.Extension;
 
@@ -41,10 +41,10 @@ public final class AllocinePersonScanner extends AbstractAllocineScanner impleme
     public boolean isValidPersonId(String personId) {
         return isValidAllocineId(personId);
     }
-    
+
     @Override
-    public boolean scanPerson(PersonDTO person, boolean throwTempError) {
-        final String allocineId = person.getIds().get(SCANNER_NAME);
+    public boolean scanPerson(IPerson person, boolean throwTempError) {
+        final String allocineId = person.getId(SCANNER_NAME);
         if (isNoValidAllocineId(allocineId)) {
             return false;
         }
@@ -57,15 +57,13 @@ public final class AllocinePersonScanner extends AbstractAllocineScanner impleme
         }
         
         // fill in data
-        person.setName(personInfos.getFullName())
-            .setFirstName(personInfos.getFirstName())
-            .setLastName(personInfos.getLastName())
-            .setBirthDay(MetadataTools.parseToDate(personInfos.getBirthDate()))
-            .setBirthPlace(personInfos.getBirthPlace())
-            .setBirthName(personInfos.getRealName())
-            .setDeathDay(MetadataTools.parseToDate(personInfos.getDeathDate()))
-            .setDeathPlace(personInfos.getDeathPlace())
-            .setBiography(personInfos.getBiography());
+        person.setNames(personInfos.getFullName(), personInfos.getFirstName(), personInfos.getLastName());
+        person.setBirthDay(MetadataTools.parseToDate(personInfos.getBirthDate()));
+        person.setBirthPlace(personInfos.getBirthPlace());
+        person.setBirthName(personInfos.getRealName());
+        person.setDeathDay(MetadataTools.parseToDate(personInfos.getDeathDate()));
+        person.setDeathPlace(personInfos.getDeathPlace());
+        person.setBiography(personInfos.getBiography());
         
         return true;
     }

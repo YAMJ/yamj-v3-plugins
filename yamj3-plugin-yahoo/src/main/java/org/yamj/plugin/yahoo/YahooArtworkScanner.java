@@ -32,10 +32,10 @@ import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.MovieArtworkScanner;
-import org.yamj.plugin.api.common.PluginConfigService;
-import org.yamj.plugin.api.common.PluginLocaleService;
-import org.yamj.plugin.api.common.PluginMetadataService;
 import org.yamj.plugin.api.metadata.MovieDTO;
+import org.yamj.plugin.api.service.PluginConfigService;
+import org.yamj.plugin.api.service.PluginLocaleService;
+import org.yamj.plugin.api.service.PluginMetadataService;
 import org.yamj.plugin.api.web.HTMLTools;
 import ro.fortsoft.pf4j.Extension;
 

@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.tvrage;
 
-import static org.yamj.plugin.api.common.Constants.SOURCE_TVRAGE;
+import static org.yamj.plugin.api.service.Constants.SOURCE_TVRAGE;
 
 import com.omertron.tvrageapi.model.*;
 import java.util.Locale;
@@ -32,10 +32,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
-import org.yamj.plugin.api.common.PluginConfigService;
-import org.yamj.plugin.api.common.PluginLocaleService;
-import org.yamj.plugin.api.common.PluginMetadataService;
 import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.service.PluginConfigService;
+import org.yamj.plugin.api.service.PluginLocaleService;
+import org.yamj.plugin.api.service.PluginMetadataService;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension

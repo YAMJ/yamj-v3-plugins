@@ -22,8 +22,8 @@
  */
 package org.yamj.plugin.themoviedb;
 
-import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
-import static org.yamj.plugin.api.common.Constants.SOURCE_TMDB;
+import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.service.Constants.SOURCE_TMDB;
 
 import com.omertron.themoviedbapi.model.movie.MovieInfo;
 import java.util.*;
@@ -31,10 +31,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
-import org.yamj.plugin.api.common.PluginConfigService;
-import org.yamj.plugin.api.common.PluginLocaleService;
-import org.yamj.plugin.api.common.PluginMetadataService;
 import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.service.PluginConfigService;
+import org.yamj.plugin.api.service.PluginLocaleService;
+import org.yamj.plugin.api.service.PluginMetadataService;
 import org.yamj.plugin.api.type.JobType;
  
 public abstract class AbstractTheMovieDbScanner implements MetadataScanner, NfoIdScanner {
@@ -135,13 +135,13 @@ public abstract class AbstractTheMovieDbScanner implements MetadataScanner, NfoI
         return (id > 0 ? Integer.toString(id) : null);
     }
 
-    public String getPersonId(String name, Map<String, String> ids, boolean throwTempError) {
-        String tmdbId = ids.get(SOURCE_TMDB);
+    public String getPersonId(IPerson person, boolean throwTempError) {
+        String tmdbId = person.getId(SOURCE_TMDB);
         if (isValidTheMovieDbId(tmdbId)) {
             return tmdbId;
         }
 
-        int id = theMovieDbApiWrapper.getPersonId(name, throwTempError);
+        int id = theMovieDbApiWrapper.getPersonId(person.getName(), throwTempError);
         return (id > 0 ? Integer.toString(id) : null);
     }
 

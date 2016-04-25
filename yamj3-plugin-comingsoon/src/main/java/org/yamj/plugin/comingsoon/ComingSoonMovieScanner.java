@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.comingsoon;
 
-import static org.yamj.plugin.api.common.Constants.UTF8;
+import static org.yamj.plugin.api.service.Constants.UTF8;
 
 import java.io.IOException;
 import java.util.Date;

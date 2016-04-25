@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.PersonArtworkScanner;
-import org.yamj.plugin.api.metadata.PersonDTO;
+import org.yamj.plugin.api.metadata.IPerson;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
@@ -39,8 +39,8 @@ public final class AllocinePersonArtworkScanner extends AbstractAllocineScanner 
     private static final Logger LOG = LoggerFactory.getLogger(AllocinePersonArtworkScanner.class);
 
     @Override
-    public List<ArtworkDTO> getPhotos(PersonDTO person) {
-        String allocineId = getPersonId(person.getName(), person.getIds(), false);
+    public List<ArtworkDTO> getPhotos(IPerson person) {
+        String allocineId = getPersonId(person, false);
         if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}'", person.getName());
             return Collections.emptyList();

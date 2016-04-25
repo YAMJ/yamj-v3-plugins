@@ -22,15 +22,17 @@
  */
 package org.yamj.plugin.themoviedb;
 
-import static org.yamj.plugin.api.common.Constants.SOURCE_IMDB;
-import static org.yamj.plugin.api.common.Constants.SOURCE_TMDB;
+import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.service.Constants.SOURCE_TMDB;
 
 import com.omertron.themoviedbapi.model.person.PersonInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.metadata.IPerson;
+import org.yamj.plugin.api.metadata.MetadataTools;
+import org.yamj.plugin.api.metadata.PersonScanner;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
@@ -39,14 +41,14 @@ public final class TheMovieDbPersonScanner extends AbstractTheMovieDbScanner imp
     private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbPersonScanner.class);
 
     @Override
-    public boolean isValidPersonId(String movieId) {
-        return isValidTheMovieDbId(movieId);
+    public boolean isValidPersonId(String personId) {
+        return isValidTheMovieDbId(personId);
     }
 
     @Override
-    public boolean scanPerson(PersonDTO person, boolean throwTempError) {
+    public boolean scanPerson(IPerson person, boolean throwTempError) {
         // get person id
-        final String tmdbId = person.getIds().get(SOURCE_TMDB);
+        final String tmdbId = person.getId(SOURCE_TMDB);
         if (isNoValidTheMovieDbId(tmdbId)) {
             LOG.debug("TheMovieDb id not available '{}'", person.getName());
             return false;
@@ -59,18 +61,13 @@ public final class TheMovieDbPersonScanner extends AbstractTheMovieDbScanner imp
             return false;
         }
 
-        // split person names
-        PersonName personName = MetadataTools.splitFullName(tmdbPerson.getName());
-
         // fill in data
-        person.addId(SOURCE_IMDB, StringUtils.trim(tmdbPerson.getImdbId()))
-            .setName(personName.getName())
-            .setFirstName(personName.getFirstName())
-            .setLastName(personName.getLastName())
-            .setBirthDay(MetadataTools.parseToDate(tmdbPerson.getBirthday()))
-            .setBirthPlace(StringUtils.trimToNull(tmdbPerson.getPlaceOfBirth()))
-            .setDeathDay(MetadataTools.parseToDate(tmdbPerson.getDeathday()))
-            .setBiography(MetadataTools.cleanBiography(tmdbPerson.getBiography()));
+        person.addId(SOURCE_IMDB, StringUtils.trim(tmdbPerson.getImdbId()));
+        person.setName(tmdbPerson.getName());
+        person.setBirthDay(MetadataTools.parseToDate(tmdbPerson.getBirthday()));
+        person.setBirthPlace(StringUtils.trimToNull(tmdbPerson.getPlaceOfBirth()));
+        person.setDeathDay(MetadataTools.parseToDate(tmdbPerson.getDeathday()));
+        person.setBiography(MetadataTools.cleanBiography(tmdbPerson.getBiography()));
 
         if (CollectionUtils.isNotEmpty(tmdbPerson.getAlsoKnownAs())) {
             person.setBirthName(tmdbPerson.getAlsoKnownAs().get(0));
