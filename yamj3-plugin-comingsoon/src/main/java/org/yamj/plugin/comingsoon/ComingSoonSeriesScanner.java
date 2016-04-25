@@ -51,23 +51,23 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
     }
     
     @Override
-    public String getSeriesId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
-        String comingSoonId = ids.get(SCANNER_NAME);
+    public String getSeriesId(ISeries series, boolean throwTempError) {
+        String comingSoonId = series.getId(SCANNER_NAME);
         if (isValidComingSoonId(comingSoonId)) {
             return comingSoonId;
         }
         
         // search coming soon site by title
-        comingSoonId = getComingSoonId(title, year, true, throwTempError);
+        comingSoonId = getComingSoonId(series.getTitle(), series.getStartYear(), true, throwTempError);
 
         // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
-            comingSoonId = getComingSoonId(originalTitle, year, true, throwTempError);
+        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
+            comingSoonId = getComingSoonId(series.getOriginalTitle(), series.getStartYear(), true, throwTempError);
         }
 
         // search coming soon with search engine tools
         if (isNoValidComingSoonId(comingSoonId)) {
-            comingSoonId = this.searchEngineTools.searchURL(title, year, "www.comingsoon.it/serietv", throwTempError);
+            comingSoonId = this.searchEngineTools.searchURL(series.getTitle(), series.getStartYear(), "www.comingsoon.it/serietv", throwTempError);
             int beginIndex = comingSoonId.indexOf("serietv/");
             if (beginIndex < 0) {
                 comingSoonId = null;
@@ -86,7 +86,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
     }
 
     @Override
-    public boolean scanSeries(SeriesDTO series, boolean throwTempError) {
+    public boolean scanSeries(ISeries series, boolean throwTempError) {
         final String comingSoonId = series.getIds().get(SCANNER_NAME);
         if (isNoValidComingSoonId(comingSoonId)) {
             LOG.debug("ComingSoon id not available '{}'", series.getTitle());
@@ -113,17 +113,19 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
             String tag = xml.substring(beginIndex, xml.indexOf(">", beginIndex)+1);
             String title = HTMLTools.extractTag(xml, tag, "</h1>").trim();
             if (StringUtils.isBlank(title)) return false;
+            title = WordUtils.capitalizeFully(title);
     
+            final String originalTitle = parseTitleOriginal(xml);
             final String plot = parsePlot(xml);
-
-            series.setTitle(WordUtils.capitalizeFully(title))
-                .setOriginalTitle(parseTitleOriginal(xml))
-                .setPlot(plot)
-                .setOutline(plot)
-                .setRating(parseRating(xml))
-                .setCountries(parseCountries(xml))
-                .setStudios(parseStudios(xml))
-                .setGenres(parseGenres(xml));
+            
+            series.setTitle(title);
+            series.setOriginalTitle(originalTitle);
+            series.setPlot(plot);
+            series.setOutline(plot);
+            series.setRating(parseRating(xml));
+            series.setCountries(parseCountries(xml));
+            series.setStudios(parseStudios(xml));
+            series.setGenres(parseGenres(xml));
             
             String year = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ANNO</span>:", "</li>")).trim();
             int intYear = NumberUtils.toInt(year, 0); 
@@ -132,7 +134,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
             }
     
             // ACTORS
-            List<CreditDTO> actors;
+            List<ComingSoonActor> actors;
             if (configService.isCastScanEnabled(JobType.ACTOR)) {
                 actors = parseActors(xml);
             } else {
@@ -140,7 +142,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
             }
             
             // scan seasons and episodes
-            scanSeasons(series, comingSoonId, actors);
+            scanSeasons(series, comingSoonId, title, originalTitle, plot, actors);
         
             return true;
         } catch (IOException ioe) {
@@ -148,21 +150,24 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
         }
     }
 
-    private void scanSeasons(SeriesDTO series, String comingSoonId, Collection<CreditDTO> actors) {
+    private void scanSeasons(ISeries series, String comingSoonId, String title, String originalTitle, String plot, Collection<ComingSoonActor> actors) {
         
-        for (SeasonDTO season : series.getSeasons()) {
-            
-            String seasonXML = getSeasonXml(comingSoonId, season.getSeasonNumber());
+        for (ISeason season : series.getSeasons()) {
+            String seasonXML = getSeasonXml(comingSoonId, season.getNumber());
 
-            if (season.isScanNeeded()) {
+            // nothing to do if season already done
+            if (!season.isDone()) {
                 // use values from series
-                season.addId(SCANNER_NAME, comingSoonId)
-                    .setTitle(series.getTitle())
-                    .setOriginalTitle(series.getOriginalTitle())
-                    .setPlot(series.getPlot())
-                    .setOutline(series.getOutline());
+                season.addId(SCANNER_NAME, comingSoonId);
+                season.setTitle(title);
+                season.setOriginalTitle(originalTitle);
+                season.setPlot(plot);
+                season.setOriginalTitle(plot);
 
                 // TODO start year from season XML for Italy
+                
+                // mark season as done
+                season.setDone();
             }
             
             // scan episodes
@@ -170,24 +175,39 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
         }
     }
 
-    private void scanEpisodes(SeasonDTO season, String comingSoonId, String seasonXML, Collection<CreditDTO> actors) {
+    private void scanEpisodes(ISeason season, String comingSoonId, String seasonXML, Collection<ComingSoonActor> actors) {
         
         // parse episodes from season XML
-        Map<Integer,EpisodeDTO> dtos = this.parseEpisodes(seasonXML);
+        Map<Integer,ComingSoonEpisode> comingSoonEpisodes = this.parseEpisodes(seasonXML);
 
-        for (EpisodeDTO episode : season.getEpisodes()) {
-            EpisodeDTO dto = dtos.get(episode.getEpisodeNumber());
-            if (dto == null) {
-                episode.setValid(false);
+        for (IEpisode episode : season.getEpisodes()) {
+            if (episode.isDone()) {
+                // nothing to do anymore
+                continue;
+            }
+            
+            // get the episode
+            ComingSoonEpisode comingSoonEpisode = comingSoonEpisodes.get(episode.getNumber());
+            if (comingSoonEpisode == null) {
+                // mark episode as not found
+                episode.setNotFound();
                 continue;
             }
             
             // set coming soon id for episode
-            episode.addId(SCANNER_NAME, comingSoonId)
-                   .setTitle(dto.getTitle())
-                   .setOriginalTitle(dto.getOriginalTitle())
-                   .addCredits(actors)
-                   .addCredits(dto.getCredits());
+            episode.addId(SCANNER_NAME, comingSoonId);
+            episode.setTitle(comingSoonEpisode.getTitle());
+            episode.setOriginalTitle(comingSoonEpisode.getOriginalTitle());
+
+            for (String director : comingSoonEpisode.getDirectors()) {
+                episode.addCredit(JobType.DIRECTOR, director);
+            }
+            for (String writer : comingSoonEpisode.getWriters()) {
+                episode.addCredit(JobType.WRITER, writer);
+            }
+            for (ComingSoonActor actor : actors) {
+                episode.addCredit(actor.getSourceId(), actor.getJobType(), actor.getName(), actor.getRole(), actor.getPhotoUrl());
+            }
         }
     }
     
@@ -208,38 +228,164 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
         return xml;
     }
     
-    private Map<Integer,EpisodeDTO> parseEpisodes(String seasonXML) {
-        Map<Integer,EpisodeDTO> episodes = new HashMap<>();
+    private Map<Integer,ComingSoonEpisode> parseEpisodes(String seasonXML) {
+        Map<Integer,ComingSoonEpisode> episodes = new HashMap<>();
         if (StringUtils.isBlank(seasonXML)) return episodes;
         
         List<String> tags = HTMLTools.extractTags(seasonXML, "BOX LISTA EPISODI SERIE TV", "BOX LISTA EPISODI SERIE TV", "<div class=\"box-contenitore", "<!-");
         for (String tag : tags) {
-            int episode = NumberUtils.toInt(HTMLTools.extractTag(tag, "episode=\"", "\""), -1);
-            if (episode > -1) {
-                EpisodeDTO dto = new EpisodeDTO(null, episode)
-                    .setTitle(HTMLTools.extractTag(tag, "img title=\"", "\""))
-                    .setOriginalTitle(HTMLTools.extractTag(tag, " descrizione\">", "</div>"));
+            int number = NumberUtils.toInt(HTMLTools.extractTag(tag, "episode=\"", "\""), -1);
+            if (number > -1) {
+                ComingSoonEpisode episode = new ComingSoonEpisode(number);
+                episode.setTitle(HTMLTools.extractTag(tag, "img title=\"", "\""));
+                episode.setOriginalTitle(HTMLTools.extractTag(tag, " descrizione\">", "</div>"));
                     
                 if (configService.isCastScanEnabled(JobType.DIRECTOR)) {
-                    parseEpisodeCredits(dto, tag, ">REGIA</strong>:", JobType.DIRECTOR);
+                    episode.setDirectors(parseEpisodeCredits(tag, ">REGIA</strong>:"));
                 }
 
                 if (configService.isCastScanEnabled(JobType.WRITER)) {
-                    parseEpisodeCredits(dto, tag, ">SCENEGGIATURA</strong>:", JobType.WRITER);
+                    episode.setWriters(parseEpisodeCredits(tag, ">SCENEGGIATURA</strong>:"));
                 }
 
-                episodes.put(dto.getEpisodeNumber(), dto);
+                episodes.put(episode.getNumber(), episode);
             }
         }
         
         return episodes;
     }
     
-    private static void parseEpisodeCredits(EpisodeDTO episode, String xml, String startTag, JobType jobType) {
+    private static List<String> parseEpisodeCredits(String xml, String startTag) {
+        List<String> names = new ArrayList<>();
         for (String name : HTMLTools.extractTag(xml, startTag, "</li>").split(",")) {
             if (StringUtils.isNotBlank(name)) {
-                episode.addCredit(new CreditDTO(SCANNER_NAME, jobType, name));
+                names.add(name);
             }
+        }
+        return names;
+    }
+
+    private static List<ComingSoonActor> parseActors(String xml) {
+        List<ComingSoonActor> actors = new ArrayList<>();
+        for (String tag : HTMLTools.extractTags(xml, "Il Cast</div>", "IL CAST -->", "<a href=\"/personaggi/", "</a>", false)) {
+            String name = HTMLTools.extractTag(tag, "<div class=\"h6 titolo\">", "</div>");
+            String role = HTMLTools.extractTag(tag, "<div class=\"h6 descrizione\">", "</div>");
+            
+            String sourceId = null;
+            int beginIndex = tag.indexOf('/');
+            if (beginIndex >-1) {
+                int endIndex = tag.indexOf('/', beginIndex+1);
+                if (endIndex > beginIndex) {
+                    sourceId = tag.substring(beginIndex+1, endIndex);
+                }
+            }
+            
+            ComingSoonActor actor = new ComingSoonActor(sourceId, JobType.ACTOR, name, role);
+            final String posterURL = HTMLTools.extractTag(tag, "<img src=\"", "\"");
+            if (posterURL.contains("http")) {
+                actor.setPhotoUrl(posterURL.replace("_ico.jpg", ".jpg"));
+            }
+            actors.add(actor);
+        }
+        return actors;
+    }
+    
+    /**
+     * Inner class for actors.
+     */
+    public static class ComingSoonActor {
+        
+        private final String sourceId;
+        private final JobType jobType;
+        private final String name;
+        private final String role;
+        private String photoUrl;
+
+        public ComingSoonActor(String sourceId, JobType jobType, String name) {
+            this(sourceId, jobType, name, null);
+        }
+
+        public ComingSoonActor(String sourceId, JobType jobType, String name, String role) {
+            this.sourceId = sourceId;
+            this.jobType = jobType;
+            this.name = name;
+            this.role = role;
+        }
+
+        public String getSourceId() {
+            return sourceId;
+        }
+
+        public JobType getJobType() {
+            return jobType;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getRole() {
+            return role;
+        }
+        
+        public String getPhotoUrl() {
+            return photoUrl;
+        }
+
+        public void setPhotoUrl(String photoUrl) {
+            this.photoUrl = photoUrl;
+        }
+    }
+    
+    /**
+     * Inner class for episodes.
+     */
+    public static class ComingSoonEpisode {
+        
+        private final int number;
+        private String title;
+        private String originalTitle;
+        private List<String> directors = Collections.emptyList();
+        private List<String> writers = Collections.emptyList();
+
+        public ComingSoonEpisode(int number) {
+            this.number = number;
+        }
+        
+        public int getNumber() {
+            return number;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getOriginalTitle() {
+            return originalTitle;
+        }
+
+        public void setOriginalTitle(String originalTitle) {
+            this.originalTitle = originalTitle;
+        }
+
+        public List<String> getDirectors() {
+            return directors;
+        }
+
+        public void setDirectors(List<String> directors) {
+            this.directors = directors;
+        }
+
+        public List<String> getWriters() {
+            return writers;
+        }
+
+        public void setWriters(List<String> writers) {
+            this.writers = writers;
         }
     }
 }

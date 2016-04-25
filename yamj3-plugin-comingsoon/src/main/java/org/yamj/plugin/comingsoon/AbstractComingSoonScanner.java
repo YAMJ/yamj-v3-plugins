@@ -38,7 +38,6 @@ import org.yamj.plugin.api.metadata.*;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
-import org.yamj.plugin.api.type.JobType;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
@@ -357,33 +356,6 @@ public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoI
             genreNames.add(st.nextToken().trim());
         }
         return genreNames;
-    }
-
-    protected static List<CreditDTO> parseActors(String xml) {
-        List<CreditDTO> credits = new ArrayList<>();
-        for (String tag : HTMLTools.extractTags(xml, "Il Cast</div>", "IL CAST -->", "<a href=\"/personaggi/", "</a>", false)) {
-            String name = HTMLTools.extractTag(tag, "<div class=\"h6 titolo\">", "</div>");
-            String role = HTMLTools.extractTag(tag, "<div class=\"h6 descrizione\">", "</div>");
-            
-            String sourceId = null;
-            int beginIndex = tag.indexOf('/');
-            if (beginIndex >-1) {
-                int endIndex = tag.indexOf('/', beginIndex+1);
-                if (endIndex > beginIndex) {
-                    sourceId = tag.substring(beginIndex+1, endIndex);
-                }
-            }
-            
-            CreditDTO credit = new CreditDTO(SCANNER_NAME, sourceId, JobType.ACTOR, name, role);
-            
-            final String posterURL = HTMLTools.extractTag(tag, "<img src=\"", "\"");
-            if (posterURL.contains("http")) {
-                credit.addPhoto(SCANNER_NAME, posterURL.replace("_ico.jpg", ".jpg"));
-            }
-            
-            credits.add(credit);
-        }
-        return credits;
     }
 }
 

@@ -25,7 +25,9 @@ package org.yamj.plugin.allocine;
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 
 import com.moviejukebox.allocine.model.*;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,103 +46,123 @@ public final class AllocineSeriesScanner extends AbstractAllocineScanner impleme
     }
 
     @Override
-    public boolean scanSeries(SeriesDTO seriesDTO, boolean throwTempError) {
+    public boolean scanSeries(ISeries series, boolean throwTempError) {
         // get series id
-        final String allocineId = seriesDTO.getIds().get(SCANNER_NAME);
+        final String allocineId = series.getId(SCANNER_NAME);
         if (isNoValidAllocineId(allocineId)) {
-            LOG.debug("Allocine id not available '{}'", seriesDTO.getTitle());
+            LOG.debug("Allocine id not available '{}'", series.getTitle());
             return false;
         }
         
         // get series info
         TvSeriesInfos tvSeriesInfos = allocineApiWrapper.getTvSeriesInfos(allocineId, throwTempError);
         if (tvSeriesInfos == null || tvSeriesInfos.isNotValid()) {
-            LOG.error("Can't find informations for series '{}'", seriesDTO.getTitle());
+            LOG.error("Can't find informations for series '{}'", series.getTitle());
             return false;
         }
 
-        seriesDTO.setTitle(tvSeriesInfos.getTitle())
-            .setOriginalTitle(tvSeriesInfos.getOriginalTitle())
-            .setStartYear(tvSeriesInfos.getYearStart())
-            .setEndYear(tvSeriesInfos.getYearEnd())
-            .setPlot(tvSeriesInfos.getSynopsis())
-            .setOutline(tvSeriesInfos.getSynopsisShort())
-            .setGenres(tvSeriesInfos.getGenres())
-            .addStudio(tvSeriesInfos.getOriginalChannel())
-            .setCountries(tvSeriesInfos.getNationalities())
-            .setRating(tvSeriesInfos.getUserRating());
+        series.setTitle(tvSeriesInfos.getTitle());
+        series.setOriginalTitle(tvSeriesInfos.getOriginalTitle());
+        series.setStartYear(tvSeriesInfos.getYearStart());
+        series.setEndYear(tvSeriesInfos.getYearEnd());
+        series.setPlot(tvSeriesInfos.getSynopsis());
+        series.setOutline(tvSeriesInfos.getSynopsisShort());
+        series.setGenres(tvSeriesInfos.getGenres());
+        series.setCountries(tvSeriesInfos.getNationalities());
+        series.setRating(tvSeriesInfos.getUserRating());
+        
+        if (StringUtils.isNotBlank(tvSeriesInfos.getOriginalChannel())) {
+            Set<String> studios = Collections.singleton(tvSeriesInfos.getOriginalChannel());
+            series.setStudios(studios);
+        }
 
         // add awards
         if (tvSeriesInfos.getFestivalAwards() != null && configService.getBooleanProperty("allocine.tvshow.awards", false)) {
             for (FestivalAward festivalAward : tvSeriesInfos.getFestivalAwards()) {
-                seriesDTO.addAward(new AwardDTO(SCANNER_NAME, festivalAward.getFestival(), festivalAward.getName(), festivalAward.getYear()));
+                series.addAward(festivalAward.getFestival(), festivalAward.getName(), festivalAward.getYear());
             }
         }
 
         // SCAN SEASONS
-        scanSeasons(seriesDTO, tvSeriesInfos);
+        scanSeasons(series, tvSeriesInfos);
 
         return false;
     }
 
-    private void scanSeasons(SeriesDTO seriesDTO, TvSeriesInfos tvSeriesInfos) {
+    private void scanSeasons(ISeries series, TvSeriesInfos tvSeriesInfos) {
 
-        for (SeasonDTO seasonDTO : seriesDTO.getSeasons()) {
+        for (ISeason season : series.getSeasons()) {
 
             TvSeasonInfos tvSeasonInfos = null;
-            if (seasonDTO.getSeasonNumber() <= tvSeriesInfos.getSeasonCount()) {
-                int seasonCode = tvSeriesInfos.getSeasonCode(seasonDTO.getSeasonNumber());
+            if (season.getNumber() <= tvSeriesInfos.getSeasonCount()) {
+                int seasonCode = tvSeriesInfos.getSeasonCode(season.getNumber());
                 if (seasonCode > 0) {
                     tvSeasonInfos = allocineApiWrapper.getTvSeasonInfos(String.valueOf(seasonCode));
                 }
             }
 
-            if (tvSeasonInfos == null || tvSeasonInfos.isNotValid()) {
-                seasonDTO.setValid(false);
-            } else {
-                seasonDTO.addId(SCANNER_NAME, String.valueOf(tvSeasonInfos.getCode()))
-                    .setTitle(tvSeriesInfos.getTitle())
-                    .setOriginalTitle(tvSeriesInfos.getOriginalTitle())
-                    .setPlot(tvSeriesInfos.getSynopsis())
-                    .setOutline(tvSeriesInfos.getSynopsisShort())
-                    .setYear(tvSeasonInfos.getSeason().getYearStart());
+            // nothing to do if season already done
+            if (!season.isDone()) {
+                if (tvSeasonInfos == null || tvSeasonInfos.isNotValid()) {
+                    // mark season as not found
+                    season.setNotFound();
+                } else {
+                    season.addId(SCANNER_NAME, String.valueOf(tvSeasonInfos.getCode()));
+                    season.setTitle(tvSeriesInfos.getTitle());
+                    season.setOriginalTitle(tvSeriesInfos.getOriginalTitle());
+                    season.setPlot(tvSeriesInfos.getSynopsis());
+                    season.setOutline(tvSeriesInfos.getSynopsisShort());
+                    season.setYear(tvSeasonInfos.getSeason().getYearStart());
+
+                    // mark season as done
+                    season.setDone();
+                }
             }
             
             // scan episodes
-            scanEpisodes(seasonDTO, tvSeasonInfos);
+            scanEpisodes(season, tvSeasonInfos);
         }
     }
 
-    private void scanEpisodes(SeasonDTO season, TvSeasonInfos tvSeasonInfos) {
-        for (EpisodeDTO episodeDTO : season.getEpisodes()) {
-
+    private void scanEpisodes(ISeason season, TvSeasonInfos tvSeasonInfos) {
+        for (IEpisode episode : season.getEpisodes()) {
+            if (episode.isDone()) {
+                // nothing to do anymore
+                continue;
+            }
+            
             // get the episode
-            String allocineId = episodeDTO.getIds().get(SCANNER_NAME);
+            String allocineId = episode.getId(SCANNER_NAME);
             if (StringUtils.isBlank(allocineId) && tvSeasonInfos != null && tvSeasonInfos.isValid()) {
-                Episode episode = tvSeasonInfos.getEpisode(episodeDTO.getEpisodeNumber());
-                if (episode != null && episode.getCode() > 0) {
-                    allocineId = String.valueOf(episode.getCode());
+                com.moviejukebox.allocine.model.Episode allocineEpisode = tvSeasonInfos.getEpisode(episode.getNumber());
+                if (allocineEpisode != null && allocineEpisode.getCode() > 0) {
+                    allocineId = String.valueOf(allocineEpisode.getCode());
                 }
             }
 
             EpisodeInfos episodeInfos = allocineApiWrapper.getEpisodeInfos(allocineId);
             if (episodeInfos == null || episodeInfos.isNotValid()) {
-                episodeDTO.setValid(false);
-            } else {
-                episodeDTO.addId(SCANNER_NAME, String.valueOf(episodeInfos.getCode()))
-                    .setTitle(episodeInfos.getTitle())
-                    .setOriginalTitle(episodeInfos.getOriginalTitle())
-                    .setPlot(episodeInfos.getSynopsis())
-                    .setOutline(episodeInfos.getSynopsisShort())
-                    .setReleaseDate(MetadataTools.parseToDate(episodeInfos.getOriginalBroadcastDate()));
-
-                //  parse credits
-                parseCredits(episodeDTO, episodeInfos.getEpisode().getCastMember());
+                // mark episode as not found
+                episode.setNotFound();
+                continue;
             }
+
+            episode.addId(SCANNER_NAME, String.valueOf(episodeInfos.getCode()));
+            episode.setTitle(episodeInfos.getTitle());
+            episode.setOriginalTitle(episodeInfos.getOriginalTitle());
+            episode.setPlot(episodeInfos.getSynopsis());
+            episode.setOutline(episodeInfos.getSynopsisShort());
+            episode.setRelease(MetadataTools.parseToDate(episodeInfos.getOriginalBroadcastDate()));
+
+            //  parse credits
+            parseCredits(episode, episodeInfos.getEpisode().getCastMember());
+            
+            // mark episode as done
+            episode.setDone();
         }
     }
         
-    private void parseCredits(EpisodeDTO episodeDTO, List<CastMember> castMembers) {
+    private void parseCredits(IEpisode episode, List<CastMember> castMembers) {
         if (castMembers == null) {
             return;
         }
@@ -151,25 +173,25 @@ public final class AllocineSeriesScanner extends AbstractAllocineScanner impleme
             
             if (member.isActor() && configService.isCastScanEnabled(JobType.ACTOR)) {
                 final JobType jobType = (member.isLeadActor() ? JobType.ACTOR : JobType.GUEST_STAR);
-                episodeDTO.addCredit(createCredit(member, jobType, member.getRole()));
+                addCredit(episode, member, jobType, member.getRole());
             } else if (member.isDirector() && configService.isCastScanEnabled(JobType.DIRECTOR)) {
-                episodeDTO.addCredit(createCredit(member, JobType.DIRECTOR));
+                addCredit(episode, member, JobType.DIRECTOR);
             } else if (member.isWriter() && configService.isCastScanEnabled(JobType.WRITER)) {
-                episodeDTO.addCredit(createCredit(member, JobType.WRITER));
+                addCredit(episode, member, JobType.WRITER);
             } else if (member.isCamera() && configService.isCastScanEnabled(JobType.CAMERA)) {
-                episodeDTO.addCredit(createCredit(member, JobType.CAMERA));
+                addCredit(episode, member, JobType.CAMERA);
             } else if (member.isProducer() && configService.isCastScanEnabled(JobType.PRODUCER)) {
-                episodeDTO.addCredit(createCredit(member, JobType.PRODUCER));
+                addCredit(episode, member, JobType.PRODUCER);
             }
         }
     }
 
-    private static CreditDTO createCredit(CastMember member, JobType jobType) {
-        return createCredit(member, jobType, null);
+    private static void addCredit(IEpisode episode, CastMember member, JobType jobType) {
+        addCredit(episode, member, jobType, null);
     }
 
-    private static CreditDTO createCredit(CastMember member, JobType jobType, String role) {
+    private static void addCredit(IEpisode episode, CastMember member, JobType jobType, String role) {
         final String sourceId = (member.getShortPerson().getCode() > 0 ?  String.valueOf(member.getShortPerson().getCode()) : null);
-        return new CreditDTO(SCANNER_NAME, sourceId, jobType, member.getShortPerson().getName(), role);
+        episode.addCredit(sourceId, jobType, member.getShortPerson().getName(), role);
     }        
 }

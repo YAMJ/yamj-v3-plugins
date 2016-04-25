@@ -22,8 +22,6 @@
  */
 package org.yamj.plugin.allocine;
 
-import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
-
 import com.moviejukebox.allocine.model.TvSeasonInfos;
 import com.moviejukebox.allocine.model.TvSeriesInfos;
 import java.util.Collections;
@@ -33,9 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.SeriesArtworkScanner;
-import org.yamj.plugin.api.metadata.EpisodeDTO;
-import org.yamj.plugin.api.metadata.SeasonDTO;
-import org.yamj.plugin.api.metadata.SeriesDTO;
+import org.yamj.plugin.api.metadata.IEpisode;
+import org.yamj.plugin.api.metadata.ISeason;
+import org.yamj.plugin.api.metadata.ISeries;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
@@ -44,10 +42,10 @@ public final class AllocineSeriesArtworkScanner extends AbstractAllocineScanner 
     private static final Logger LOG = LoggerFactory.getLogger(AllocineSeriesArtworkScanner.class);
 
     @Override
-    public List<ArtworkDTO> getPosters(SeasonDTO season) {
-        String allocineId = season.getIds().get(SCANNER_NAME);
+    public List<ArtworkDTO> getPosters(ISeason season) {
+        String allocineId = getSeriesId(season.getSeries(), false);
         if (isNoValidAllocineId(allocineId)) {
-            LOG.debug("Allocine id not available '{}' - Season {}", season.getSeries().getTitle(), season.getSeasonNumber());
+            LOG.debug("Allocine id not available '{}' - Season {}", season.getSeries().getTitle(), season.getNumber());
             return Collections.emptyList();
         }
 
@@ -59,8 +57,8 @@ public final class AllocineSeriesArtworkScanner extends AbstractAllocineScanner 
     }
 
     @Override
-    public List<ArtworkDTO> getPosters(SeriesDTO series) {
-        String allocineId = getSeriesId(series.getTitle(), series.getOriginalTitle(), series.getStartYear(), series.getIds(), false);
+    public List<ArtworkDTO> getPosters(ISeries series) {
+        String allocineId = getSeriesId(series, false);
         if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}'", series.getTitle());
             return Collections.emptyList();
@@ -74,27 +72,27 @@ public final class AllocineSeriesArtworkScanner extends AbstractAllocineScanner 
     }
 
     @Override
-    public List<ArtworkDTO> getFanarts(SeasonDTO season) {
+    public List<ArtworkDTO> getFanarts(ISeason season) {
         return Collections.emptyList();
     }
 
     @Override
-    public List<ArtworkDTO> getFanarts(SeriesDTO series) {
+    public List<ArtworkDTO> getFanarts(ISeries series) {
         return Collections.emptyList();
     }
 
     @Override
-    public List<ArtworkDTO> getBanners(SeasonDTO season) {
+    public List<ArtworkDTO> getBanners(ISeason season) {
         return Collections.emptyList();
     }
 
     @Override
-    public List<ArtworkDTO> getBanners(SeriesDTO series) {
+    public List<ArtworkDTO> getBanners(ISeries series) {
         return Collections.emptyList();
     }
 
     @Override
-    public List<ArtworkDTO> getVideoImages(EpisodeDTO episode) {
+    public List<ArtworkDTO> getVideoImages(IEpisode episode) {
         return Collections.emptyList();
     }
 }

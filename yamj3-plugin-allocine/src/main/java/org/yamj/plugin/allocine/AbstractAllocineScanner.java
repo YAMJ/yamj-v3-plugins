@@ -147,17 +147,17 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
         return (id > 0 ? Integer.toString(id) : null);
     }
 
-    public String getSeriesId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
-        String allocineId = ids.get(SCANNER_NAME);
+    public String getSeriesId(ISeries series, boolean throwTempError) {
+        String allocineId = series.getId(SCANNER_NAME);
         if (isValidAllocineId(allocineId)) {
             return allocineId;
         }
         
-        int id = allocineApiWrapper.getAllocineSeriesId(title, year, throwTempError);
+        int id = allocineApiWrapper.getAllocineSeriesId(series.getTitle(), series.getStartYear(), throwTempError);
 
-        if (id < 0 && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
+        if (id < 0 && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
             // try with original title
-            id = allocineApiWrapper.getAllocineSeriesId(originalTitle, year, throwTempError);
+            id = allocineApiWrapper.getAllocineSeriesId(series.getOriginalTitle(), series.getStartYear(), throwTempError);
         }
 
         if (id < 0) {
@@ -165,7 +165,7 @@ public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdS
             searchEngineLock.lock();
             try {
                 searchEngineTools.setSearchSuffix("/ficheserie_gen_cserie");
-                String url = searchEngineTools.searchURL(title, year, "www.allocine.fr/series", throwTempError);
+                String url = searchEngineTools.searchURL(series.getTitle(), series.getStartYear(), "www.allocine.fr/series", throwTempError);
                 id = NumberUtils.toInt(HTMLTools.extractTag(url, "ficheserie_gen_cserie=", ".html"), -1);
             } finally {
                 searchEngineLock.unlock();

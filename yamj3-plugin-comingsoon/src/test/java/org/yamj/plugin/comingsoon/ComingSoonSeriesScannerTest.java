@@ -25,14 +25,14 @@ package org.yamj.plugin.comingsoon;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.metadata.SeriesScanner;
+import org.yamj.plugin.api.metadata.mock.EpisodeMock;
+import org.yamj.plugin.api.metadata.mock.SeasonMock;
+import org.yamj.plugin.api.metadata.mock.SeriesMock;
 import org.yamj.plugin.api.service.mock.PluginConfigServiceMock;
 import org.yamj.plugin.api.service.mock.PluginLocaleServiceMock;
 import org.yamj.plugin.api.service.mock.PluginMetadataServiceMock;
@@ -50,21 +50,29 @@ public class ComingSoonSeriesScannerTest {
         
     @Test
     public void testGetSeriesId() {
-        Map<String,String> ids = Collections.emptyMap();
-        String id = seriesScanner.getSeriesId("Two and a half men", null, 2003, ids, false);
+        SeriesMock series = new SeriesMock();
+        series.setTitle("Two and a half men");
+        series.setStartYear(2003);
+        
+        String id = seriesScanner.getSeriesId(series, false);
         assertEquals("28", id);
     }
 
     @Test
     public void testScanSeries() {
-        Map<String,String> ids = new HashMap<>();
-        ids.put(seriesScanner.getScannerName(), "28");
+        SeriesMock series = new SeriesMock();
+        series.addId(seriesScanner.getScannerName(), "28");
         
-        SeriesDTO series = new SeriesDTO(ids);
-        SeasonDTO season = new SeasonDTO(new HashMap<String,String>(), 1);
-        season.addEpisode(new EpisodeDTO(new HashMap<String,String>(), 1));
-        season.addEpisode(new EpisodeDTO(new HashMap<String,String>(), 2));
+        SeasonMock season = new SeasonMock(1);
+        season.setSeries(series);
         series.addSeason(season);
+        
+        EpisodeMock ep1 = new EpisodeMock(1);
+        ep1.setSeason(season);
+        season.addEpisode(ep1);
+        EpisodeMock ep2 = new EpisodeMock(2);
+        ep2.setSeason(season);
+        season.addEpisode(ep2);
 
         seriesScanner.scanSeries(series, false);
 

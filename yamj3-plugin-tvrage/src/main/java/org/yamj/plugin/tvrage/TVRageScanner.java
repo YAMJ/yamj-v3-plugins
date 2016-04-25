@@ -25,9 +25,7 @@ package org.yamj.plugin.tvrage;
 import static org.yamj.plugin.api.service.Constants.SOURCE_TVRAGE;
 
 import com.omertron.tvrageapi.model.*;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +63,8 @@ public final class TVRageScanner implements SeriesScanner {
     }
 
     @Override
-    public String getSeriesId(String title, String originalTitle, int year, Map<String, String> ids, boolean throwTempError) {
-        String tvRageId = ids.get(SOURCE_TVRAGE);
+    public String getSeriesId(ISeries series, boolean throwTempError) {
+        String tvRageId = series.getId(SOURCE_TVRAGE);
         if (isValidSeriesId(tvRageId)) {
             return tvRageId;
         }
@@ -79,12 +77,12 @@ public final class TVRageScanner implements SeriesScanner {
         
         // try by title
         if (showInfo == null || !showInfo.isValid()) {
-            showInfo = tvRageApiWrapper.getShowInfoByTitle(title, throwTempError);
+            showInfo = tvRageApiWrapper.getShowInfoByTitle(series.getTitle(), throwTempError);
         }
 
         // try by original title
-        if ((showInfo == null || !showInfo.isValid()) && MetadataTools.isOriginalTitleScannable(title, originalTitle)) {
-            showInfo = tvRageApiWrapper.getShowInfoByTitle(originalTitle, throwTempError);
+        if ((showInfo == null || !showInfo.isValid()) && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
+            showInfo = tvRageApiWrapper.getShowInfoByTitle(series.getOriginalTitle(), throwTempError);
         }
 
         if (showInfo != null && showInfo.isValid() && showInfo.getShowID()>0) {
@@ -95,9 +93,9 @@ public final class TVRageScanner implements SeriesScanner {
     }
 
     @Override
-    public boolean scanSeries(SeriesDTO series, boolean throwTempError) {
+    public boolean scanSeries(ISeries series, boolean throwTempError) {
         // get series id
-        final String tvRageId = series.getIds().get(SOURCE_TVRAGE);
+        final String tvRageId = series.getId(SOURCE_TVRAGE);
         if (!isValidSeriesId(tvRageId)) {
             return false;
         }
@@ -113,51 +111,60 @@ public final class TVRageScanner implements SeriesScanner {
         EpisodeList episodeList = tvRageApiWrapper.getEpisodeList(tvRageId, throwTempError);
 
         // retrieve title
-        series.setTitle(showInfo.getShowName());
+        String title = showInfo.getShowName();
         if (showInfo.getAkas() != null) {
             // try AKAs for title in another country
             loop: for (CountryDetail cd : showInfo.getAkas()) {
                 if (locale.getCountry().equalsIgnoreCase(cd.getCountry())) {
-                    series.setTitle(cd.getDetail());
+                    title = cd.getDetail();
                     break loop;
                 }
             }
         }
+
+        series.setTitle(title);
+        series.setOriginalTitle(showInfo.getShowName());
+        series.setPlot(showInfo.getSummary());
+        series.setOutline(showInfo.getSummary());
+        series.setStartYear(showInfo.getStarted());
+        series.setEndYear(MetadataTools.extractYearAsInt(showInfo.getEnded()));
+        series.setGenres(showInfo.getGenres());
         
-        series.setOriginalTitle(showInfo.getShowName())
-            .setPlot(showInfo.getSummary())
-            .setOutline(showInfo.getSummary())
-            .setStartYear(showInfo.getStarted())
-            .setEndYear(MetadataTools.extractYearAsInt(showInfo.getEnded()))
-            .setGenres(showInfo.getGenres())
-            .addCountry(showInfo.getOriginCountry());
-            
-        for (CountryDetail cd : showInfo.getNetwork()) {
-            if (StringUtils.isNotBlank(cd.getDetail())) {
-                series.addStudio(cd.getDetail());
-            }
+        if (StringUtils.isNotBlank(showInfo.getOriginCountry())) {
+            Set<String> countries = Collections.singleton(showInfo.getOriginCountry());
+            series.setCountries(countries);
         }
         
-        scanSeasons(series, episodeList);
+        for (CountryDetail cd : showInfo.getNetwork()) {
+            Set<String> studios = new HashSet<>(showInfo.getNetwork().size());
+            if (StringUtils.isNotBlank(cd.getDetail())) {
+                studios.add(cd.getDetail());
+            }
+            series.setStudios(studios);
+        }
+        
+        scanSeasons(series, title, showInfo, episodeList);
         
         return true;
     }
     
-    private static void scanSeasons(SeriesDTO series, EpisodeList episodeList) {
+    private static void scanSeasons(ISeries series, String title, ShowInfo showInfo, EpisodeList episodeList) {
         
-        for (SeasonDTO season : series.getSeasons()) {
-            if (season.isScanNeeded()) {
+        for (ISeason season : series.getSeasons()) {
+            
+            // nothing to do if season already done
+            if (!season.isDone()) {
                 // use values from series
-                season.addId(SOURCE_TVRAGE, series.getIds().get(SOURCE_TVRAGE))
-                    .setTitle(series.getTitle())
-                    .setOriginalTitle(series.getOriginalTitle())
-                    .setPlot(series.getPlot())
-                    .setOutline(series.getOutline());
+                season.addId(SOURCE_TVRAGE, series.getId(SOURCE_TVRAGE));
+                season.setTitle(title);
+                season.setOriginalTitle(showInfo.getShowName());
+                season.setPlot(showInfo.getSummary());
+                season.setOutline(showInfo.getSummary());
                 
                 // get season year from minimal first aired of episodes
-                Episode tvEpisode = episodeList.getEpisode(season.getSeasonNumber(), 1);
-                if (tvEpisode != null && tvEpisode.getAirDate() != null) {
-                    season.setYear(MetadataTools.extractYearAsInt(tvEpisode.getAirDate()));
+                Episode tvRageEpisode = episodeList.getEpisode(season.getNumber(), 1);
+                if (tvRageEpisode != null && tvRageEpisode.getAirDate() != null) {
+                    season.setYear(MetadataTools.extractYearAsInt(tvRageEpisode.getAirDate()));
                 }
             }
             
@@ -166,27 +173,35 @@ public final class TVRageScanner implements SeriesScanner {
         }
     }
 
-    private static void scanEpisodes(SeasonDTO season, EpisodeList episodeList) {
-        for (EpisodeDTO episode : season.getEpisodes()) {
-            // get the episode
-            Episode tvEpisode = episodeList.getEpisode(season.getSeasonNumber(), episode.getEpisodeNumber());
-            if (tvEpisode == null || !tvEpisode.isValid()) {
-                episode.setValid(false);
+    private static void scanEpisodes(ISeason season, EpisodeList episodeList) {
+        for (IEpisode episode : season.getEpisodes()) {
+            if (episode.isDone()) {
+                // nothing to do anymore
+                continue;
+            }
+            
+            Episode tvRageEpisode = episodeList.getEpisode(season.getNumber(), episode.getNumber());
+            if (tvRageEpisode == null || !tvRageEpisode.isValid()) {
+                // mark episode as not found
+                episode.setNotFound();
                 continue;
             }
             
             try {
-                int lastIdx = StringUtils.lastIndexOf(tvEpisode.getLink(), "/");
+                int lastIdx = StringUtils.lastIndexOf(tvRageEpisode.getLink(), "/");
                 if (lastIdx > 0) {
-                    String tvRageId = tvEpisode.getLink().substring(lastIdx+1);
+                    String tvRageId = tvRageEpisode.getLink().substring(lastIdx+1);
                     episode.addId(SOURCE_TVRAGE, tvRageId);
                 }   
             } catch (Exception ex) {/*ignore*/}
             
-            episode.setTitle(tvEpisode.getTitle())
-                .setPlot(tvEpisode.getSummary())
-                .setReleaseDate(tvEpisode.getAirDate())
-                .setRating(MetadataTools.parseRating(tvEpisode.getRating()));
+            episode.setTitle(tvRageEpisode.getTitle());
+            episode.setPlot(tvRageEpisode.getSummary());
+            episode.setRelease(tvRageEpisode.getAirDate());
+            episode.setRating(MetadataTools.parseRating(tvRageEpisode.getRating()));
+            
+            // mark episode as done
+            episode.setDone();
         }
     }
     
