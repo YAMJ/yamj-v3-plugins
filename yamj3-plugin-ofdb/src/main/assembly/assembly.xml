@@ -4,13 +4,6 @@
         <format>zip</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
-    <dependencySets>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <scope>runtime</scope>
-            <outputDirectory>lib</outputDirectory>
-        </dependencySet>
-    </dependencySets>
     <fileSets>
         <fileSet>
             <directory>target/plugin-classes</directory>
