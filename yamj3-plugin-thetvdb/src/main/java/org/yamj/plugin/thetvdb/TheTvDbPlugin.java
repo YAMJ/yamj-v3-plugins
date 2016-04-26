@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.thetvdb;
 
-import static org.yamj.plugin.api.Constants.SOURCE_TMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_TVDB;
 
 import com.omertron.thetvdbapi.TheTVDBApi;
 import java.io.InputStream;
@@ -61,7 +61,7 @@ public class TheTvDbPlugin extends YamjPlugin {
             TheTVDBApi tvdbApi = new TheTVDBApi(apiKey, httpClient);
             
             // create cache
-            Cache cache = new Cache(new CacheConfiguration().name(SOURCE_TMDB)
+            Cache cache = new Cache(new CacheConfiguration().name(SOURCE_TVDB)
                             .eternal(false)
                             .maxEntriesLocalHeap(200)
                             .timeToIdleSeconds(0)
