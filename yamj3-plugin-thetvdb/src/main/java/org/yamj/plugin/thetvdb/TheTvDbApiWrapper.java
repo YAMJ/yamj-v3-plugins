@@ -37,9 +37,9 @@ import org.yamj.plugin.api.service.EhCacheWrapper;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 
-public class TheTVDbApiWrapper {
+public class TheTvDbApiWrapper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TheTVDbApiWrapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TheTvDbApiWrapper.class);
     private static final int YEAR_MIN = 1900;
     private static final int YEAR_MAX = 2100;
     private static final String API_ERROR = "TheTVDb error";
@@ -48,19 +48,23 @@ public class TheTVDbApiWrapper {
     private final PluginConfigService configService;
     private final EhCacheWrapper cache;
 
-    public TheTVDbApiWrapper(TheTVDBApi tvdbApi, PluginConfigService configService, Cache cache) {
+    public TheTvDbApiWrapper(TheTVDBApi tvdbApi, PluginConfigService configService, Cache cache) {
         this.tvdbApi = tvdbApi;
         this.configService = configService;
         this.cache = new EhCacheWrapper(cache);
     }
     
-//    @Cacheable(value=CachingNames.API_TVDB, key="{#root.methodName, #id}", unless="#result==null")
     public Banners getBanners(String id) {
         Banners banners = null;
         
         try {
-            // retrieve banners from TheTVDb
-            banners = tvdbApi.getBanners(id);
+            final String cacheKey = "banners###"+id;
+            banners = cache.get(cacheKey, Banners.class);
+            if (banners == null) {
+                // retrieve banners from TheTVDb
+                banners = tvdbApi.getBanners(id);
+                cache.store(cacheKey, banners);
+            }
         } catch (Exception ex) {
             LOG.error("Failed to get banners using TVDb ID {}: {}", id, ex.getMessage());
             LOG.trace(API_ERROR, ex);
@@ -75,7 +79,6 @@ public class TheTVDbApiWrapper {
      * @param id
      * @return
      */
-    //@Cacheable(value=CachingNames.API_TVDB, key="{#root.methodName, #id, #language}", unless="#result==null")
     public Series getSeries(String id, String language) {
         return getSeries(id, language, false);
     }
@@ -86,17 +89,26 @@ public class TheTVDbApiWrapper {
      * @param throwTempError
      * @return
      */
-  //  @Cacheable(value=CachingNames.API_TVDB, key="{#root.methodName, #id, #language}", unless="#result==null")
     public Series getSeries(String id, String language, boolean throwTempError) {
         Series series = null;
 
         try {
             String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
 
-            // retrieve series from TheTVDb
-            series = tvdbApi.getSeries(id, language);
-            if (series == null && !altLanguage.equalsIgnoreCase(language)) {
-                series = tvdbApi.getSeries(id, altLanguage);
+            String cacheKey = "series###"+id+"###"+language;
+            series = cache.get(cacheKey, Series.class);
+            if (series == null) {
+                // retrieve series from TheTVDb
+                series = tvdbApi.getSeries(id, language);
+                cache.store(cacheKey, series);
+                if (series == null && !altLanguage.equalsIgnoreCase(language)) {
+                    cacheKey = "series###"+id+"###"+altLanguage;                    
+                    series = cache.get(cacheKey, Series.class);
+                    if (series == null) {
+                        series = tvdbApi.getSeries(id, altLanguage);
+                        cache.store(cacheKey, series);
+                    }
+                }
             }
         } catch (TvDbException ex) {
             checkTempError(throwTempError, ex);
@@ -114,23 +126,27 @@ public class TheTVDbApiWrapper {
      * @param year
      * @return
      */
-    //@Cacheable(value=CachingNames.API_TVDB, key="{#root.methodName, #title.toLowerCase(), #year, #language}")
     public String getSeriesId(String title, int year, String language, boolean throwTempError) {
         String tvdbId = null;
 
         try {
             String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
-            
-            List<Series> seriesList = tvdbApi.searchSeries(title, language);
-            if (CollectionUtils.isEmpty(seriesList) && !altLanguage.equalsIgnoreCase(language)) {
-                seriesList = tvdbApi.searchSeries(title, altLanguage);
-            }
 
-            if (CollectionUtils.isEmpty(seriesList)) {
-                return StringUtils.EMPTY;
-            }
+            final String cacheKey = "id###"+title+"###"+year;
+            tvdbId = cache.get(cacheKey, String.class);
+            if (StringUtils.isBlank(tvdbId)) {
+                List<Series> seriesList = tvdbApi.searchSeries(title, language);
+                if (CollectionUtils.isEmpty(seriesList) && !altLanguage.equalsIgnoreCase(language)) {
+                    seriesList = tvdbApi.searchSeries(title, altLanguage);
+                }
+
+                if (CollectionUtils.isEmpty(seriesList)) {
+                    return StringUtils.EMPTY;
+                }
             
-            tvdbId = getMatchingSeries(seriesList, year).getId();
+                tvdbId = getMatchingSeries(seriesList, year).getId();
+                cache.store(cacheKey, tvdbId);
+            }
         } catch (TvDbException ex) {
             checkTempError(throwTempError, ex);
             LOG.error("Failed retrieving TVDb id for series '{}': {}", title, ex.getMessage());
@@ -182,16 +198,26 @@ public class TheTVDbApiWrapper {
         return year;
     }
         
-    //@Cacheable(value=CachingNames.API_TVDB, key="{#root.methodName, #id, #season, #episode, #language}", unless="#result==null")
     public Episode getEpisode(String id, int season, int episode, String language) {
         Episode tvdbEpisode = null;
         
         try {
             String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
 
-            tvdbEpisode = tvdbApi.getEpisode(id, season, episode, language);
-            if (tvdbEpisode == null && !altLanguage.equalsIgnoreCase(language)) {
-                tvdbEpisode = tvdbApi.getEpisode(id, season, episode, altLanguage);
+            String cacheKey = "episode###"+id+"###"+season+"###"+episode+"###"+language;
+            tvdbEpisode = cache.get(cacheKey, Episode.class);
+            if (tvdbEpisode == null) {
+                // retrieve episode from TheTVDb
+                tvdbEpisode = tvdbApi.getEpisode(id, season, episode, language);
+                cache.store(cacheKey, tvdbEpisode);
+                if (tvdbEpisode == null && !altLanguage.equalsIgnoreCase(language)) {
+                    cacheKey = "episode###"+id+"###"+season+"###"+episode+"###"+altLanguage;
+                    tvdbEpisode = cache.get(cacheKey, Episode.class);
+                    if (tvdbEpisode == null) {
+                        tvdbEpisode = tvdbApi.getEpisode(id, season, episode, altLanguage);
+                        cache.store(cacheKey, tvdbEpisode);
+                    }
+                }
             }
         } catch (Exception ex) {
             LOG.error("Failed to get episode {} for TVDb ID {} and season {}: {}", episode, id, season, ex.getMessage());

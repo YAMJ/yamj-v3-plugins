@@ -22,6 +22,16 @@
  */
 package org.yamj.plugin.thetvdb;
 
+import static org.yamj.plugin.api.service.Constants.SOURCE_TMDB;
+
+import com.omertron.thetvdbapi.TheTVDBApi;
+import java.io.InputStream;
+import java.util.Properties;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.YamjPlugin;
@@ -31,6 +41,7 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class TheTvDbPlugin extends YamjPlugin {
     
     private static final Logger LOG = LoggerFactory.getLogger(TheTvDbPlugin.class);
+    private static TheTvDbApiWrapper theTvDbApiWrapper;
     
     public TheTvDbPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -39,10 +50,50 @@ public class TheTvDbPlugin extends YamjPlugin {
     @Override
     public void start() throws PluginException {
         LOG.trace("Start TheTvDbPlugin");
+        
+        // create API
+        try (InputStream stream = getClass().getResourceAsStream("/thetvdb.apikey.properties")) {
+            Properties props = new Properties();
+            props.load(stream);
+
+            // create API
+            final String apiKey = props.getProperty("apikey.thetvdb");
+            TheTVDBApi tvdbApi = new TheTVDBApi(apiKey, httpClient);
+            
+            // create cache
+            Cache cache = new Cache(new CacheConfiguration().name(SOURCE_TMDB)
+                            .eternal(false)
+                            .maxEntriesLocalHeap(200)
+                            .timeToIdleSeconds(0)
+                            .timeToLiveSeconds(1800)
+                            .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
+                            .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+                            .statistics(false));
+            
+            // normally the YAMJ cache manager will be used
+            CacheManager.getInstance().addCache(cache);
+            
+            theTvDbApiWrapper = new TheTvDbApiWrapper(tvdbApi, configService, cache);
+        } catch (Exception ex) {
+            throw new PluginException("Failed to create TheMovieDb api", ex);
+        }
+        
+        // load properties
+        try (InputStream stream = getClass().getResourceAsStream("/thetvdb.plugin.properties")) {
+            Properties props = new Properties();
+            props.load(stream);
+            configService.pluginConfiguration(props);
+        } catch (Exception ex) {
+            throw new PluginException("Failed to load plugin properties", ex);
+        }
     }
 
     @Override
     public void stop() throws PluginException {
         LOG.trace("Stop TheTvDbPlugin");
+    }
+
+    public static TheTvDbApiWrapper getTheTvDbApiWrapper() {
+        return theTvDbApiWrapper;
     }
 }

@@ -34,9 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.artwork.ArtworkScanner;
-import org.yamj.plugin.api.metadata.MetadataScanner;
-import org.yamj.plugin.api.metadata.MetadataTools;
-import org.yamj.plugin.api.metadata.NfoIdScanner;
+import org.yamj.plugin.api.metadata.*;
 import org.yamj.plugin.api.model.*;
 import org.yamj.plugin.api.model.type.JobType;
 import org.yamj.plugin.api.service.PluginConfigService;
@@ -48,6 +46,7 @@ public abstract class AbstractTheMovieDbScanner implements ArtworkScanner, Metad
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTheMovieDbScanner.class);
 
     protected PluginConfigService configService;
+    protected PluginMetadataService metadataService;
     protected PluginLocaleService localeService;
     protected TheMovieDbApiWrapper theMovieDbApiWrapper;
     protected Locale locale;
@@ -60,6 +59,7 @@ public abstract class AbstractTheMovieDbScanner implements ArtworkScanner, Metad
     @Override
     public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
         this.configService = configService;
+        this.metadataService = metadataService;
         this.localeService = localeService;
         this.theMovieDbApiWrapper = TheMovieDbPlugin.getTheMovieDbApiWrapper();
         this.locale = localeService.getLocale();
@@ -67,6 +67,17 @@ public abstract class AbstractTheMovieDbScanner implements ArtworkScanner, Metad
 
     @Override
     public boolean scanNFO(String nfoContent, IdMap idMap) {
+        if (configService.getBooleanProperty("themoviedb.search.imdb", false)) {
+            try {
+                MovieScanner imdbScanner = metadataService.getMovieScanner(SOURCE_IMDB);
+                if (imdbScanner != null) {
+                    imdbScanner.scanNFO(nfoContent, idMap);
+                }
+            } catch (Exception ex) {
+                LOG.error("Failed to scan for IMDb ID in NFO", ex);
+            }
+        }
+
         // if we already have the ID, skip the scanning of the NFO file
         final boolean ignorePresentId = configService.getBooleanProperty("themoviedb.nfo.ignore.present.id", false);
         if (!ignorePresentId && isValidTheMovieDbId(idMap.getId(SOURCE_TMDB))) {
