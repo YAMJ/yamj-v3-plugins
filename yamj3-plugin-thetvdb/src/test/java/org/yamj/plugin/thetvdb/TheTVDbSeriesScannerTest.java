@@ -28,9 +28,7 @@ import static org.yamj.plugin.api.Constants.SOURCE_TVDB;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
@@ -68,7 +66,12 @@ public class TheTVDbSeriesScannerTest {
         seriesScanner = new TheTvDbSeriesScanner();
         seriesScanner.init(configService, metadataService, localeService, httpClient);
     }
-    
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        plugin.stop();
+    }
+
     /**
      * Test of getScannerName method, of class TheTVDbScanner.
      */

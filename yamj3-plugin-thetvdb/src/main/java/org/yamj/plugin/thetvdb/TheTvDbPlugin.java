@@ -91,6 +91,8 @@ public class TheTvDbPlugin extends YamjPlugin {
     @Override
     public void stop() throws PluginException {
         LOG.trace("Stop TheTvDbPlugin");
+        
+        CacheManager.getInstance().removeCache(SOURCE_TVDB);
     }
 
     public static TheTvDbApiWrapper getTheTvDbApiWrapper() {

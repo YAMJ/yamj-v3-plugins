@@ -91,6 +91,8 @@ public class TheMovieDbPlugin extends YamjPlugin {
     @Override
     public void stop() throws PluginException {
         LOG.trace("Stop TheMovieDbPlugin");
+        
+        CacheManager.getInstance().removeCache(SOURCE_TMDB);
     }
 
     public static TheMovieDbApiWrapper getTheMovieDbApiWrapper() {

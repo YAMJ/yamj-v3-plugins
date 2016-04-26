@@ -25,6 +25,7 @@ package org.yamj.plugin.themoviedb;
 import static org.yamj.plugin.api.Constants.SOURCE_TMDB;
 
 import java.util.List;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -69,6 +70,11 @@ public class TheMovieDbArtworkScannerTest {
 
         personArtworkScanner = new TheMovieDbPersonArtworkScanner();
         personArtworkScanner.init(configService, metadataService, localeService, httpClient);
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        plugin.stop();
     }
 
     @SuppressWarnings("rawtypes")

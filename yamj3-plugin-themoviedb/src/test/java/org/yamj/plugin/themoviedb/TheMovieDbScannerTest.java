@@ -26,6 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.yamj.plugin.api.Constants.SOURCE_TMDB;
 
 import java.util.List;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -74,6 +75,11 @@ public class TheMovieDbScannerTest {
 
         filmographyScanner = new TheMovieDbFilmographyScanner();
         filmographyScanner.init(configService, metadataService, localeService, httpClient);
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        plugin.stop();
     }
 
     /**

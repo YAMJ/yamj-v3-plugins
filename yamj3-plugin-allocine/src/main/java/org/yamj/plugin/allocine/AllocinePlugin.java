@@ -90,6 +90,8 @@ public class AllocinePlugin extends YamjPlugin {
     @Override
     public void stop() throws PluginException {
         LOG.trace("Stop AllocinePlugin");
+        
+        CacheManager.getInstance().removeCache(SCANNER_NAME);
     }
     
     public static AllocineApiWrapper getAllocineApiWrapper() {
