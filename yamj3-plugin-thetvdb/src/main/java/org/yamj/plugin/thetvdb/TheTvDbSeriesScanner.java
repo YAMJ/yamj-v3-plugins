@@ -27,6 +27,7 @@ import static org.yamj.plugin.api.Constants.SOURCE_TVDB;
 
 import com.omertron.thetvdbapi.model.Actor;
 import com.omertron.thetvdbapi.model.Episode;
+import com.omertron.thetvdbapi.model.Series;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
         }
         
         // get series info
-        com.omertron.thetvdbapi.model.Series tvdbSeries = theTvDbApiWrapper.getSeries(tvdbId, locale.getLanguage(), throwTempError);
+        Series tvdbSeries = theTvDbApiWrapper.getSeries(tvdbId, locale.getLanguage(), throwTempError);
         if (tvdbSeries == null || StringUtils.isBlank(tvdbSeries.getId())) {
             LOG.error("Can't find informations for series '{}'", series.getTitle());
             return false;
@@ -101,7 +102,7 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
         return true;
     }
 
-    private void scanSeasons(ISeries series, com.omertron.thetvdbapi.model.Series tvdbSeries, List<Actor> actors) {
+    private void scanSeasons(ISeries series, Series tvdbSeries, List<Actor> actors) {
         for (ISeason season : series.getSeasons()) {
 
             // nothing to do if season already done

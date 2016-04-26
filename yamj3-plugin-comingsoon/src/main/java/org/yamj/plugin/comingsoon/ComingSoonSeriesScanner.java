@@ -95,7 +95,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
 
     @Override
     public boolean scanSeries(ISeries series, boolean throwTempError) {
-        final String comingSoonId = series.getIds().get(SCANNER_NAME);
+        final String comingSoonId = series.getId(SCANNER_NAME);
         if (isNoValidComingSoonId(comingSoonId)) {
             LOG.debug("ComingSoon id not available '{}'", series.getTitle());
             return false;

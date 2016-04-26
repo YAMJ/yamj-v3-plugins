@@ -375,7 +375,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
             LOG.info("Season {}-{}: No banner found for language '{}', using blank banners", id, season, language);
             returnDTOs = blankDTOs;
         } else {
-            com.omertron.thetvdbapi.model.Series tvdbSeries = theTvDbApiWrapper.getSeries(id, language);
+            Series tvdbSeries = theTvDbApiWrapper.getSeries(id, language);
             if (tvdbSeries == null || StringUtils.isBlank(tvdbSeries.getBanner())) {
                 returnDTOs = null;
             } else {
@@ -445,7 +445,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
             LOG.info("Series {}: No banner found for language '{}', using blank banners", id, language);
             returnDTOs = blankDTOs;
         } else {
-            com.omertron.thetvdbapi.model.Series tvdbSeries = theTvDbApiWrapper.getSeries(id, language);
+            Series tvdbSeries = theTvDbApiWrapper.getSeries(id, language);
             if (tvdbSeries == null || StringUtils.isBlank(tvdbSeries.getBanner())) {
                 returnDTOs = null;
             } else {
