@@ -86,7 +86,11 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
             }
         }
         
-        return isNoValidComingSoonId(comingSoonId) ? null : comingSoonId;
+        if (isValidComingSoonId(comingSoonId)) {
+            series.addId(SCANNER_NAME, comingSoonId);
+            return comingSoonId;
+        }
+        return null;
     }
 
     @Override

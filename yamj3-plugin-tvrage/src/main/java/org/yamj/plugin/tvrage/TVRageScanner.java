@@ -88,9 +88,10 @@ public final class TVRageScanner implements SeriesScanner {
         }
 
         if (showInfo != null && showInfo.isValid() && showInfo.getShowID()>0) {
-            return Integer.toString(showInfo.getShowID());
+            tvRageId = Integer.toString(showInfo.getShowID());
+            series.addId(SOURCE_TVRAGE, tvRageId);
+            return tvRageId;
         }
-        
         return null;
     }
 

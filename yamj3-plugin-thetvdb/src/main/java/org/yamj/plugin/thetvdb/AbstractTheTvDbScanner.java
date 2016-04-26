@@ -23,6 +23,7 @@
 package org.yamj.plugin.thetvdb;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_TMDB;
 import static org.yamj.plugin.api.Constants.SOURCE_TVDB;
 
 import java.util.Locale;
@@ -134,15 +135,19 @@ public abstract class AbstractTheTvDbScanner implements NfoScanner {
             tvdbId = theTvDbApiWrapper.getSeriesId(series.getOriginalTitle(), series.getStartYear(), locale.getLanguage(), throwTempError);
         }
         
-        return tvdbId;
+        if (isValidTheTvDbId(tvdbId)) {
+            series.addId(SOURCE_TMDB, tvdbId);
+            return tvdbId;
+        }
+        return null;
     }
 
     protected static boolean isValidTheTvDbId(String tvdbId) {
-        return StringUtils.isNumeric(tvdbId);
+        return StringUtils.isNotBlank(tvdbId);
     }
 
     protected static boolean isNoValidTheTvDbId(String tvdbId) {
-        return !isValidTheTvDbId(tvdbId);
+        return StringUtils.isBlank(tvdbId);
     }
 }
 

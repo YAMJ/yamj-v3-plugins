@@ -95,22 +95,26 @@ public final class OfdbScanner implements MovieScanner {
             ofdbUrl = getOfdbIdByImdbId(imdbId, throwTempError);
         }
         
-        if (StringUtils.isBlank(ofdbUrl)) {
+        if (!isValidMovieId(ofdbUrl)) {
             // try by title and year
             ofdbUrl = getOfdbIdByTitleAndYear(movie.getTitle(), movie.getYear(), throwTempError);
         }
 
-        if (StringUtils.isBlank(ofdbUrl) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+        if (!isValidMovieId(ofdbUrl) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
             // try by original title and year
             ofdbUrl = getOfdbIdByTitleAndYear(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
 
-        if (StringUtils.isBlank(ofdbUrl)) {
+        if (!isValidMovieId(ofdbUrl)) {
             // try with search engines (don't throw error if temporary not available)
             ofdbUrl = searchEngineTools.searchURL(movie.getTitle(), movie.getYear(), "www.ofdb.de/film", false);
         }
 
-        return ofdbUrl;
+        if (isValidMovieId(ofdbUrl)) {
+            movie.addId(SCANNER_NAME, ofdbUrl);
+            return ofdbUrl;
+        }
+        return null;
     }
 
     private String getOfdbIdByImdbId(String imdbId, boolean throwTempError) {

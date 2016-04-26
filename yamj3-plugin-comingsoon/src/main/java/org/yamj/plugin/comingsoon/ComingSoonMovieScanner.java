@@ -85,7 +85,11 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
             }
         }
         
-        return isNoValidComingSoonId(comingSoonId) ? null : comingSoonId;
+        if (isValidComingSoonId(comingSoonId)) {
+            movie.addId(SCANNER_NAME, comingSoonId);
+            return comingSoonId;
+        }
+        return null;
     }
 
     @Override

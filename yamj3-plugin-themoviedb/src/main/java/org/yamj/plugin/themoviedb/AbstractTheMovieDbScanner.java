@@ -133,7 +133,12 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner {
             id = theMovieDbApiWrapper.getMovieId(movie.getOriginalTitle(), movie.getYear(), locale, throwTempError);
         }
 
-        return (id > 0 ? Integer.toString(id) : null);
+        if (id > 0) {
+            tmdbId = Integer.toString(id);
+            movie.addId(SOURCE_TMDB, tmdbId);
+            return tmdbId;
+        }
+        return null;
     }
 
     public String getSeriesId(ISeries series, boolean throwTempError) {
@@ -150,7 +155,12 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner {
             id = theMovieDbApiWrapper.getSeriesId(series.getOriginalTitle(), series.getStartYear(), locale, throwTempError);
         }
 
-        return (id > 0 ? Integer.toString(id) : null);
+        if (id > 0) {
+            tmdbId = Integer.toString(id);
+            series.addId(SOURCE_TMDB, tmdbId);
+            return tmdbId;
+        }
+        return null;
     }
 
     public String getPersonId(IPerson person, boolean throwTempError) {
@@ -160,7 +170,13 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner {
         }
 
         int id = theMovieDbApiWrapper.getPersonId(person.getName(), throwTempError);
-        return (id > 0 ? Integer.toString(id) : null);
+
+        if (id > 0) {
+            tmdbId = Integer.toString(id);
+            person.addId(SOURCE_TMDB, tmdbId);
+            return tmdbId;
+        }
+        return null;
     }
 
     protected static boolean isValidTheMovieDbId(String tmdbId) {

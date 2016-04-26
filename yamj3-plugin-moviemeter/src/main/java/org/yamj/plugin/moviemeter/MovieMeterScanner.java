@@ -80,16 +80,20 @@ public final class MovieMeterScanner implements MovieScanner {
         }
 
         // try to get the MovieMeter ID using title and year
-        if (!StringUtils.isNumeric(movieMeterId)) {
+        if (!isValidMovieId(movieMeterId)) {
             movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(movie.getTitle(), movie.getYear(), throwTempError);
         }
 
         // try to get the MovieMeter ID using original title and year
-        if (!StringUtils.isNumeric(movieMeterId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+        if (!isValidMovieId(movieMeterId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
             movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
 
-        return movieMeterId;
+        if (isValidMovieId(movieMeterId)) {
+            movie.addId(SCANNER_NAME, movieMeterId);
+            return movieMeterId;
+        }
+        return null;
     }
     
     @Override

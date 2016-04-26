@@ -147,7 +147,12 @@ public abstract class AbstractAllocineScanner implements NfoScanner {
             }
         }
         
-        return (id > 0 ? Integer.toString(id) : null);
+        if (id > 0) {
+            allocineId = Integer.toString(id);
+            movie.addId(SCANNER_NAME, allocineId);
+            return allocineId;
+        }
+        return null;
     }
 
     public String getSeriesId(ISeries series, boolean throwTempError) {
@@ -175,7 +180,12 @@ public abstract class AbstractAllocineScanner implements NfoScanner {
             }
         }
         
-        return (id > 0 ? Integer.toString(id) : null);
+        if (id > 0) {
+            allocineId = Integer.toString(id);
+            series.addId(SCANNER_NAME, allocineId);
+            return allocineId;
+        }
+        return null;
     }
     
     public String getPersonId(IPerson person, boolean throwTempError) {
@@ -198,7 +208,12 @@ public abstract class AbstractAllocineScanner implements NfoScanner {
             }
         }
         
-        return (id > 0 ? Integer.toString(id) : null);
+        if (id > 0) {
+            allocineId = Integer.toString(id);
+            person.addId(SCANNER_NAME, allocineId);
+            return allocineId;
+        }
+        return null;
     }
 
     protected List<ArtworkDTO> buildArtworkDetails(Map<String,Long> artworks) {
