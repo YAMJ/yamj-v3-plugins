@@ -61,7 +61,7 @@ public class TVRagePlugin extends YamjPlugin {
             props.load(stream);
             configService.pluginConfiguration(props);
         } catch (Exception ex) {
-            throw new PluginException("Failed to load plugin properties", ex);
+            throw new PluginException("Failed to load tvrage properties", ex);
         }
     }
 
