@@ -20,35 +20,37 @@
  *      Web: https://github.com/YAMJ/yamj-v3-plugins
  *
  */
-package org.yamj.plugin.themoviedb;
+package org.yamj.plugin.thetvdb;
 
 import static org.junit.Assert.assertEquals;
-import static org.yamj.plugin.api.service.Constants.SOURCE_TMDB;
+import static org.junit.Assert.assertFalse;
+import static org.yamj.plugin.api.service.Constants.SOURCE_TVDB;
 
-import java.util.List;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.metadata.*;
-import org.yamj.plugin.api.model.mock.*;
+import org.yamj.plugin.api.metadata.SeriesScanner;
+import org.yamj.plugin.api.model.mock.EpisodeMock;
+import org.yamj.plugin.api.model.mock.SeasonMock;
+import org.yamj.plugin.api.model.mock.SeriesMock;
 import org.yamj.plugin.api.service.mock.PluginConfigServiceMock;
 import org.yamj.plugin.api.service.mock.PluginLocaleServiceMock;
 import org.yamj.plugin.api.service.mock.PluginMetadataServiceMock;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public class TheMovieDbScannerTest {
+public class TheTVDbSeriesScannerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbScannerTest.class);
-    
-    private static TheMovieDbPlugin plugin;
-    private static MovieScanner movieScanner;
+    private static final Logger LOG = LoggerFactory.getLogger(TheTVDbSeriesScannerTest.class);
+
+    private static TheTvDbPlugin plugin;
     private static SeriesScanner seriesScanner;
-    private static PersonScanner personScanner;
-    private static FilmographyScanner filmographyScanner;
     
     @BeforeClass
     @SuppressWarnings("resource")
@@ -58,83 +60,61 @@ public class TheMovieDbScannerTest {
         PluginLocaleServiceMock localeService = new PluginLocaleServiceMock();
         CommonHttpClient httpClient = new HttpClientWrapper(new SimpleHttpClientBuilder().build());
         
-        plugin = new TheMovieDbPlugin(new PluginWrapper(null, null, null, null));
+        plugin = new TheTvDbPlugin(new PluginWrapper(null, null, null, null));
         plugin.setConfigService(configService);
         plugin.setHttpClient(httpClient);
         plugin.start();
         
-        movieScanner = new TheMovieDbMovieScanner();
-        movieScanner.init(configService, metadataService, localeService, httpClient);
-
-        seriesScanner = new TheMovieDbSeriesScanner();
+        seriesScanner = new TheTvDbSeriesScanner();
         seriesScanner.init(configService, metadataService, localeService, httpClient);
-
-        personScanner = new TheMovieDbPersonScanner();
-        personScanner.init(configService, metadataService, localeService, httpClient);
-
-        filmographyScanner = new TheMovieDbFilmographyScanner();
-        filmographyScanner.init(configService, metadataService, localeService, httpClient);
     }
-
+    
     /**
      * Test of getScannerName method, of class TheTVDbScanner.
      */
     @Test
     public void testGetScannerName() {
-        LOG.info("testGetScannerName");
-        String result = movieScanner.getScannerName();
-        assertEquals("Changed scanner name", SOURCE_TMDB, result);
+        LOG.info("getScannerName");
+        assertEquals("Changed scanner name", SOURCE_TVDB, seriesScanner.getScannerName());
     }
 
-    @Test
-    public void testScanMovie() {
-        LOG.info("testScanMovie");
-        MovieMock movie = new MovieMock();
-        movie.addId(SOURCE_TMDB, "19995");
-        boolean result = movieScanner.scanMovie(movie, false);
-
-        assertEquals(Boolean.TRUE, result);
-    }
-
-    @Test
-    public void testScanFilmography() {
-        LOG.info("testScanFilmography");
-        List<FilmographyDTO> result = filmographyScanner.scanFilmography("12795", false);
-
-        // Test that we get an error when scanning without an ID
-        assertEquals(Boolean.FALSE, result.isEmpty());
-        for (FilmographyDTO dto : result) {
-            LOG.info("Filmo: {}", dto);
-        }
-    }
-
+    /**
+     * Test of getSeriesId method, of class TheTVDbScanner.
+     */
     @Test
     public void testGetSeriesId() {
-        LOG.info("testGetSeriesId");
+        LOG.info("getSeriesId");
         SeriesMock series = new SeriesMock();
-        series.setTitle("Game Of Thrones - Das Lied von Eis und Feuer");
-        
-        String id = seriesScanner.getSeriesId(series, false);
-        assertEquals("1399", id);
+        series.setTitle("Chuck");
+        series.setStartYear(2007);
+        String result = seriesScanner.getSeriesId(series, false);
+
+        assertEquals("Wrong ID returned", "80348", result);
     }
 
-    @Test
-    public void testScanSeries() {
-        LOG.info("testScanSeries");
+    /**
+     * Test of scan method, of class TheTVDbScanner.
+     */
+    @Ignore
+    public void testScan() {
+        LOG.info("scan");
         SeriesMock series = new SeriesMock();
-        series.addId(SOURCE_TMDB, "1399");
-        
+        series.addId(SOURCE_TVDB, "70726");
+
         SeasonMock season = new SeasonMock(1);
         series.addSeason(season);
         season.setSeries(series);
         
-        EpisodeMock episode = new EpisodeMock(5);
+        EpisodeMock episode = new EpisodeMock(1);
         episode.setSeason(season);
         season.addEpisode(episode);
         
         boolean result = seriesScanner.scanSeries(series, false);
 
-        assertEquals(Boolean.TRUE, result);
-        LOG.info("Credits: {}", episode.getCredits());
+        LOG.info("***** SERIES {} *****", ToStringBuilder.reflectionToString(series, ToStringStyle.MULTI_LINE_STYLE));
+        assertEquals("Wrong ScanResult returned", Boolean.TRUE, result);
+        assertEquals("Wrong series ID returned", "70726", series.getId(SOURCE_TVDB));
+        assertEquals("Wrong title", "Babylon 5", series.getTitle());
+        assertFalse("No Genres found", series.getGenres().isEmpty());
     }
 }
