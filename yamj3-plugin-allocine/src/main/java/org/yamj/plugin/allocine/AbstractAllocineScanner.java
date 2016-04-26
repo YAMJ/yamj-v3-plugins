@@ -36,7 +36,9 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.ArtworkTools;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.metadata.MetadataTools;
+import org.yamj.plugin.api.metadata.MovieScanner;
+import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.*;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
@@ -44,7 +46,7 @@ import org.yamj.plugin.api.service.PluginMetadataService;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
  
-public abstract class AbstractAllocineScanner implements MetadataScanner, NfoIdScanner {
+public abstract class AbstractAllocineScanner implements NfoScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAllocineScanner.class);
 

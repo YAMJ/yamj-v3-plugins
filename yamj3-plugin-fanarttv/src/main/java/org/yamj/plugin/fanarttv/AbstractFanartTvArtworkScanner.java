@@ -29,13 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.OnlineScanner;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
-import org.yamj.plugin.api.artwork.ArtworkScanner;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
  
-public abstract class AbstractFanartTvArtworkScanner implements ArtworkScanner {
+public abstract class AbstractFanartTvArtworkScanner implements OnlineScanner {
 
     private static final String LANGUAGE_NONE = "00";
     private static final String SCANNER_NAME = "fanarttv";

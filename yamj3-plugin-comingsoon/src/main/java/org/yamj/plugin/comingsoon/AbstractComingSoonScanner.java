@@ -34,9 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
-import org.yamj.plugin.api.metadata.MetadataScanner;
 import org.yamj.plugin.api.metadata.MovieScanner;
-import org.yamj.plugin.api.metadata.NfoIdScanner;
+import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.IdMap;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
@@ -45,7 +44,7 @@ import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
  
-public abstract class AbstractComingSoonScanner implements MetadataScanner, NfoIdScanner {
+public abstract class AbstractComingSoonScanner implements NfoScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractComingSoonScanner.class);
     protected static final String SCANNER_NAME = "comingsoon";
