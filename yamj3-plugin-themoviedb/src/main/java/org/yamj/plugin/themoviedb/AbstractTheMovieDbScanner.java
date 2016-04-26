@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.artwork.ArtworkScanner;
 import org.yamj.plugin.api.metadata.MetadataScanner;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.NfoIdScanner;
@@ -42,7 +43,7 @@ import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
  
-public abstract class AbstractTheMovieDbScanner implements MetadataScanner, NfoIdScanner {
+public abstract class AbstractTheMovieDbScanner implements ArtworkScanner, MetadataScanner, NfoIdScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTheMovieDbScanner.class);
 

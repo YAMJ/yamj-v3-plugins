@@ -23,7 +23,6 @@
 package org.yamj.plugin.yahoo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +39,9 @@ import org.yamj.plugin.api.web.HTMLTools;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class YahooArtworkScanner implements MovieArtworkScanner {
+public final class YahooMovieArtworkScanner implements MovieArtworkScanner {
 
-    private static final Logger LOG = LoggerFactory.getLogger(YahooArtworkScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(YahooMovieArtworkScanner.class);
     private static final String SCANNER_NAME = "yahoo";
     
     private CommonHttpClient httpClient;
@@ -93,6 +92,6 @@ public final class YahooArtworkScanner implements MovieArtworkScanner {
 
     @Override
     public List<ArtworkDTO> getFanarts(IMovie movie) {
-        return Collections.emptyList();
+        return null;
     }
 }

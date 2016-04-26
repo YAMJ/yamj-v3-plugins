@@ -25,7 +25,6 @@ package org.yamj.plugin.allocine;
 import com.moviejukebox.allocine.model.FilmographyInfos;
 import com.moviejukebox.allocine.model.Participance;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ public final class AllocineFilmographyScanner extends AbstractAllocineScanner im
         FilmographyInfos filmographyInfos = allocineApiWrapper.getFilmographyInfos(allocineId, throwTempError);
         if (filmographyInfos == null || filmographyInfos.isNotValid() || filmographyInfos.getParticipances() == null) {
             LOG.trace("No filmography found for person ID {}", allocineId);
-            return Collections.emptyList();
+            return null;
         }
         
         List<FilmographyDTO> result = new ArrayList<>();

@@ -28,7 +28,6 @@ import com.omertron.themoviedbapi.enumeration.ArtworkType;
 import com.omertron.themoviedbapi.model.artwork.Artwork;
 import com.omertron.themoviedbapi.model.collection.Collection;
 import com.omertron.themoviedbapi.results.ResultList;
-import java.util.Collections;
 import java.util.List;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.BoxedSetArtworkScanner;
@@ -45,7 +44,7 @@ public final class TheMovieDbBoxedSetArtworkScanner extends AbstractTheMovieDbAr
         if (isNoValidTheMovieDbId(tmdbId)) {
             Collection collection = theMovieDbApiWrapper.findCollection(boxedSet.getName(), locale.getLanguage());
             if (collection == null) {
-                return Collections.emptyList();
+                return null;
             }
             id = collection.getId();
         } else {
@@ -63,7 +62,7 @@ public final class TheMovieDbBoxedSetArtworkScanner extends AbstractTheMovieDbAr
         if (isNoValidTheMovieDbId(tmdbId)) {
             Collection collection = theMovieDbApiWrapper.findCollection(boxedSet.getName(), locale.getLanguage());
             if (collection == null) {
-                return Collections.emptyList();
+                return null;
             }
             id = collection.getId();
         } else {
@@ -76,6 +75,6 @@ public final class TheMovieDbBoxedSetArtworkScanner extends AbstractTheMovieDbAr
 
     @Override
     public List<ArtworkDTO> getBanners(IBoxedSet boxedSet) {
-        return Collections.emptyList();
+        return null;
     }
 }

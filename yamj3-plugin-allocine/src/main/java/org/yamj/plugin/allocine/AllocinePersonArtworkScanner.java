@@ -43,12 +43,12 @@ public final class AllocinePersonArtworkScanner extends AbstractAllocineScanner 
         String allocineId = getPersonId(person, false);
         if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}'", person.getName());
-            return Collections.emptyList();
+            return null;
         }
         
         PersonInfos personInfos = allocineApiWrapper.getPersonInfos(allocineId, false);
         if (personInfos == null || personInfos.isNotValid() || StringUtils.isBlank(personInfos.getPhotoURL())) {
-            return Collections.emptyList();
+            return null;
         }
 
         ArtworkDTO dto = new ArtworkDTO(getScannerName(), personInfos.getPhotoURL(), allocineId);

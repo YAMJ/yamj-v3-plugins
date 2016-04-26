@@ -25,7 +25,6 @@ package org.yamj.plugin.themoviedb;
 import com.omertron.themoviedbapi.enumeration.ArtworkType;
 import com.omertron.themoviedbapi.model.artwork.Artwork;
 import com.omertron.themoviedbapi.results.ResultList;
-import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public final class TheMovieDbPersonArtworkScanner extends AbstractTheMovieDbArtw
         String tmdbId = getPersonId(person, false);
         if (isNoValidTheMovieDbId(tmdbId)) {
             LOG.debug("TheMovieDb id not available '{}'", person.getName());
-            return Collections.emptyList();
+            return null;
         }
         
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getPersonImages(Integer.parseInt(tmdbId));

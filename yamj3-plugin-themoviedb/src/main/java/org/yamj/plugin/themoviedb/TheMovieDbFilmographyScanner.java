@@ -25,7 +25,9 @@ package org.yamj.plugin.themoviedb;
 import com.omertron.themoviedbapi.model.credits.CreditBasic;
 import com.omertron.themoviedbapi.model.credits.CreditMovieBasic;
 import com.omertron.themoviedbapi.model.person.PersonCreditList;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -52,7 +54,7 @@ public final class TheMovieDbFilmographyScanner extends AbstractTheMovieDbScanne
         PersonCreditList<CreditBasic> credits = theMovieDbApiWrapper.getPersonCredits(Integer.parseInt(tmdbId), locale, throwTempError);
         if (credits == null || CollectionUtils.isEmpty(credits.getCast())) {
             LOG.trace("No filmography found for person ID {}", tmdbId);
-            return Collections.emptyList();
+            return null;
         }
 
         // Fill in cast data

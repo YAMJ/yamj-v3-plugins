@@ -23,7 +23,6 @@
 package org.yamj.plugin.allocine;
 
 import com.moviejukebox.allocine.model.MovieInfos;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
@@ -43,12 +42,12 @@ public final class AllocineMovieArtworkScanner extends AbstractAllocineScanner i
         String allocineId = getMovieId(movie, false);
         if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}'", movie.getTitle());
-            return Collections.emptyList();
+            return null;
         }
 
         MovieInfos movieInfos = allocineApiWrapper.getMovieInfos(allocineId, false);
         if (movieInfos == null || movieInfos.isNotValid() || MapUtils.isEmpty(movieInfos.getPosters())) {
-            return Collections.emptyList();
+            return null;
         }
         
         return buildArtworkDetails(movieInfos.getPosters());
@@ -56,6 +55,6 @@ public final class AllocineMovieArtworkScanner extends AbstractAllocineScanner i
 
     @Override
     public List<ArtworkDTO> getFanarts(IMovie movie) {
-        return Collections.emptyList();
+        return null;
     }
 }

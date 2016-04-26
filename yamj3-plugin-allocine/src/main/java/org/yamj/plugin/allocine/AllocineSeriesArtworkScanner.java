@@ -24,7 +24,6 @@ package org.yamj.plugin.allocine;
 
 import com.moviejukebox.allocine.model.TvSeasonInfos;
 import com.moviejukebox.allocine.model.TvSeriesInfos;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
@@ -46,12 +45,12 @@ public final class AllocineSeriesArtworkScanner extends AbstractAllocineScanner 
         String allocineId = getSeriesId(season.getSeries(), false);
         if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}' - Season {}", season.getSeries().getTitle(), season.getNumber());
-            return Collections.emptyList();
+            return null;
         }
 
         TvSeasonInfos tvSeasonInfos = allocineApiWrapper.getTvSeasonInfos(allocineId);
         if (tvSeasonInfos == null || tvSeasonInfos.isNotValid() || MapUtils.isEmpty(tvSeasonInfos.getPosters())) {
-            return Collections.emptyList();
+            return null;
         }
         return buildArtworkDetails(tvSeasonInfos.getPosters());
     }
@@ -61,38 +60,38 @@ public final class AllocineSeriesArtworkScanner extends AbstractAllocineScanner 
         String allocineId = getSeriesId(series, false);
         if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}'", series.getTitle());
-            return Collections.emptyList();
+            return null;
         }
         
         TvSeriesInfos tvSeriesInfos = allocineApiWrapper.getTvSeriesInfos(allocineId, false);
         if (tvSeriesInfos == null || tvSeriesInfos.isNotValid() || MapUtils.isEmpty(tvSeriesInfos.getPosters())) {
-            return Collections.emptyList();
+            return null;
         }
         return buildArtworkDetails(tvSeriesInfos.getPosters());
     }
 
     @Override
     public List<ArtworkDTO> getFanarts(ISeason season) {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
     public List<ArtworkDTO> getFanarts(ISeries series) {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
     public List<ArtworkDTO> getBanners(ISeason season) {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
     public List<ArtworkDTO> getBanners(ISeries series) {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
     public List<ArtworkDTO> getVideoImages(IEpisode episode) {
-        return Collections.emptyList();
+        return null;
     }
 }

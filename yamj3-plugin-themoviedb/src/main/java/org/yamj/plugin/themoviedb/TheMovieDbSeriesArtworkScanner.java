@@ -25,7 +25,6 @@ package org.yamj.plugin.themoviedb;
 import com.omertron.themoviedbapi.enumeration.ArtworkType;
 import com.omertron.themoviedbapi.model.artwork.Artwork;
 import com.omertron.themoviedbapi.results.ResultList;
-import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
         String tmdbId = getSeriesId(season.getSeries(), false);
         if (isNoValidTheMovieDbId(tmdbId)) {
             LOG.debug("TheMovieDb id not available '{}'", season.getSeries().getTitle());
-            return Collections.emptyList();
+            return null;
         }
         
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getSeasonImages(Integer.parseInt(tmdbId), season.getNumber());
@@ -58,7 +57,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
         String tmdbId = getSeriesId(series, false);
         if (isNoValidTheMovieDbId(tmdbId)) {
             LOG.debug("TheMovieDb id not available '{}'", series.getTitle());
-            return Collections.emptyList();
+            return null;
         }
 
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getSeriesImages(Integer.parseInt(tmdbId));
@@ -70,7 +69,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
         String tmdbId = getSeriesId(season.getSeries(), false);
         if (isNoValidTheMovieDbId(tmdbId)) {
             LOG.debug("TheMovieDb id not available '{}'", season.getSeries().getTitle());
-            return Collections.emptyList();
+            return null;
         }
 
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getSeasonImages(Integer.parseInt(tmdbId), season.getNumber());
@@ -82,7 +81,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
         String tmdbId = getSeriesId(series, false);
         if (isNoValidTheMovieDbId(tmdbId)) {
             LOG.debug("TheMovieDb id not available '{}'", series.getTitle());
-            return Collections.emptyList();
+            return null;
         }
         
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getSeriesImages(Integer.parseInt(tmdbId));
@@ -91,12 +90,12 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
 
     @Override
     public List<ArtworkDTO> getBanners(ISeason season) {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
     public List<ArtworkDTO> getBanners(ISeries series) {
-        return Collections.emptyList();
+        return null;
     }
 
     @Override
@@ -104,7 +103,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
         String tmdbId = getSeriesId(episode.getSeason().getSeries(), false);
         if (isNoValidTheMovieDbId(tmdbId)) {
             LOG.debug("TheMovieDb id not available '{}'", episode.getSeason().getSeries().getTitle());
-            return Collections.emptyList();
+            return null;
         }
 
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getEpisodeImages(Integer.parseInt(tmdbId), episode.getSeason().getNumber(), episode.getNumber());
