@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.fanarttv;
 
-import static org.yamj.plugin.api.service.Constants.LANGUAGE_EN;
+import static org.yamj.plugin.api.Constants.LANGUAGE_EN;
 
 import com.omertron.fanarttvapi.model.FTArtwork;
 import java.util.ArrayList;

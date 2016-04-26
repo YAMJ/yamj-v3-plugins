@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.fanarttv;
 
-import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 
 import com.omertron.fanarttvapi.enumeration.FTArtworkType;
 import com.omertron.fanarttvapi.model.FTMovie;

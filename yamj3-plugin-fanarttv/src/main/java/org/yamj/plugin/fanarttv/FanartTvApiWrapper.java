@@ -29,7 +29,7 @@ import com.omertron.fanarttvapi.model.FTSeries;
 import net.sf.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.service.EhCacheWrapper;
+import org.yamj.plugin.api.tools.EhCacheWrapper;
 
 public class FanartTvApiWrapper {
 

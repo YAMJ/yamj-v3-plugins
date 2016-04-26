@@ -22,8 +22,8 @@
  */
 package org.yamj.plugin.ofdb;
 
-import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
-import static org.yamj.plugin.api.service.Constants.UTF8;
+import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.Constants.UTF8;
 
 import java.io.IOException;
 import java.util.*;

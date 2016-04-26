@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.themoviedb;
 
-import static org.yamj.plugin.api.service.Constants.*;
+import static org.yamj.plugin.api.Constants.*;
 
 import com.omertron.themoviedbapi.model.Genre;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCast;

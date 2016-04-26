@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.themoviedb;
 
-import static org.yamj.plugin.api.service.Constants.LANGUAGE_EN;
+import static org.yamj.plugin.api.Constants.LANGUAGE_EN;
 
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.enumeration.ArtworkType;

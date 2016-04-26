@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.moviemeter;
 
-import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 
 import com.omertron.moviemeter.model.Actor;
 import com.omertron.moviemeter.model.FilmInfo;

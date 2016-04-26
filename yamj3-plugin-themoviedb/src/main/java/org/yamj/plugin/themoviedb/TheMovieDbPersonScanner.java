@@ -22,8 +22,8 @@
  */
 package org.yamj.plugin.themoviedb;
 
-import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
-import static org.yamj.plugin.api.service.Constants.SOURCE_TMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_TMDB;
 
 import com.omertron.themoviedbapi.model.person.PersonInfo;
 import org.apache.commons.collections.CollectionUtils;

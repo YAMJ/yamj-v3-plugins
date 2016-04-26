@@ -24,7 +24,7 @@ package org.yamj.plugin.thetvdb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.yamj.plugin.api.service.Constants.SOURCE_TVDB;
+import static org.yamj.plugin.api.Constants.SOURCE_TVDB;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;

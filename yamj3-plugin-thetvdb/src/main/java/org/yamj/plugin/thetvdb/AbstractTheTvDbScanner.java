@@ -22,8 +22,8 @@
  */
 package org.yamj.plugin.thetvdb;
 
-import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
-import static org.yamj.plugin.api.service.Constants.SOURCE_TVDB;
+import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_TVDB;
 
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;

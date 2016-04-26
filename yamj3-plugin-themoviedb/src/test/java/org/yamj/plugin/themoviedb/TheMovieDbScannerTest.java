@@ -23,7 +23,7 @@
 package org.yamj.plugin.themoviedb;
 
 import static org.junit.Assert.assertEquals;
-import static org.yamj.plugin.api.service.Constants.SOURCE_TMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_TMDB;
 
 import java.util.List;
 import org.junit.BeforeClass;

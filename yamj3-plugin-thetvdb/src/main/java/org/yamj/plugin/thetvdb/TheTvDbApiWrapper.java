@@ -33,8 +33,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.tools.ResponseTools;
-import org.yamj.plugin.api.service.EhCacheWrapper;
 import org.yamj.plugin.api.service.PluginConfigService;
+import org.yamj.plugin.api.tools.EhCacheWrapper;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 
 public class TheTvDbApiWrapper {

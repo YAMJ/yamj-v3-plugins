@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.themoviedb;
 
-import static org.yamj.plugin.api.service.Constants.LANGUAGE_EN;
+import static org.yamj.plugin.api.Constants.LANGUAGE_EN;
 
 import com.omertron.themoviedbapi.Compare;
 import com.omertron.themoviedbapi.MovieDbException;
@@ -45,8 +45,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.tools.ResponseTools;
-import org.yamj.plugin.api.service.EhCacheWrapper;
 import org.yamj.plugin.api.service.PluginConfigService;
+import org.yamj.plugin.api.tools.EhCacheWrapper;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 
 public class TheMovieDbApiWrapper {

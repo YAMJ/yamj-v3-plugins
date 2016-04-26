@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.thetvdb;
 
-import static org.yamj.plugin.api.service.Constants.SOURCE_TMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_TMDB;
 
 import com.omertron.thetvdbapi.TheTVDBApi;
 import java.io.InputStream;

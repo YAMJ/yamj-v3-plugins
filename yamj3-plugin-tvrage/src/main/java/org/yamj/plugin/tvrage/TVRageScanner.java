@@ -22,7 +22,7 @@
  */
 package org.yamj.plugin.tvrage;
 
-import static org.yamj.plugin.api.service.Constants.SOURCE_TVRAGE;
+import static org.yamj.plugin.api.Constants.SOURCE_TVRAGE;
 
 import com.omertron.tvrageapi.model.*;
 import java.util.*;

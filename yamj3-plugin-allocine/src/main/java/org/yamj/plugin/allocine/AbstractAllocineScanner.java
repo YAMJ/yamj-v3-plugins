@@ -23,7 +23,7 @@
 package org.yamj.plugin.allocine;
 
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
-import static org.yamj.plugin.api.service.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 
 import java.util.*;
 import java.util.Map.Entry;
