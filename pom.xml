@@ -45,6 +45,7 @@
         <module>yamj3-plugin-allocine</module>
         <module>yamj3-plugin-comingsoon</module>
         <module>yamj3-plugin-fanarttv</module>
+        <module>yamj3-plugin-imdb</module>
         <module>yamj3-plugin-moviemeter</module>
         <module>yamj3-plugin-ofdb</module>
         <module>yamj3-plugin-themoviedb</module>
