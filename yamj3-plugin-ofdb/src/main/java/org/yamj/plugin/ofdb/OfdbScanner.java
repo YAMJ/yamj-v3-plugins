@@ -33,13 +33,15 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
+import org.yamj.plugin.api.NeedsConfigService;
+import org.yamj.plugin.api.NeedsHttpClient;
+import org.yamj.plugin.api.NeedsMetadataService;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.IdMap;
 import org.yamj.plugin.api.model.type.JobType;
 import org.yamj.plugin.api.service.PluginConfigService;
-import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
@@ -47,7 +49,7 @@ import org.yamj.plugin.api.web.TemporaryUnavailableException;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class OfdbScanner implements MovieScanner {
+public final class OfdbScanner implements MovieScanner, NeedsConfigService, NeedsMetadataService, NeedsHttpClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(OfdbScanner.class);
     private static final String SCANNER_NAME = "ofdb";
@@ -67,11 +69,18 @@ public final class OfdbScanner implements MovieScanner {
     }
 
     @Override
-    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
+    public void setConfigService(PluginConfigService configService) {
         this.configService = configService;
-        this.metadataService = metadataService;
-        this.httpClient = httpClient;
+    }
 
+    @Override
+    public void setMetadataService(PluginMetadataService metadataService) {
+        this.metadataService = metadataService;
+    }
+
+    @Override
+    public void setHttpClient(CommonHttpClient httpClient) {
+        this.httpClient = httpClient;
         this.searchEngineTools = new SearchEngineTools(httpClient, Locale.GERMANY);
         this.searchEngineTools.setSearchSites("google");
     }

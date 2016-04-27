@@ -32,7 +32,9 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.NeedsConfigService;
+import org.yamj.plugin.api.NeedsLocaleService;
+import org.yamj.plugin.api.NeedsMetadataService;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.NfoScanner;
@@ -42,7 +44,7 @@ import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
  
-public abstract class AbstractTheMovieDbScanner implements NfoScanner {
+public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConfigService, NeedsLocaleService, NeedsMetadataService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTheMovieDbScanner.class);
 
@@ -58,12 +60,21 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner {
     }
 
     @Override
-    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
+    public final void setConfigService(PluginConfigService configService) {
         this.configService = configService;
-        this.metadataService = metadataService;
-        this.localeService = localeService;
+        // also set the API wrapper
         this.theMovieDbApiWrapper = TheMovieDbPlugin.getTheMovieDbApiWrapper();
+    }
+
+    @Override
+    public final void setLocaleService(PluginLocaleService localeService) {
+        this.localeService = localeService;
         this.locale = localeService.getLocale();
+    }
+
+    @Override
+    public final void setMetadataService(PluginMetadataService metadataService) {
+        this.metadataService = metadataService;
     }
 
     @Override

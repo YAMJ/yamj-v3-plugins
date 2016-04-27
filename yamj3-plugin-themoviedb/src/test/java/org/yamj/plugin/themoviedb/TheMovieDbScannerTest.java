@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.metadata.*;
+import org.yamj.plugin.api.metadata.FilmographyDTO;
 import org.yamj.plugin.api.model.mock.*;
 import org.yamj.plugin.api.service.mock.PluginConfigServiceMock;
 import org.yamj.plugin.api.service.mock.PluginLocaleServiceMock;
@@ -46,10 +46,10 @@ public class TheMovieDbScannerTest {
     private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbScannerTest.class);
     
     private static TheMovieDbPlugin plugin;
-    private static MovieScanner movieScanner;
-    private static SeriesScanner seriesScanner;
-    private static PersonScanner personScanner;
-    private static FilmographyScanner filmographyScanner;
+    private static TheMovieDbMovieScanner movieScanner;
+    private static TheMovieDbSeriesScanner seriesScanner;
+    private static TheMovieDbPersonScanner personScanner;
+    private static TheMovieDbFilmographyScanner filmographyScanner;
     
     @BeforeClass
     @SuppressWarnings("resource")
@@ -65,16 +65,24 @@ public class TheMovieDbScannerTest {
         plugin.start();
         
         movieScanner = new TheMovieDbMovieScanner();
-        movieScanner.init(configService, metadataService, localeService, httpClient);
+        movieScanner.setConfigService(configService);
+        movieScanner.setLocaleService(localeService);
+        movieScanner.setMetadataService(metadataService);
 
         seriesScanner = new TheMovieDbSeriesScanner();
-        seriesScanner.init(configService, metadataService, localeService, httpClient);
+        seriesScanner.setConfigService(configService);
+        seriesScanner.setLocaleService(localeService);
+        seriesScanner.setMetadataService(metadataService);
 
         personScanner = new TheMovieDbPersonScanner();
-        personScanner.init(configService, metadataService, localeService, httpClient);
+        personScanner.setConfigService(configService);
+        personScanner.setLocaleService(localeService);
+        personScanner.setMetadataService(metadataService);
 
         filmographyScanner = new TheMovieDbFilmographyScanner();
-        filmographyScanner.init(configService, metadataService, localeService, httpClient);
+        filmographyScanner.setConfigService(configService);
+        filmographyScanner.setLocaleService(localeService);
+        filmographyScanner.setMetadataService(metadataService);
     }
 
     @AfterClass

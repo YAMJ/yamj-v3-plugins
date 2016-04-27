@@ -31,10 +31,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.mock.EpisodeMock;
 import org.yamj.plugin.api.model.mock.SeasonMock;
 import org.yamj.plugin.api.model.mock.SeriesMock;
@@ -48,23 +46,22 @@ public class TheTVDbSeriesScannerTest {
     private static final Logger LOG = LoggerFactory.getLogger(TheTVDbSeriesScannerTest.class);
 
     private static TheTvDbPlugin plugin;
-    private static SeriesScanner seriesScanner;
+    private static TheTvDbSeriesScanner seriesScanner;
     
     @BeforeClass
     @SuppressWarnings("resource")
     public static void setUpClass() throws Exception {
         PluginConfigServiceMock configService = new PluginConfigServiceMock();
-        PluginMetadataServiceMock metadataService = new PluginMetadataServiceMock();
-        PluginLocaleServiceMock localeService = new PluginLocaleServiceMock();
-        CommonHttpClient httpClient = new HttpClientWrapper(new SimpleHttpClientBuilder().build());
         
         plugin = new TheTvDbPlugin(new PluginWrapper(null, null, null, null));
         plugin.setConfigService(configService);
-        plugin.setHttpClient(httpClient);
+        plugin.setHttpClient(new HttpClientWrapper(new SimpleHttpClientBuilder().build()));
         plugin.start();
         
         seriesScanner = new TheTvDbSeriesScanner();
-        seriesScanner.init(configService, metadataService, localeService, httpClient);
+        seriesScanner.setConfigService(configService);
+        seriesScanner.setLocaleService(new PluginLocaleServiceMock());
+        seriesScanner.setMetadataService(new PluginMetadataServiceMock());
     }
 
     @AfterClass

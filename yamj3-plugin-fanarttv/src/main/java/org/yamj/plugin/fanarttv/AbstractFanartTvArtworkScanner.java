@@ -28,14 +28,14 @@ import com.omertron.fanarttvapi.model.FTArtwork;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.NeedsLocaleService;
+import org.yamj.plugin.api.NeedsMetadataService;
 import org.yamj.plugin.api.OnlineScanner;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
-import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
  
-public abstract class AbstractFanartTvArtworkScanner implements OnlineScanner {
+public abstract class AbstractFanartTvArtworkScanner implements OnlineScanner, NeedsLocaleService, NeedsMetadataService {
 
     private static final String LANGUAGE_NONE = "00";
     private static final String SCANNER_NAME = "fanarttv";
@@ -50,10 +50,15 @@ public abstract class AbstractFanartTvArtworkScanner implements OnlineScanner {
     }
 
     @Override
-    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
-        this.metadataService = metadataService;
-        this.fanartTvApiWrapper = FanartTvPlugin.getFanartTvApiWrapper();
+    public final void setLocaleService(PluginLocaleService localeService) {
         this.locale = localeService.getLocale();
+        // also set the API wrapper
+        this.fanartTvApiWrapper = FanartTvPlugin.getFanartTvApiWrapper();
+    }
+
+    @Override
+    public final void setMetadataService(PluginMetadataService metadataService) {
+        this.metadataService = metadataService;
     }
 
     protected static List<ArtworkDTO> getArtworkList(List<FTArtwork> ftArtwork, String language, int seasonNumber) {

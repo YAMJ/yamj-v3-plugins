@@ -29,23 +29,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.mock.EpisodeMock;
 import org.yamj.plugin.api.model.mock.SeasonMock;
 import org.yamj.plugin.api.model.mock.SeriesMock;
 import org.yamj.plugin.api.service.mock.PluginConfigServiceMock;
-import org.yamj.plugin.api.service.mock.PluginLocaleServiceMock;
-import org.yamj.plugin.api.service.mock.PluginMetadataServiceMock;
 
 public class ComingSoonSeriesScannerTest {
 
-    private static SeriesScanner seriesScanner;
+    private static ComingSoonSeriesScanner seriesScanner;
     
     @BeforeClass
     @SuppressWarnings("resource")
     public static void setUpClass() {
         seriesScanner = new ComingSoonSeriesScanner();
-        seriesScanner.init(new PluginConfigServiceMock(), new PluginMetadataServiceMock(), new PluginLocaleServiceMock(), new HttpClientWrapper(new SimpleHttpClientBuilder().build()));
+        seriesScanner.setConfigService(new PluginConfigServiceMock());
+        seriesScanner.setHttpClient(new HttpClientWrapper(new SimpleHttpClientBuilder().build()));
     }
         
     @Test

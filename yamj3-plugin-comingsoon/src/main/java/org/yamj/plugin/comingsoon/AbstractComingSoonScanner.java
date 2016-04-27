@@ -34,17 +34,18 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
+import org.yamj.plugin.api.NeedsConfigService;
+import org.yamj.plugin.api.NeedsHttpClient;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.IdMap;
 import org.yamj.plugin.api.service.PluginConfigService;
-import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
  
-public abstract class AbstractComingSoonScanner implements NfoScanner {
+public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConfigService, NeedsHttpClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractComingSoonScanner.class);
     protected static final String SCANNER_NAME = "comingsoon";
@@ -68,8 +69,12 @@ public abstract class AbstractComingSoonScanner implements NfoScanner {
     }
 
     @Override
-    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
+    public final void setConfigService(PluginConfigService configService) {
         this.configService = configService;
+    }
+
+    @Override
+    public final void setHttpClient(CommonHttpClient httpClient) {
         this.httpClient = httpClient;
         this.searchEngineTools = new SearchEngineTools(httpClient, Locale.ITALY);
     }

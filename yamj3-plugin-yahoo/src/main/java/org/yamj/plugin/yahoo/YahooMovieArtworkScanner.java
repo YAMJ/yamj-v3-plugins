@@ -29,17 +29,15 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
+import org.yamj.plugin.api.NeedsHttpClient;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.MovieArtworkScanner;
 import org.yamj.plugin.api.model.IMovie;
-import org.yamj.plugin.api.service.PluginConfigService;
-import org.yamj.plugin.api.service.PluginLocaleService;
-import org.yamj.plugin.api.service.PluginMetadataService;
 import org.yamj.plugin.api.web.HTMLTools;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class YahooMovieArtworkScanner implements MovieArtworkScanner {
+public final class YahooMovieArtworkScanner implements MovieArtworkScanner, NeedsHttpClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(YahooMovieArtworkScanner.class);
     private static final String SCANNER_NAME = "yahoo";
@@ -52,7 +50,7 @@ public final class YahooMovieArtworkScanner implements MovieArtworkScanner {
     }
 
     @Override
-    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
+    public void setHttpClient(CommonHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

@@ -30,19 +30,17 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.IdMap;
 import org.yamj.plugin.api.model.type.JobType;
 import org.yamj.plugin.api.service.PluginConfigService;
-import org.yamj.plugin.api.service.PluginLocaleService;
-import org.yamj.plugin.api.service.PluginMetadataService;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class MovieMeterScanner implements MovieScanner {
+public final class MovieMeterScanner implements MovieScanner, NeedsConfigService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieMeterScanner.class);
     private static final String SCANNER_NAME = "moviemeter";
@@ -56,8 +54,9 @@ public final class MovieMeterScanner implements MovieScanner {
     }
 
     @Override
-    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
+    public void setConfigService(PluginConfigService configService) {
         this.configService = configService;
+        // also set the API wrapper
         this.movieMeterApiWrapper = MovieMeterPlugin.getMovieMeterApiWrapper();
     }
     

@@ -30,21 +30,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.mock.MovieMock;
 import org.yamj.plugin.api.service.mock.PluginConfigServiceMock;
-import org.yamj.plugin.api.service.mock.PluginLocaleServiceMock;
 import org.yamj.plugin.api.service.mock.PluginMetadataServiceMock;
 
 public class OfdbScannerTest {
 
-    private static MovieScanner movieScanner;
+    private static OfdbScanner movieScanner;
     
     @BeforeClass
     @SuppressWarnings("resource")
     public static void setUpClass() {
         movieScanner = new OfdbScanner();
-        movieScanner.init(new PluginConfigServiceMock(), new PluginMetadataServiceMock(), new PluginLocaleServiceMock(), new HttpClientWrapper(new SimpleHttpClientBuilder().build()));
+        movieScanner.setConfigService(new PluginConfigServiceMock());
+        movieScanner.setMetadataService(new PluginMetadataServiceMock());
+        movieScanner.setHttpClient(new HttpClientWrapper(new SimpleHttpClientBuilder().build()));
     }
 
     @Test

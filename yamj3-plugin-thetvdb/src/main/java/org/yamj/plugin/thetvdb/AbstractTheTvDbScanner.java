@@ -30,7 +30,9 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.NeedsConfigService;
+import org.yamj.plugin.api.NeedsLocaleService;
+import org.yamj.plugin.api.NeedsMetadataService;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.NfoScanner;
@@ -40,7 +42,7 @@ import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
  
-public abstract class AbstractTheTvDbScanner implements NfoScanner {
+public abstract class AbstractTheTvDbScanner implements NfoScanner, NeedsConfigService, NeedsLocaleService, NeedsMetadataService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTheTvDbScanner.class);
 
@@ -55,11 +57,20 @@ public abstract class AbstractTheTvDbScanner implements NfoScanner {
     }
 
     @Override
-    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
+    public final void setConfigService(PluginConfigService configService) {
         this.configService = configService;
-        this.metadataService = metadataService;
+        // also set the API wrapper
         this.theTvDbApiWrapper = TheTvDbPlugin.getTheTvDbApiWrapper();
+    }
+
+    @Override
+    public final void setLocaleService(PluginLocaleService localeService) {
         this.locale = localeService.getLocale();
+    }
+
+    @Override
+    public final void setMetadataService(PluginMetadataService metadataService) {
+        this.metadataService = metadataService;
     }
 
     @Override

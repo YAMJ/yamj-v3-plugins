@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.artwork.*;
+import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.model.mock.EpisodeMock;
 import org.yamj.plugin.api.model.mock.SeasonMock;
 import org.yamj.plugin.api.model.mock.SeriesMock;
@@ -45,9 +45,9 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class TheMovieDbArtworkScannerTest {
     
     private static TheMovieDbPlugin plugin;
-    private static MovieArtworkScanner movieArtworkScanner;
-    private static SeriesArtworkScanner seriesArtworkScanner;
-    private static PersonArtworkScanner personArtworkScanner;
+    private static TheMovieDbMovieArtworkScanner movieArtworkScanner;
+    private static TheMovieDbSeriesArtworkScanner seriesArtworkScanner;
+    private static TheMovieDbPersonArtworkScanner personArtworkScanner;
     
     @BeforeClass
     @SuppressWarnings("resource")
@@ -63,13 +63,19 @@ public class TheMovieDbArtworkScannerTest {
         plugin.start();
         
         movieArtworkScanner = new TheMovieDbMovieArtworkScanner();
-        movieArtworkScanner.init(configService, metadataService, localeService, httpClient);
-
+        movieArtworkScanner.setConfigService(configService);
+        movieArtworkScanner.setLocaleService(localeService);
+        movieArtworkScanner.setMetadataService(metadataService);
+        
         seriesArtworkScanner = new TheMovieDbSeriesArtworkScanner();
-        seriesArtworkScanner.init(configService, metadataService, localeService, httpClient);
+        seriesArtworkScanner.setConfigService(configService);
+        seriesArtworkScanner.setLocaleService(localeService);
+        seriesArtworkScanner.setMetadataService(metadataService);
 
         personArtworkScanner = new TheMovieDbPersonArtworkScanner();
-        personArtworkScanner.init(configService, metadataService, localeService, httpClient);
+        personArtworkScanner.setConfigService(configService);
+        personArtworkScanner.setLocaleService(localeService);
+        personArtworkScanner.setMetadataService(metadataService);
     }
 
     @AfterClass

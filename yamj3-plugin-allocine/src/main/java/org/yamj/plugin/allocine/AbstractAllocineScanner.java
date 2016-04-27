@@ -34,6 +34,9 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.NeedsConfigService;
+import org.yamj.plugin.api.NeedsHttpClient;
+import org.yamj.plugin.api.NeedsMetadataService;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.ArtworkTools;
 import org.yamj.plugin.api.metadata.MetadataTools;
@@ -41,12 +44,11 @@ import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.*;
 import org.yamj.plugin.api.service.PluginConfigService;
-import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.service.PluginMetadataService;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.SearchEngineTools;
  
-public abstract class AbstractAllocineScanner implements NfoScanner {
+public abstract class AbstractAllocineScanner implements NfoScanner, NeedsConfigService, NeedsMetadataService, NeedsHttpClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAllocineScanner.class);
 
@@ -57,16 +59,24 @@ public abstract class AbstractAllocineScanner implements NfoScanner {
     private Lock searchEngineLock;
 
     @Override
-    public String getScannerName() {
+    public final String getScannerName() {
         return SCANNER_NAME;
     }
 
     @Override
-    public void init(PluginConfigService configService, PluginMetadataService metadataService, PluginLocaleService localeService, CommonHttpClient httpClient) {
+    public final void setConfigService(PluginConfigService configService) {
         this.configService = configService;
-        this.metadataService = metadataService;
+        // also set the API wrapper
         this.allocineApiWrapper = AllocinePlugin.getAllocineApiWrapper();
-        
+    }
+
+    @Override
+    public final void setMetadataService(PluginMetadataService metadataService) {
+        this.metadataService = metadataService;
+    }
+
+    @Override
+    public final void setHttpClient(CommonHttpClient httpClient) {
         this.searchEngineTools = new SearchEngineTools(httpClient, Locale.FRANCE);
         this.searchEngineLock = new ReentrantLock(true);
     }
