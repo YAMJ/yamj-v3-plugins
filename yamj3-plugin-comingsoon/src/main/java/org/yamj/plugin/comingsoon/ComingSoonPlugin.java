@@ -26,16 +26,24 @@ import java.io.InputStream;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.YamjPlugin;
+import org.yamj.plugin.api.NeedsConfigService;
+import org.yamj.plugin.api.service.PluginConfigService;
+import ro.fortsoft.pf4j.Plugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public class ComingSoonPlugin extends YamjPlugin {
+public class ComingSoonPlugin extends Plugin implements NeedsConfigService {
     
     private static final Logger LOG = LoggerFactory.getLogger(ComingSoonPlugin.class);
-
+    private PluginConfigService configService;
+    
     public ComingSoonPlugin(PluginWrapper wrapper) {
         super(wrapper);
+    }
+
+    @Override
+    public void setConfigService(PluginConfigService configService) {
+        this.configService = configService;
     }
 
     @Override

@@ -32,18 +32,26 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.YamjPlugin;
+import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.NeedsHttpClient;
+import ro.fortsoft.pf4j.Plugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public class FanartTvPlugin extends YamjPlugin {
+public class FanartTvPlugin extends Plugin implements NeedsHttpClient {
     
     private static final Logger LOG = LoggerFactory.getLogger(FanartTvPlugin.class);
     private static FanartTvApiWrapper fanartTvApiWrapper;
+    private CommonHttpClient httpClient;
     
     public FanartTvPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
+
+    @Override
+    public void setHttpClient(CommonHttpClient httpClient) {
+        this.httpClient = httpClient;
+    }   
 
     @Override
     public void start() throws PluginException {

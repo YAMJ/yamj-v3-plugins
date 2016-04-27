@@ -34,17 +34,33 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.YamjPlugin;
+import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.NeedsConfigService;
+import org.yamj.plugin.api.NeedsHttpClient;
+import org.yamj.plugin.api.service.PluginConfigService;
+import ro.fortsoft.pf4j.Plugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public class TheMovieDbPlugin extends YamjPlugin {
+public class TheMovieDbPlugin extends Plugin implements NeedsConfigService, NeedsHttpClient {
     
     private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbPlugin.class);
     private static TheMovieDbApiWrapper theMovieDbApiWrapper;
+    private PluginConfigService configService;
+    private CommonHttpClient httpClient;
     
     public TheMovieDbPlugin(PluginWrapper wrapper) {
         super(wrapper);
+    }
+
+    @Override
+    public void setConfigService(PluginConfigService configService) {
+        this.configService = configService;
+    }
+
+    @Override
+    public void setHttpClient(CommonHttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
     @Override

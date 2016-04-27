@@ -27,19 +27,35 @@ import java.io.InputStream;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.YamjPlugin;
+import org.yamj.api.common.http.CommonHttpClient;
+import org.yamj.plugin.api.NeedsConfigService;
+import org.yamj.plugin.api.NeedsHttpClient;
+import org.yamj.plugin.api.service.PluginConfigService;
+import ro.fortsoft.pf4j.Plugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public class TVRagePlugin extends YamjPlugin {
+public class TVRagePlugin extends Plugin implements NeedsConfigService, NeedsHttpClient {
     
     private static final Logger LOG = LoggerFactory.getLogger(TVRagePlugin.class);
     private static TVRageApiWrapper tvRageApiWrapper;
+    private PluginConfigService configService;
+    private CommonHttpClient httpClient;
     
     public TVRagePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
+    @Override
+    public void setConfigService(PluginConfigService configService) {
+        this.configService = configService;
+    }
+
+    @Override
+    public void setHttpClient(CommonHttpClient httpClient) {
+        this.httpClient = httpClient;
+    }
+    
     @Override
     public void start() throws PluginException {
         LOG.trace("Start TvRagePlugin");

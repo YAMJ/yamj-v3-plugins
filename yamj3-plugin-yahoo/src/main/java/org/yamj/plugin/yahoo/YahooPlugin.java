@@ -24,11 +24,11 @@ package org.yamj.plugin.yahoo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.YamjPlugin;
+import ro.fortsoft.pf4j.Plugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public class YahooPlugin extends YamjPlugin {
+public class YahooPlugin extends Plugin {
     
     private static final Logger LOG = LoggerFactory.getLogger(YahooPlugin.class);
     
