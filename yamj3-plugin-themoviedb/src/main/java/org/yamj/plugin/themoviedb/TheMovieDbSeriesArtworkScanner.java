@@ -26,6 +26,7 @@ import com.omertron.themoviedbapi.enumeration.ArtworkType;
 import com.omertron.themoviedbapi.model.artwork.Artwork;
 import com.omertron.themoviedbapi.results.ResultList;
 import java.util.List;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
@@ -48,6 +49,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
             return null;
         }
         
+        final Locale locale = localeService.getLocale();
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getSeasonImages(Integer.parseInt(tmdbId), season.getNumber());
         return this.filterArtwork(tmdbId, resultList, locale.getLanguage(), ArtworkType.POSTER, DEFAULT_SIZE);
     }
@@ -60,6 +62,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
             return null;
         }
 
+        final Locale locale = localeService.getLocale();
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getSeriesImages(Integer.parseInt(tmdbId));
         return this.filterArtwork(tmdbId, resultList, locale.getLanguage(), ArtworkType.POSTER, DEFAULT_SIZE);
     }
@@ -72,6 +75,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
             return null;
         }
 
+        final Locale locale = localeService.getLocale();
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getSeasonImages(Integer.parseInt(tmdbId), season.getNumber());
         return this.filterArtwork(tmdbId, resultList, locale.getLanguage(), ArtworkType.BACKDROP, DEFAULT_SIZE);
     }
@@ -84,6 +88,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
             return null;
         }
         
+        final Locale locale = localeService.getLocale();
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getSeriesImages(Integer.parseInt(tmdbId));
         return this.filterArtwork(tmdbId, resultList, locale.getLanguage(), ArtworkType.BACKDROP, DEFAULT_SIZE);
     }
@@ -106,6 +111,7 @@ public final class TheMovieDbSeriesArtworkScanner extends AbstractTheMovieDbArtw
             return null;
         }
 
+        final Locale locale = localeService.getLocale();
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getEpisodeImages(Integer.parseInt(tmdbId), episode.getSeason().getNumber(), episode.getNumber());
         return this.filterArtwork(tmdbId, resultList, locale.getLanguage(), ArtworkType.STILL, DEFAULT_SIZE);
     }

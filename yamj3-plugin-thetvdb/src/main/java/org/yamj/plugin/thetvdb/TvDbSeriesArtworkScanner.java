@@ -58,7 +58,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
         List<ArtworkDTO> altLangDTOs = new ArrayList<>(5);
         List<ArtworkDTO> noLangDTOs = new ArrayList<>(5);
 
-        final String language = locale.getLanguage();
+        final String language = localeService.getLocale().getLanguage();
         final String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
         
         // get series artwork
@@ -126,7 +126,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
         List<ArtworkDTO> altLangDTOs = new ArrayList<>(5);
         List<ArtworkDTO> noLangDTOs = new ArrayList<>(5);
 
-        final String language = locale.getLanguage();
+        final String language = localeService.getLocale().getLanguage();
         final String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
 
         // get series artwork
@@ -217,7 +217,8 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
             LOG.debug("Season {}-{}: No HD fanart found; using SD fanart", id, season);
             returnDTOs = sdDTOs;
         } else {
-            Series tvdbSeries = theTvDbApiWrapper.getSeries(id, locale.getLanguage());
+            final String language = localeService.getLocale().getLanguage();
+            Series tvdbSeries = theTvDbApiWrapper.getSeries(id, language);
             if (tvdbSeries == null || StringUtils.isBlank(tvdbSeries.getFanart())) {
                 returnDTOs = null;
             } else {
@@ -268,7 +269,8 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
             LOG.info("Series {}: No HD fanart found; using SD fanart", id);
             returnDTOs = sdDTOs;
         } else {
-            Series tvdbSeries = theTvDbApiWrapper.getSeries(id, locale.getLanguage());
+            final String language = localeService.getLocale().getLanguage();
+            Series tvdbSeries = theTvDbApiWrapper.getSeries(id, language);
             if (tvdbSeries == null || StringUtils.isBlank(tvdbSeries.getFanart())) {
                 returnDTOs = null;
             } else {
@@ -298,7 +300,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
         List<ArtworkDTO> seriesNoLangDTOs = new ArrayList<>(5);
         List<ArtworkDTO> blankDTOs = new ArrayList<>(5);
 
-        final String language = locale.getLanguage();
+        final String language = localeService.getLocale().getLanguage();
         final String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
         final boolean seasonBannerOnlySeries = configService.getBooleanProperty("thetvdb.season.banner.onlySeries", false);
 
@@ -403,7 +405,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
         List<ArtworkDTO> blankDTOs = new ArrayList<>(5);
 
         // get series artwork
-        final String language = locale.getLanguage();
+        final String language = localeService.getLocale().getLanguage();
         final String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
 
         final Banners bannerList = theTvDbApiWrapper.getBanners(id);
@@ -486,7 +488,8 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
             return null;
         }
         
-        Episode tvdbEpisode = theTvDbApiWrapper.getEpisode(id, episode.getSeason().getNumber(), episode.getNumber(), locale.getLanguage());
+        final String language = localeService.getLocale().getLanguage();
+        Episode tvdbEpisode = theTvDbApiWrapper.getEpisode(id, episode.getSeason().getNumber(), episode.getNumber(), language);
         if (tvdbEpisode != null && StringUtils.isNotBlank(tvdbEpisode.getFilename())) {
             ArtworkDTO artworkDTO = new ArtworkDTO(SOURCE_TVDB, tvdbEpisode.getFilename(), ArtworkTools.getPartialHashCode(tvdbEpisode.getFilename()));
             return Collections.singletonList(artworkDTO);

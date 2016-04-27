@@ -47,9 +47,9 @@ public abstract class AbstractTheTvDbScanner implements NfoScanner, NeedsConfigS
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTheTvDbScanner.class);
 
     protected PluginConfigService configService;
+    protected PluginLocaleService localeService;
     protected PluginMetadataService metadataService;
     protected TheTvDbApiWrapper theTvDbApiWrapper;
-    protected Locale locale;
 
     @Override
     public final String getScannerName() {
@@ -65,7 +65,7 @@ public abstract class AbstractTheTvDbScanner implements NfoScanner, NeedsConfigS
 
     @Override
     public final void setLocaleService(PluginLocaleService localeService) {
-        this.locale = localeService.getLocale();
+        this.localeService = localeService;
     }
 
     @Override
@@ -135,7 +135,8 @@ public abstract class AbstractTheTvDbScanner implements NfoScanner, NeedsConfigS
 
     public String getSeriesId(ISeries series, boolean throwTempError) {
         String tvdbId = series.getId(SOURCE_TVDB);
-
+        Locale locale = localeService.getLocale();
+        
         // search by title
         if (isNoValidTheTvDbId(tvdbId)) {
             tvdbId = this.theTvDbApiWrapper.getSeriesId(series.getTitle(), series.getStartYear(), locale.getLanguage(), throwTempError);

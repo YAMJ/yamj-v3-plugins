@@ -270,15 +270,15 @@ public class ImdbApiWrapper {
         return studios;
     }
 
-    public Map<String, String> getCertifications(String imdbId, Locale imdbLocale, ImdbMovieDetails movieDetails) {
-        Map<String, String> certifications = new HashMap<>();
+    public void parseCertifications(ICombined combined, Locale locale, ImdbMovieDetails movieDetails) {
+        final String imdbId = combined.getId(SOURCE_IMDB);
         
         // get certificate from IMDb API movie details
         String certificate = movieDetails.getCertificate().get("certificate");
         if (StringUtils.isNotBlank(certificate)) {
             String country = movieDetails.getCertificate().get("country");
             if (StringUtils.isBlank(country)) {
-                certifications.put(imdbLocale.getCountry(), certificate);
+                combined.addCertification(locale.getCountry(), certificate);
             }
         }
         
@@ -299,7 +299,7 @@ public class ImdbApiWrapper {
                                 pos = mpaa.indexOf(" for ", start);
                             }
                             if (pos != -1) {
-                                certifications.put("MPAA", mpaa.substring(start, pos));
+                                combined.addCertification("MPAA", mpaa.substring(start, pos));
                             }
                         }
                     }
@@ -308,11 +308,11 @@ public class ImdbApiWrapper {
                 List<String> tags = HTMLTools.extractTags(response.getContent(), HTML_H5_START + "Certification" + HTML_H5_END, HTML_DIV_END,
                                 "<a href=\"/search/title?certificates=", HTML_A_END);
                 Collections.reverse(tags);
-                for (String countryCode : localeService.getCertificationCountryCodes(imdbLocale)) {
+                for (String countryCode : localeService.getCertificationCountryCodes(locale)) {
                     loop: for (String country : localeService.getCountryNames(countryCode)) {
                         certificate = getPreferredValue(tags, country);
                         if (StringUtils.isNotBlank(certificate)) {
-                            certifications.put(countryCode, certificate);
+                            combined.addCertification(countryCode, certificate);
                             break loop;
                         }
                     }
@@ -321,7 +321,6 @@ public class ImdbApiWrapper {
         } catch (Exception ex) {
             LOG.error("Failed to retrieve certifications: " + imdbId, ex);
         }
-        return certifications;
     }
 
     private static String getPreferredValue(List<String> tags, String preferredCountry) {

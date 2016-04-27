@@ -29,6 +29,7 @@ import com.omertron.themoviedbapi.model.artwork.Artwork;
 import com.omertron.themoviedbapi.model.collection.Collection;
 import com.omertron.themoviedbapi.results.ResultList;
 import java.util.List;
+import java.util.Locale;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.BoxedSetArtworkScanner;
 import org.yamj.plugin.api.model.IBoxedSet;
@@ -40,7 +41,9 @@ public final class TheMovieDbBoxedSetArtworkScanner extends AbstractTheMovieDbAr
     @Override
     public List<ArtworkDTO> getPosters(IBoxedSet boxedSet) {
         String tmdbId = boxedSet.getId(SOURCE_TMDB);
+        Locale locale = localeService.getLocale();
         int id;
+        
         if (isNoValidTheMovieDbId(tmdbId)) {
             Collection collection = theMovieDbApiWrapper.findCollection(boxedSet.getName(), locale.getLanguage());
             if (collection == null) {
@@ -58,7 +61,9 @@ public final class TheMovieDbBoxedSetArtworkScanner extends AbstractTheMovieDbAr
     @Override
     public List<ArtworkDTO> getFanarts(IBoxedSet boxedSet) {
         String tmdbId = boxedSet.getId(SOURCE_TMDB);
+        Locale locale = localeService.getLocale();
         int id;
+        
         if (isNoValidTheMovieDbId(tmdbId)) {
             Collection collection = theMovieDbApiWrapper.findCollection(boxedSet.getName(), locale.getLanguage());
             if (collection == null) {

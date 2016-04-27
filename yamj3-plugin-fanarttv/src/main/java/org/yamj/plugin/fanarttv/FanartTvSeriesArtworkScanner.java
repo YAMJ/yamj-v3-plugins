@@ -109,6 +109,6 @@ public final class FanartTvSeriesArtworkScanner extends AbstractFanartTvArtworkS
             return null;
         }
 
-        return getArtworkList(ftSeries.getArtwork(artworkType), locale.getLanguage(), seasonNumber);
+        return getArtworkList(ftSeries.getArtwork(artworkType), seasonNumber);
     }
 }

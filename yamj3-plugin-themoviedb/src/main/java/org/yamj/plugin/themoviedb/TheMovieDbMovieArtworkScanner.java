@@ -26,6 +26,7 @@ import com.omertron.themoviedbapi.enumeration.ArtworkType;
 import com.omertron.themoviedbapi.model.artwork.Artwork;
 import com.omertron.themoviedbapi.results.ResultList;
 import java.util.List;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
@@ -46,6 +47,7 @@ public final class TheMovieDbMovieArtworkScanner extends AbstractTheMovieDbArtwo
             return null;
         }
 
+        final Locale locale = localeService.getLocale();
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getMovieImages(Integer.parseInt(tmdbId));
         return this.filterArtwork(tmdbId, resultList, locale.getLanguage(), ArtworkType.POSTER, DEFAULT_SIZE);
     }
@@ -58,6 +60,7 @@ public final class TheMovieDbMovieArtworkScanner extends AbstractTheMovieDbArtwo
             return null;
         }
         
+        final Locale locale = localeService.getLocale();
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getMovieImages(Integer.parseInt(tmdbId));
         return this.filterArtwork(tmdbId, resultList, locale.getLanguage(), ArtworkType.BACKDROP, DEFAULT_SIZE);
     }

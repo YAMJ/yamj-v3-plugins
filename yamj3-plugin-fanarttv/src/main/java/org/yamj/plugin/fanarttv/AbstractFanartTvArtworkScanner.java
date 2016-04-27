@@ -27,7 +27,6 @@ import static org.yamj.plugin.api.Constants.LANGUAGE_EN;
 import com.omertron.fanarttvapi.model.FTArtwork;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import org.yamj.plugin.api.NeedsLocaleService;
 import org.yamj.plugin.api.NeedsMetadataService;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
@@ -40,9 +39,9 @@ public abstract class AbstractFanartTvArtworkScanner implements ArtworkScanner, 
     private static final String LANGUAGE_NONE = "00";
     private static final String SCANNER_NAME = "fanarttv";
 
+    protected PluginLocaleService localeService;
     protected PluginMetadataService metadataService;
     protected FanartTvApiWrapper fanartTvApiWrapper;
-    protected Locale locale;
 
     @Override
     public final String getScannerName() {
@@ -51,7 +50,7 @@ public abstract class AbstractFanartTvArtworkScanner implements ArtworkScanner, 
 
     @Override
     public final void setLocaleService(PluginLocaleService localeService) {
-        this.locale = localeService.getLocale();
+        this.localeService = localeService;
         // also set the API wrapper
         this.fanartTvApiWrapper = FanartTvPlugin.getFanartTvApiWrapper();
     }
@@ -61,9 +60,10 @@ public abstract class AbstractFanartTvArtworkScanner implements ArtworkScanner, 
         this.metadataService = metadataService;
     }
 
-    protected static List<ArtworkDTO> getArtworkList(List<FTArtwork> ftArtwork, String language, int seasonNumber) {
+    protected List<ArtworkDTO> getArtworkList(List<FTArtwork> ftArtwork, int seasonNumber) {
         List<ArtworkDTO> artworkList = new ArrayList<>();
         final String season = Integer.toString(seasonNumber);
+        final String language = localeService.getLocale().getLanguage();
         
         // first try for default language
         for (FTArtwork artwork : ftArtwork) {

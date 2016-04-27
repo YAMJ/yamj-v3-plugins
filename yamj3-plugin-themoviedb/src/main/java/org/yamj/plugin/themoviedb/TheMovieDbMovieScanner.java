@@ -32,6 +32,7 @@ import com.omertron.themoviedbapi.model.credits.MediaCreditCrew;
 import com.omertron.themoviedbapi.model.movie.*;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -62,6 +63,7 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
         }
         
         // get movie info
+        final Locale locale = localeService.getLocale();
         MovieInfo movieInfo = theMovieDbApiWrapper.getMovieInfoByTMDB(Integer.parseInt(tmdbId), locale, throwTempError);
         if (movieInfo == null || movieInfo.getId() <= 0) {
             LOG.error("Can't find informations for movie '{}'", movie.getTitle());

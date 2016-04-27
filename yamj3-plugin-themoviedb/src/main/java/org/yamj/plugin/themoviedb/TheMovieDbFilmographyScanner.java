@@ -51,7 +51,7 @@ public final class TheMovieDbFilmographyScanner extends AbstractTheMovieDbScanne
 
     @Override
     public List<FilmographyDTO> scanFilmography(String tmdbId, boolean throwTempError) {
-        PersonCreditList<CreditBasic> credits = theMovieDbApiWrapper.getPersonCredits(Integer.parseInt(tmdbId), locale, throwTempError);
+        PersonCreditList<CreditBasic> credits = theMovieDbApiWrapper.getPersonCredits(Integer.parseInt(tmdbId), localeService.getLocale(), throwTempError);
         if (credits == null || CollectionUtils.isEmpty(credits.getCast())) {
             LOG.trace("No filmography found for person ID {}", tmdbId);
             return null;

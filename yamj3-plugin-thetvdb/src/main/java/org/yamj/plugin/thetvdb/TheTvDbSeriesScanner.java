@@ -60,6 +60,7 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
         }
         
         // get series info
+        Locale locale = localeService.getLocale();
         Series tvdbSeries = theTvDbApiWrapper.getSeries(tvdbId, locale.getLanguage(), throwTempError);
         if (tvdbSeries == null || StringUtils.isBlank(tvdbSeries.getId())) {
             LOG.error("Can't find informations for series '{}'", series.getTitle());
@@ -97,12 +98,12 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
         }
         
         // SCAN SEASONS
-        scanSeasons(series, tvdbSeries, actors);
+        scanSeasons(series, tvdbSeries, actors, locale);
 
         return true;
     }
 
-    private void scanSeasons(ISeries series, Series tvdbSeries, List<Actor> actors) {
+    private void scanSeasons(ISeries series, Series tvdbSeries, List<Actor> actors, Locale locale) {
         for (ISeason season : series.getSeasons()) {
 
             // nothing to do if season already done
@@ -123,11 +124,11 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
             }
             
             // scan episodes
-            scanEpisodes(season, actors);
+            scanEpisodes(season, actors, locale);
         }
     }
 
-    private void scanEpisodes(ISeason season, List<Actor> actors) {
+    private void scanEpisodes(ISeason season, List<Actor> actors, Locale locale) {
         final String seriesId = season.getSeries().getId(SOURCE_TVDB);
 
         for (IEpisode episode : season.getEpisodes()) {

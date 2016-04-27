@@ -43,6 +43,7 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
 
     private static final Logger LOG = LoggerFactory.getLogger(TVRageScanner.class);
 
+    private PluginLocaleService localeService;
     private PluginConfigService configService;
     private TVRageApiWrapper tvRageApiWrapper;
     private Locale locale;
@@ -61,7 +62,7 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
 
     @Override
     public void setLocaleService(PluginLocaleService localeService) {
-        this.locale = localeService.getLocale();
+        this.localeService = localeService;
     }
 
     @Override

@@ -52,7 +52,6 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
     protected PluginMetadataService metadataService;
     protected PluginLocaleService localeService;
     protected TheMovieDbApiWrapper theMovieDbApiWrapper;
-    protected Locale locale;
 
     @Override
     public final String getScannerName() {
@@ -69,7 +68,6 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
     @Override
     public final void setLocaleService(PluginLocaleService localeService) {
         this.localeService = localeService;
-        this.locale = localeService.getLocale();
     }
 
     @Override
@@ -123,8 +121,9 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
         }
 
         int id = -1;
-        
         String imdbId = movie.getId(SOURCE_IMDB);
+        Locale locale = localeService.getLocale();
+        
         if (StringUtils.isNotBlank(imdbId)) {
             // Search based on IMDb ID
             LOG.debug("Using IMDb id {} for '{}'", imdbId, movie.getTitle());
@@ -157,6 +156,8 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
         if (isValidTheMovieDbId(tmdbId)) {
             return tmdbId;
         }
+
+        Locale locale = localeService.getLocale();
 
         LOG.debug("No TMDb id found for '{}', searching title with year {}", series.getTitle(), series.getStartYear());
         int id = theMovieDbApiWrapper.getSeriesId(series.getTitle(), series.getStartYear(), locale, throwTempError);

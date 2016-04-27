@@ -32,9 +32,7 @@ import com.omertron.themoviedbapi.model.movie.ProductionCompany;
 import com.omertron.themoviedbapi.model.tv.TVEpisodeInfo;
 import com.omertron.themoviedbapi.model.tv.TVInfo;
 import com.omertron.themoviedbapi.model.tv.TVSeasonInfo;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +64,7 @@ public final class TheMovieDbSeriesScanner extends AbstractTheMovieDbScanner imp
         }
 
         // get series info
+        final Locale locale = localeService.getLocale();
         TVInfo tvInfo = theMovieDbApiWrapper.getSeriesInfo(Integer.parseInt(tmdbId), locale, throwTempError);
         if (tvInfo == null || tvInfo.getId() <= 0) {
             LOG.error("Can't find informations for series '{}'", series.getTitle());
@@ -113,12 +112,12 @@ public final class TheMovieDbSeriesScanner extends AbstractTheMovieDbScanner imp
         series.setEndYear(MetadataTools.extractYearAsInt(date));
 
         // SCAN SEASONS
-        scanSeasons(series, tvInfo);
+        scanSeasons(series, tvInfo, locale);
         
         return true;
     }
     
-    private void scanSeasons(ISeries series, TVInfo tvInfo) {
+    private void scanSeasons(ISeries series, TVInfo tvInfo, Locale locale) {
         for (ISeason season : series.getSeasons()) {
 
             // nothing to do if season already done
@@ -144,11 +143,11 @@ public final class TheMovieDbSeriesScanner extends AbstractTheMovieDbScanner imp
             }
             
             // scan episodes
-            scanEpisodes(season);
+            scanEpisodes(season, locale);
         }
     }
     
-    private void scanEpisodes(ISeason season) {
+    private void scanEpisodes(ISeason season, Locale locale) {
         for (IEpisode episode : season.getEpisodes()) {
             if (episode.isDone()) {
                 // nothing to do anymore

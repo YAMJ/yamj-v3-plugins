@@ -77,7 +77,7 @@ public final class FanartTvMovieArtworkScanner extends AbstractFanartTvArtworkSc
             return null;
         }
         
-        return getArtworkList(ftMovie.getArtwork(artworkType), locale.getLanguage(), -1);
+        return getArtworkList(ftMovie.getArtwork(artworkType), -1);
     }
 
 }
