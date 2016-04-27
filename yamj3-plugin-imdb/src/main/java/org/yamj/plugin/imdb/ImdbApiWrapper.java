@@ -1,8 +1,8 @@
 /*
- *      Copyright (c) 2004-2015 YAMJ Members
+ *      Copyright (c) 2004-2016 YAMJ Members
  *      https://github.com/organizations/YAMJ/teams
  *
- *      This file is part of the Yet Another Media Jukebox (YAMJ).
+ *      This file is part of the Yet Another Media Jukebox (YAMJ) plugins.
  *
  *      YAMJ is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
  *      You should have received a copy of the GNU General Public License
  *      along with YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
- *      Web: https://github.com/YAMJ/yamj-v3
+ *      Web: https://github.com/YAMJ/yamj-v3-plugins
  *
  */
 package org.yamj.plugin.imdb;
 
+import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.Constants.UTF8;
 
 import com.omertron.imdbapi.ImdbApi;
@@ -29,14 +30,19 @@ import com.omertron.imdbapi.ImdbException;
 import com.omertron.imdbapi.model.*;
 import java.io.IOException;
 import java.util.*;
+import net.sf.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.metadata.MetadataTools;
+import org.yamj.plugin.api.model.ICombined;
 import org.yamj.plugin.api.service.PluginConfigService;
+import org.yamj.plugin.api.service.PluginLocaleService;
+import org.yamj.plugin.api.tools.EhCacheWrapper;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 
@@ -52,14 +58,18 @@ public class ImdbApiWrapper {
     private static final String HTML_H5_START = "<h5>";
     private static final String HTML_DIV_END = "</div>";
 
-    private ImdbApi imdbApi;
-    private PluginConfigService configService;
-    private CommonHttpClient httpClient;
-
-    public ImdbApiWrapper(ImdbApi imdbApi, PluginConfigService configService, CommonHttpClient httpClient) {
+    private final ImdbApi imdbApi;
+    private final PluginConfigService configService;
+    private final PluginLocaleService localeService;
+    private final CommonHttpClient httpClient;
+    private final EhCacheWrapper cache;
+    
+    public ImdbApiWrapper(ImdbApi imdbApi, PluginConfigService configService, PluginLocaleService localeService, CommonHttpClient httpClient, Cache cache) {
         this.imdbApi = imdbApi;
         this.configService = configService;
+        this.localeService = localeService;
         this.httpClient = httpClient;
+        this.cache = new EhCacheWrapper(cache);
     }
     
     private static String getImdbUrl(String imdbId) {
@@ -86,19 +96,22 @@ public class ImdbApiWrapper {
         return movieDetails;
     }
         
-    //@Cacheable(value=CachingNames.API_IMDB, key="{#root.methodName, #imdbId}")
     public String getMovieDetailsXML(final String imdbId, boolean throwTempError) throws IOException {
-        DigestedResponse response;
         try {
-            response = httpClient.requestContent(getImdbUrl(imdbId), UTF8);
-        } catch (IOException ex) {
+            final String cacheKey = "moviexml###+imdbId";
+            String result = cache.get(cacheKey, String.class);
+            if (StringUtils.isBlank(result)) {
+                DigestedResponse response = httpClient.requestContent(getImdbUrl(imdbId), UTF8);
+                checkTempError(throwTempError, response);
+                result = response.getContent();
+                cache.store(cacheKey, result);
+            }
+            return result;
+        } catch (RuntimeException | IOException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new RuntimeException("IMDb request failed", ex);
         }
-
-        checkTempError(throwTempError, response);
-        return response.getContent();
     }
     
     public List<ImdbCredit> getFullCast(String imdbId) {
@@ -113,11 +126,15 @@ public class ImdbApiWrapper {
         return fullCast;
     }
 
-    //@Cacheable(value=CachingNames.API_IMDB, key="{#root.methodName, #imdbId, #locale}", unless="#result==null")
     public ImdbPerson getPerson(String imdbId, Locale locale, boolean throwTempError) {
         ImdbPerson imdbPerson = null;
         try {
-            imdbPerson = imdbApi.getActorDetails(imdbId, locale);
+            final String cacheKey = "person###"+imdbId+"###"+locale.getLanguage();
+            imdbPerson = cache.get(cacheKey, ImdbPerson.class);
+            if (imdbPerson == null) {
+                imdbPerson = imdbApi.getActorDetails(imdbId, locale);
+                cache.store(cacheKey, imdbPerson);
+            }
         } catch (ImdbException ex) {
             checkTempError(throwTempError, ex);
             LOG.error("Failed to get movie details using IMDb ID {}: {}", imdbId, ex.getMessage());
@@ -126,16 +143,19 @@ public class ImdbApiWrapper {
         return imdbPerson;
     }
 
-    //@Cacheable(value=CachingNames.API_IMDB, key="{#root.methodName}", unless="#result==null")
     public Map<String,Integer> getTop250(Locale locale, boolean throwTempError) {
         try {
-            Map<String,Integer> result = new HashMap<>();
-            int rank = 0;
-            for (ImdbList imdbList : imdbApi.getTop250(locale)) {
-                rank++;
-                if (StringUtils.isNotBlank(imdbList.getImdbId())) {
-                    result.put(imdbList.getImdbId(), Integer.valueOf(rank));
+            final String cacheKey = "top250###"+locale.getLanguage();
+            HashMap<String,Integer> result = cache.get(cacheKey, HashMap.class);
+            if (result != null) {
+                int rank = 0;
+                for (ImdbList imdbList : imdbApi.getTop250(locale)) {
+                    rank++;
+                    if (StringUtils.isNotBlank(imdbList.getImdbId())) {
+                        result.put(imdbList.getImdbId(), Integer.valueOf(rank));
+                    }
                 }
+                cache.store(cacheKey, result);
             }
             return result;
         } catch (ImdbException ex) {
@@ -146,20 +166,28 @@ public class ImdbApiWrapper {
         }
     }
     
-    //@Cacheable(value=CachingNames.API_IMDB, key="{#root.methodName, #imdbId}")
     public List<ImdbImage> getTitlePhotos(String imdbId, Locale locale) {
         List<ImdbImage> titlePhotos = null;
         try {
-            titlePhotos = imdbApi.getTitlePhotos(imdbId, locale);
+            final String cacheKey = "titlephotos###"+imdbId+"###"+locale.getLanguage();
+            titlePhotos = cache.get(cacheKey, List.class);
+            if (titlePhotos != null) {
+                titlePhotos = imdbApi.getTitlePhotos(imdbId, locale);
+                titlePhotos = (titlePhotos == null ? new ArrayList<ImdbImage>(0) : titlePhotos);
+                cache.store(cacheKey, titlePhotos);
+            }
         } catch (ImdbException ex) {
             LOG.error("Failed to get title photos using IMDb ID {}: {}", imdbId, ex.getMessage());
             LOG.trace(API_ERROR, ex);
         }
-        return (titlePhotos == null ? new ArrayList<ImdbImage>(0) : titlePhotos);
+        return titlePhotos;
     }
 
-    //@Cacheable(value=CachingNames.API_IMDB, key="{#root.methodName, #imdbId, #locale}", unless="#result==null")
     public Map<Integer,List<ImdbEpisodeDTO>> getTitleEpisodes(String imdbId, Locale locale) {
+        final String cacheKey = "episodes###"+imdbId+"###"+locale.getLanguage();
+        Map<Integer,List<ImdbEpisodeDTO>> result = cache.get(cacheKey, Map.class);
+        if (result != null) return result;
+                        
         List<ImdbSeason> seasons = null;
         try {
             seasons = imdbApi.getTitleEpisodes(imdbId, locale);
@@ -173,7 +201,7 @@ public class ImdbApiWrapper {
             return null;
         }
 
-        Map<Integer,List<ImdbEpisodeDTO>> result = new HashMap<>();
+        result = new HashMap<>();
         for (ImdbSeason season : seasons) {
             if (StringUtils.isNumeric(season.getToken())) {
                 Integer seasonId = Integer.valueOf(season.getToken());
@@ -192,6 +220,7 @@ public class ImdbApiWrapper {
                 result.put(seasonId, episodes);
             }
         }
+        cache.store(cacheKey, result);
         return result;
     }
 
@@ -242,8 +271,7 @@ public class ImdbApiWrapper {
         return studios;
     }
 
-    /**
-    public Map<String, String> getCertifications(String imdbId, Locale imdbLocale, ImdbMovieDetails movieDetails, Locale imdbLocale) {
+    public Map<String, String> getCertifications(String imdbId, Locale imdbLocale, ImdbMovieDetails movieDetails) {
         Map<String, String> certifications = new HashMap<>();
         
         // get certificate from IMDb API movie details
@@ -296,7 +324,6 @@ public class ImdbApiWrapper {
         }
         return certifications;
     }
-    */
 
     private static String getPreferredValue(List<String> tags, String preferredCountry) {
         String value = null;
@@ -327,9 +354,8 @@ public class ImdbApiWrapper {
         return HTMLTools.stripTags(value);
     }
 
-    /*
-    public Set<AwardDTO> getAwards(String imdbId) {
-        HashSet<AwardDTO> awards = new HashSet<>();
+    public void parseAwards(ICombined combined) {
+        final String imdbId = combined.getId(SOURCE_IMDB);
         
         try {
             DigestedResponse response = httpClient.requestContent(ImdbApiWrapper.getImdbUrl(imdbId, "awards"), UTF8);
@@ -359,17 +385,15 @@ public class ImdbApiWrapper {
                         if (category.contains("href=\"/name/")) {
                             category = StringUtils.trimToEmpty(HTMLTools.extractTag(outcomeBlock, "<span class=\"award_category\">", "</span>"));
                         }
-                        
-                        awards.add(new AwardDTO(SOURCE_IMDB, event, category, year).setWon(awardWon).setNominated(!awardWon));
+
+                        combined.addAward(event, category, year, awardWon, !awardWon);
                     }
                 }
             }
         } catch (Exception ex) {
             LOG.error("Failed to retrieve awards: " + imdbId, ex);
         }
-        return awards;
     }
-    */
 
     private static void checkTempError(boolean throwTempError, DigestedResponse response) {
         if (throwTempError && ResponseTools.isTemporaryError(response)) {
