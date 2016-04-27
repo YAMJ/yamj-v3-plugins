@@ -212,8 +212,7 @@ public class ImdbApiWrapper {
                     episode.setImdbId(movie.getImdbId());
                     episode.setTitle(movie.getTitle());
                     episode.setYear(movie.getYear());
-                    episode.setReleaseCountry(locale.getCountry());
-                    episode.setReleaseDate(MetadataTools.parseToDate(movie.getReleaseDate()));
+                    episode.setRelease(locale.getCountry(), MetadataTools.parseToDate(movie.getReleaseDate()));
                     episodes.add(episode);
                 }
                 result.put(seasonId, episodes);

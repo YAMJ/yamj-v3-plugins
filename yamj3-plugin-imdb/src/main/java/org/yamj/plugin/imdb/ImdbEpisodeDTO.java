@@ -69,15 +69,14 @@ public class ImdbEpisodeDTO {
         return releaseCountry;
     }
 
-    public void setReleaseCountry(String releaseCountry) {
-        this.releaseCountry = releaseCountry;
-    }
-
     public Date getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
-        this.releaseDate = releaseDate;
+    public void setRelease(String releaseCountry, Date releaseDate) {
+        if (releaseDate != null) {
+            this.releaseCountry = releaseCountry;
+            this.releaseDate = releaseDate;
+        }
     }
 }

@@ -186,7 +186,7 @@ public final class ImdbSeriesScanner extends AbstractImdbScanner implements Seri
         episode.setRating(MetadataTools.parseRating(movieDetails.getRating()));
 
         // RELEASE DATE
-        if (MapUtils.isNotEmpty(movieDetails.getReleaseDate())) {
+        if (dto.getReleaseDate() == null && MapUtils.isNotEmpty(movieDetails.getReleaseDate())) {
             final Date releaseDate = MetadataTools.parseToDate(movieDetails.getReleaseDate().get(LITERAL_NORMAL));
             episode.setRelease(releaseDate);
         }
