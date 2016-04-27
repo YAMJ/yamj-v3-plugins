@@ -165,8 +165,7 @@ public abstract class AbstractImdbScanner implements NfoScanner, NeedsConfigServ
             .trim();
      }
 
-    protected void parseCastCrew(ICredits credits) {
-        final String imdbId = credits.getId(SOURCE_IMDB);
+    protected void parseCastCrew(ICredits credits, String imdbId) {
         List<ImdbCredit> fullCast = imdbApiWrapper.getFullCast(imdbId);
         
         if (CollectionUtils.isEmpty(fullCast)) {
@@ -310,9 +309,7 @@ public abstract class AbstractImdbScanner implements NfoScanner, NeedsConfigServ
         }
     }
 
-    protected void parseReleasedTitles(ICombined combined, Locale locale) {
-        final String imdbId = combined.getId(SOURCE_IMDB);
-        
+    protected void parseReleasedTitles(ICombined combined, String imdbId, Locale locale) {
         // get the AKS
         Map<String, String> akas = getAkaMap(imdbId);
         if (MapUtils.isEmpty(akas)) {

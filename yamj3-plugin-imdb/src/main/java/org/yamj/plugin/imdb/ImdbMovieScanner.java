@@ -85,18 +85,17 @@ public final class ImdbMovieScanner extends AbstractImdbScanner implements Movie
         
         // movie details XML is still needed for some parts
         final String xml = imdbApiWrapper.getMovieDetailsXML(imdbId, throwTempError);
+        // get header tag
+        final String headerXml = HTMLTools.extractTag(xml, "<h1 class=\"header\">", "</h1>");
         
         movie.setTitle(movieDetails.getTitle());
+        movie.setOriginalTitle(parseOriginalTitle(headerXml));
         movie.setYear(movieDetails.getYear());
         movie.setTagline(movieDetails.getTagline());
-        movie.setRating(MetadataTools.parseRating(movieDetails.getRating()));
         movie.setGenres(movieDetails.getGenres());
         movie.setStudios(imdbApiWrapper.getProductionStudios(imdbId));
         movie.setCountries(HTMLTools.extractTags(xml, "Country" + HTML_H4_END, HTML_DIV_END, "<a href=\"", HTML_A_END));
-
-        // ORIGINAL TITLE
-        String headerXml = HTMLTools.extractTag(xml, "<h1 class=\"header\">", "</h1>");
-        movie.setOriginalTitle(parseOriginalTitle(headerXml));
+        movie.setRating(MetadataTools.parseRating(movieDetails.getRating()));
 
         // RELEASE DATE
         if (MapUtils.isNotEmpty(movieDetails.getReleaseDate())) {
@@ -129,10 +128,10 @@ public final class ImdbMovieScanner extends AbstractImdbScanner implements Movie
         imdbApiWrapper.parseCertifications(movie, locale, movieDetails);
 
         // CAST/CREW
-        parseCastCrew(movie);
+        parseCastCrew(movie, imdbId);
 
         // RELEASE INFO
-        parseReleasedTitles(movie, locale);
+        parseReleasedTitles(movie, imdbId, locale);
 
         // AWARDS
         if (configService.getBooleanProperty("imdb.movie.awards", false)) {
