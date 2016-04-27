@@ -31,7 +31,6 @@ import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.metadata.MetadataTools;
@@ -72,8 +71,7 @@ public final class ImdbMovieScanner extends AbstractImdbScanner implements Movie
         final Locale locale = localeService.getLocale();
         ImdbMovieDetails movieDetails = imdbApiWrapper.getMovieDetails(imdbId, locale, throwTempError);
         Map<String,Integer> top250 = imdbApiWrapper.getTop250(locale, throwTempError);
-        
-        if (movieDetails == null || StringUtils.isBlank(movieDetails.getImdbId()) || top250 == null) {
+        if (movieDetails == null || isNoValidImdbId(movieDetails.getImdbId()) || top250 == null) {
             return false;
         }
 

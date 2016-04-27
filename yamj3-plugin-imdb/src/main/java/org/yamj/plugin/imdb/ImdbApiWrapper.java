@@ -147,7 +147,8 @@ public class ImdbApiWrapper {
         try {
             final String cacheKey = "top250###"+locale.getLanguage();
             HashMap<String,Integer> result = cache.get(cacheKey, HashMap.class);
-            if (result != null) {
+            if (result == null) {
+                result = new HashMap<>();
                 int rank = 0;
                 for (ImdbList imdbList : imdbApi.getTop250(locale)) {
                     rank++;
@@ -171,7 +172,7 @@ public class ImdbApiWrapper {
         try {
             final String cacheKey = "titlephotos###"+imdbId+"###"+locale.getLanguage();
             titlePhotos = cache.get(cacheKey, List.class);
-            if (titlePhotos != null) {
+            if (titlePhotos == null) {
                 titlePhotos = imdbApi.getTitlePhotos(imdbId, locale);
                 cache.store(cacheKey, titlePhotos);
             }
