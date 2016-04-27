@@ -42,9 +42,8 @@ public abstract class AbstractImdbScanner implements NfoScanner, NeedsConfigServ
     private static final Logger LOG = LoggerFactory.getLogger(AbstractImdbScanner.class);
 
     protected PluginConfigService configService;
-    protected PluginLocaleService localeService;
     protected ImdbApiWrapper imdbApiWrapper;
-    protected ImdbSearchEngine imdbSearchEngine;
+    private ImdbSearchEngine imdbSearchEngine;
     protected Locale locale;
 
     @Override
@@ -62,7 +61,6 @@ public abstract class AbstractImdbScanner implements NfoScanner, NeedsConfigServ
 
     @Override
     public final void setLocaleService(PluginLocaleService localeService) {
-        this.localeService = localeService;
         this.locale = localeService.getLocale();
     }
 

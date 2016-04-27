@@ -173,14 +173,13 @@ public class ImdbApiWrapper {
             titlePhotos = cache.get(cacheKey, List.class);
             if (titlePhotos != null) {
                 titlePhotos = imdbApi.getTitlePhotos(imdbId, locale);
-                titlePhotos = (titlePhotos == null ? new ArrayList<ImdbImage>(0) : titlePhotos);
                 cache.store(cacheKey, titlePhotos);
             }
         } catch (ImdbException ex) {
             LOG.error("Failed to get title photos using IMDb ID {}: {}", imdbId, ex.getMessage());
             LOG.trace(API_ERROR, ex);
         }
-        return titlePhotos;
+        return (titlePhotos == null ? new ArrayList<ImdbImage>(0) : titlePhotos);
     }
 
     public Map<Integer,List<ImdbEpisodeDTO>> getTitleEpisodes(String imdbId, Locale locale) {
