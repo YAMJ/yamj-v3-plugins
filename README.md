@@ -14,6 +14,9 @@ Modules
 ### yamj3-plugin-fanarttv
 > Holds the ComingSoon plugin for artwork scanning
 
+### yamj3-plugin-imdb
+> Holds the IMDb plugin for movie/artwork/trailer scanning
+
 ### yamj3-plugin-moviemeter
 > Holds the MovieMeter plugin for movie scanning
 
@@ -25,6 +28,9 @@ Modules
 
 ### yamj3-plugin-thetvdb
 > Holds the TheTvTb plugin for movie/artwork scanning
+
+### yamj3-plugin-trailersland
+> Holds the TrailersLand plugin for trailer scanning
 
 ### yamj3-plugin-transliterate
 > Holds the transliteration plugin for identifier transliteration
