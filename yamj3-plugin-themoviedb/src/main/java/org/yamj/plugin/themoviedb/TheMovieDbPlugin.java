@@ -48,6 +48,7 @@ public class TheMovieDbPlugin extends Plugin implements NeedsConfigService, Need
     private static TheMovieDbApiWrapper theMovieDbApiWrapper;
     private PluginConfigService configService;
     private CommonHttpClient httpClient;
+    private CacheManager cacheManager;
     
     public TheMovieDbPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -77,6 +78,7 @@ public class TheMovieDbPlugin extends Plugin implements NeedsConfigService, Need
             TheMovieDbApi tmdbApi = new TheMovieDbApi(apiKey, httpClient);
             
             // create cache
+            cacheManager = CacheManager.getInstance();
             Cache cache = new Cache(new CacheConfiguration().name(SOURCE_TMDB)
                             .eternal(false)
                             .maxEntriesLocalHeap(200)
@@ -87,7 +89,7 @@ public class TheMovieDbPlugin extends Plugin implements NeedsConfigService, Need
                             .statistics(false));
             
             // normally the YAMJ cache manager will be used
-            CacheManager.getInstance().addCache(cache);
+            cacheManager.addCache(cache);
             
             theMovieDbApiWrapper = new TheMovieDbApiWrapper(tmdbApi, configService, cache);
         } catch (Exception ex) {
@@ -108,7 +110,7 @@ public class TheMovieDbPlugin extends Plugin implements NeedsConfigService, Need
     public void stop() throws PluginException {
         LOG.trace("Stop TheMovieDbPlugin");
         
-        CacheManager.getInstance().removeCache(SOURCE_TMDB);
+        cacheManager.removeCache(SOURCE_TMDB);
     }
 
     public static TheMovieDbApiWrapper getTheMovieDbApiWrapper() {

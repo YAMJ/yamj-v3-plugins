@@ -46,7 +46,6 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
     private PluginLocaleService localeService;
     private PluginConfigService configService;
     private TVRageApiWrapper tvRageApiWrapper;
-    private Locale locale;
     
     @Override
     public String getScannerName() {
@@ -120,6 +119,7 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
         EpisodeList episodeList = tvRageApiWrapper.getEpisodeList(tvRageId, throwTempError);
 
         // retrieve title
+        Locale locale = localeService.getLocale();
         String title = showInfo.getShowName();
         if (showInfo.getAkas() != null) {
             // try AKAs for title in another country

@@ -43,7 +43,8 @@ public class FanartTvPlugin extends Plugin implements NeedsHttpClient {
     private static final Logger LOG = LoggerFactory.getLogger(FanartTvPlugin.class);
     private static FanartTvApiWrapper fanartTvApiWrapper;
     private CommonHttpClient httpClient;
-    
+    private CacheManager cacheManager;
+
     public FanartTvPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -68,6 +69,7 @@ public class FanartTvPlugin extends Plugin implements NeedsHttpClient {
             FanartTvApi fanartTvApi = new FanartTvApi(apiKey, clientKey, httpClient);
             
             // create cache
+            cacheManager = CacheManager.getInstance();
             Cache cache = new Cache(new CacheConfiguration().name("fanarttv")
                             .eternal(false)
                             .maxEntriesLocalHeap(200)
@@ -78,7 +80,7 @@ public class FanartTvPlugin extends Plugin implements NeedsHttpClient {
                             .statistics(false));
             
             // normally the YAMJ cache manager will be used
-            CacheManager.getInstance().addCache(cache);
+            cacheManager.addCache(cache);
             
             fanartTvApiWrapper = new FanartTvApiWrapper(fanartTvApi, cache);
         } catch (Exception ex) {
@@ -89,6 +91,8 @@ public class FanartTvPlugin extends Plugin implements NeedsHttpClient {
     @Override
     public void stop() throws PluginException {
         LOG.trace("Stop FanartTvPlugin");
+        
+        cacheManager.removeCache("fanarttv");
     }
 
     public static FanartTvApiWrapper getFanartTvApiWrapper() {

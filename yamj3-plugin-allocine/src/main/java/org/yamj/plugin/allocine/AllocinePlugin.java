@@ -44,9 +44,10 @@ public class AllocinePlugin extends Plugin implements NeedsConfigService, NeedsH
     
     private static final Logger LOG = LoggerFactory.getLogger(AllocinePlugin.class);
     protected static final String SCANNER_NAME = "allocine";
+    private static AllocineApiWrapper allocineApiWrapper;
     private PluginConfigService configService;
     private CommonHttpClient httpClient;
-    private static AllocineApiWrapper allocineApiWrapper;
+    private CacheManager cacheManager;
     
     public AllocinePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -76,6 +77,7 @@ public class AllocinePlugin extends Plugin implements NeedsConfigService, NeedsH
             AllocineApi allocineApi = new AllocineApi(partnerKey, secretKey, httpClient);
 
             // create cache
+            cacheManager = CacheManager.getInstance();
             Cache cache = new Cache(new CacheConfiguration().name(SCANNER_NAME)
                             .eternal(false)
                             .maxEntriesLocalHeap(200)
@@ -86,7 +88,7 @@ public class AllocinePlugin extends Plugin implements NeedsConfigService, NeedsH
                             .statistics(false));
             
             // normally the YAMJ cache manager will be used
-            CacheManager.getInstance().addCache(cache);
+            cacheManager.addCache(cache);
 
             allocineApiWrapper = new AllocineApiWrapper(allocineApi, cache);
         } catch (Exception ex) {
@@ -107,7 +109,7 @@ public class AllocinePlugin extends Plugin implements NeedsConfigService, NeedsH
     public void stop() throws PluginException {
         LOG.trace("Stop AllocinePlugin");
         
-        CacheManager.getInstance().removeCache(SCANNER_NAME);
+        cacheManager.removeCache(SCANNER_NAME);
     }
     
     public static AllocineApiWrapper getAllocineApiWrapper() {

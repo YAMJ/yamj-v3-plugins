@@ -47,11 +47,12 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class ImdbPlugin extends Plugin implements NeedsConfigService, NeedsLocaleService, NeedsHttpClient {
     
     private static final Logger LOG = LoggerFactory.getLogger(ImdbPlugin.class);
+    private static ImdbApiWrapper imdbApiWrapper;
+    private static ImdbSearchEngine imdbSearchEngine;
     private PluginConfigService configService;
     private PluginLocaleService localeService;
     private CommonHttpClient httpClient;
-    private static ImdbApiWrapper imdbApiWrapper;
-    private static ImdbSearchEngine imdbSearchEngine;
+    private CacheManager cacheManager;
     
     public ImdbPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -82,6 +83,7 @@ public class ImdbPlugin extends Plugin implements NeedsConfigService, NeedsLocal
             imdbSearchEngine = new ImdbSearchEngine(configService, localeService, httpClient);
             
             // create cache
+            cacheManager = CacheManager.getInstance();
             Cache cache = new Cache(new CacheConfiguration().name(SOURCE_IMDB)
                             .eternal(false)
                             .maxEntriesLocalHeap(200)
@@ -92,7 +94,7 @@ public class ImdbPlugin extends Plugin implements NeedsConfigService, NeedsLocal
                             .statistics(false));
             
             // normally the YAMJ cache manager will be used
-            CacheManager.getInstance().addCache(cache);
+            cacheManager.addCache(cache);
             
             imdbApiWrapper = new ImdbApiWrapper(imdbApi, configService, localeService, httpClient, cache);
         } catch (Exception ex) {
@@ -113,7 +115,7 @@ public class ImdbPlugin extends Plugin implements NeedsConfigService, NeedsLocal
     public void stop() throws PluginException {
         LOG.trace("Stop TheMovieDbPlugin");
         
-        CacheManager.getInstance().removeCache(SOURCE_IMDB);
+        cacheManager.removeCache(SOURCE_IMDB);
     }
     
     public static ImdbApiWrapper getImdbApiWrapper() {
