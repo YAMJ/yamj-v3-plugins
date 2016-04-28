@@ -39,7 +39,7 @@ public class YouTubeDownloadBuilderTest {
 
     @BeforeClass
     @SuppressWarnings("resource")
-    public static void setUpClass() throws Exception {
+    public static void setUpClass() {
         downloadBuilder = new YouTubeDownloadBuilder();
         downloadBuilder.setHttpClient(new HttpClientWrapper(new SimpleHttpClientBuilder().build()));
     }

@@ -217,6 +217,7 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
             case "directing":
                 return JobType.DIRECTOR;
             case "production":
+            case "creator":
                 return JobType.PRODUCER;
             case "sound":
                 return JobType.SOUND;
