@@ -59,7 +59,7 @@ public class FanartTvPlugin extends Plugin implements NeedsHttpClient {
         LOG.trace("Start FanartTvPlugin");
         
         // create API
-        try (InputStream stream = getClass().getResourceAsStream("/fanartttv.apikey.properties")) {
+        try (InputStream stream = getClass().getResourceAsStream("/fanarttv.apikey.properties")) {
             Properties props = new Properties();
             props.load(stream);
 

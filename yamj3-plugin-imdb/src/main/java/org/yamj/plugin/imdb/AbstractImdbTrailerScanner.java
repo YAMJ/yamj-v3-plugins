@@ -31,37 +31,20 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.yamj.plugin.api.model.IMovie;
-import org.yamj.plugin.api.model.ISeries;
 import org.yamj.plugin.api.model.type.ContainerType;
-import org.yamj.plugin.api.trailer.MovieTrailerScanner;
-import org.yamj.plugin.api.trailer.SeriesTrailerScanner;
 import org.yamj.plugin.api.trailer.TrailerDTO;
-import ro.fortsoft.pf4j.Extension;
+import org.yamj.plugin.api.trailer.TrailerScanner;
 
-@Extension
-public final class ImdbTrailerScanner extends AbstractImdbScanner implements MovieTrailerScanner, SeriesTrailerScanner {
+public abstract class AbstractImdbTrailerScanner extends AbstractImdbScanner implements TrailerScanner {
 
-    @Override
-    public List<TrailerDTO> scanForTrailer(IMovie movie) {
-        String imdbId = getMovieId(movie, false);
-        return getTrailerDTOS(imdbId);
-    }
-
-    @Override
-    public List<TrailerDTO> scanForTrailer(ISeries series) {
-        String imdbId = getSeriesId(series, false);
-        return getTrailerDTOS(imdbId);
-    }
-    
-    private List<TrailerDTO> getTrailerDTOS(String imdbId) {
+    protected List<TrailerDTO> getTrailerDTOS(String imdbId) {
         if (StringUtils.isBlank(imdbId)) { 
-            return Collections.emptyList();
+            return null;
         }
         
         ImdbMovieDetails movieDetails = imdbApiWrapper.getMovieDetails(imdbId, Locale.US, false);
         if (movieDetails == null || movieDetails.getTrailer() == null || MapUtils.isEmpty(movieDetails.getTrailer().getEncodings())) {
-            return Collections.emptyList();
+            return null;
         }
         
         String url = null;
@@ -97,7 +80,7 @@ public final class ImdbTrailerScanner extends AbstractImdbScanner implements Mov
         }
 
         if (url == null) {
-            return Collections.emptyList();
+            return null;
         }
         
         TrailerDTO dto = new TrailerDTO(SOURCE_IMDB, ContainerType.MP4, url, movieDetails.getTrailer().getTitle(), imdbId); 
