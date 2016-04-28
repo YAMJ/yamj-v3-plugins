@@ -48,6 +48,7 @@
         <module>yamj3-plugin-imdb</module>
         <module>yamj3-plugin-moviemeter</module>
         <module>yamj3-plugin-ofdb</module>
+        <module>yamj3-plugin-rottentomatoes</module>
         <module>yamj3-plugin-themoviedb</module>
         <module>yamj3-plugin-thetvdb</module>
         <module>yamj3-plugin-trailersland</module>

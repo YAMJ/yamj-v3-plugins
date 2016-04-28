@@ -23,6 +23,9 @@ Modules
 ### yamj3-plugin-ofdb
 > Holds the OFDb plugin for movie scanning
 
+### yamj3-plugin-rottentomatoes
+> Holds the RottenTomatoes plugin for extras scanning
+
 ### yamj3-plugin-themoviedb
 > Holds the TheMovieDb plugin for movie/artwork scanning
 
