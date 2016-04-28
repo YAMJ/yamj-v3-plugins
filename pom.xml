@@ -54,6 +54,7 @@
         <module>yamj3-plugin-transliterate</module>
         <module>yamj3-plugin-tvrage</module>
         <module>yamj3-plugin-yahoo</module>
+        <module>yamj3-plugin-youtube</module>
     </modules>
 
     <properties>

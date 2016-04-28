@@ -41,6 +41,9 @@ Modules
 ### yamj3-plugin-yahoo
 > Holds the Yahoo plugin for artwork scanning
 
+### yamj3-plugin-yahoo
+> Holds the YouTube plugin for trailer scanning
+
 
 Installing YAMJv3 plugins
 -------------------------
