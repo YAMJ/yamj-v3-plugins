@@ -25,8 +25,7 @@ package org.yamj.plugin.allocine;
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.Locale;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.StringUtils;
@@ -37,8 +36,6 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsHttpClient;
 import org.yamj.plugin.api.NeedsMetadataService;
-import org.yamj.plugin.api.artwork.ArtworkDTO;
-import org.yamj.plugin.api.artwork.ArtworkTools;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.NfoScanner;
@@ -224,21 +221,6 @@ public abstract class AbstractAllocineScanner implements NfoScanner, NeedsConfig
             return allocineId;
         }
         return null;
-    }
-
-    protected List<ArtworkDTO> buildArtworkDetails(Map<String,Long> artworks) {
-        List<ArtworkDTO> dtos = new ArrayList<>(artworks.size());
-        for (Entry<String,Long> entry : artworks.entrySet()) {
-            final String hashCode;
-            if (entry.getValue() == null || entry.getValue().longValue() == 0) {
-                hashCode = ArtworkTools.getSimpleHashCode(entry.getKey());
-            } else {
-                hashCode = entry.getValue().toString();
-            }
-            ArtworkDTO dto = new ArtworkDTO(getScannerName(), entry.getKey(), hashCode);
-            dtos.add(dto);
-        }
-        return dtos;
     }
 }
 

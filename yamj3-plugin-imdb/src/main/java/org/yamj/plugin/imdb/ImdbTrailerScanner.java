@@ -31,13 +31,30 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.yamj.plugin.api.model.IMovie;
+import org.yamj.plugin.api.model.ISeries;
 import org.yamj.plugin.api.model.type.ContainerType;
+import org.yamj.plugin.api.trailer.MovieTrailerScanner;
+import org.yamj.plugin.api.trailer.SeriesTrailerScanner;
 import org.yamj.plugin.api.trailer.TrailerDTO;
-import org.yamj.plugin.api.trailer.TrailerScanner;
+import ro.fortsoft.pf4j.Extension;
 
-public abstract class AbstractImdbTrailerScanner extends AbstractImdbScanner implements TrailerScanner {
+@Extension
+public final class ImdbTrailerScanner extends AbstractImdbScanner implements MovieTrailerScanner, SeriesTrailerScanner {
 
-    protected List<TrailerDTO> getTrailerDTOS(String imdbId) {
+    @Override
+    public List<TrailerDTO> scanForTrailer(IMovie movie) {
+        String imdbId = getMovieId(movie, false);
+        return getTrailerDTOS(imdbId);
+    }
+
+    @Override
+    public List<TrailerDTO> scanForTrailer(ISeries series) {
+        String imdbId = getSeriesId(series, false);
+        return getTrailerDTOS(imdbId);
+    }
+    
+    private List<TrailerDTO> getTrailerDTOS(String imdbId) {
         if (StringUtils.isBlank(imdbId)) { 
             return null;
         }

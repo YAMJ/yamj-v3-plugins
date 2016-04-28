@@ -22,23 +22,43 @@
  */
 package org.yamj.plugin.allocine;
 
-import com.moviejukebox.allocine.model.TvSeasonInfos;
-import com.moviejukebox.allocine.model.TvSeriesInfos;
-import java.util.List;
+import com.moviejukebox.allocine.model.*;
+import java.util.*;
+import java.util.Map.Entry;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.artwork.ArtworkDTO;
-import org.yamj.plugin.api.artwork.SeriesArtworkScanner;
-import org.yamj.plugin.api.model.IEpisode;
-import org.yamj.plugin.api.model.ISeason;
-import org.yamj.plugin.api.model.ISeries;
+import org.yamj.plugin.api.artwork.*;
+import org.yamj.plugin.api.model.*;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class AllocineSeriesArtworkScanner extends AbstractAllocineScanner implements SeriesArtworkScanner {
+public final class AllocineArtworkScanner extends AbstractAllocineScanner 
+    implements MovieArtworkScanner, SeriesArtworkScanner, PersonArtworkScanner
+{
+    private static final Logger LOG = LoggerFactory.getLogger(AllocineArtworkScanner.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(AllocineSeriesArtworkScanner.class);
+    @Override
+    public List<ArtworkDTO> getPosters(IMovie movie) {
+        String allocineId = getMovieId(movie, false);
+        if (isNoValidAllocineId(allocineId)) {
+            LOG.debug("Allocine id not available '{}'", movie.getTitle());
+            return null;
+        }
+
+        MovieInfos movieInfos = allocineApiWrapper.getMovieInfos(allocineId, false);
+        if (movieInfos == null || movieInfos.isNotValid() || MapUtils.isEmpty(movieInfos.getPosters())) {
+            return null;
+        }
+        
+        return buildArtworkDetails(movieInfos.getPosters());
+    }
+
+    @Override
+    public List<ArtworkDTO> getFanarts(IMovie movie) {
+        return null;
+    }
 
     @Override
     public List<ArtworkDTO> getPosters(ISeason season) {
@@ -93,5 +113,38 @@ public final class AllocineSeriesArtworkScanner extends AbstractAllocineScanner 
     @Override
     public List<ArtworkDTO> getVideoImages(IEpisode episode) {
         return null;
+    }
+
+    @Override
+    public List<ArtworkDTO> getPhotos(IPerson person) {
+        String allocineId = getPersonId(person, false);
+        if (isNoValidAllocineId(allocineId)) {
+            LOG.debug("Allocine id not available '{}'", person.getName());
+            return null;
+        }
+        
+        PersonInfos personInfos = allocineApiWrapper.getPersonInfos(allocineId, false);
+        if (personInfos == null || personInfos.isNotValid() || StringUtils.isBlank(personInfos.getPhotoURL())) {
+            return null;
+        }
+
+        ArtworkDTO dto = new ArtworkDTO(getScannerName(), personInfos.getPhotoURL(), allocineId);
+        return Collections.singletonList(dto);
+    }
+
+
+    private static List<ArtworkDTO> buildArtworkDetails(Map<String,Long> artworks) {
+        List<ArtworkDTO> dtos = new ArrayList<>(artworks.size());
+        for (Entry<String,Long> entry : artworks.entrySet()) {
+            final String hashCode;
+            if (entry.getValue() == null || entry.getValue().longValue() == 0) {
+                hashCode = ArtworkTools.getSimpleHashCode(entry.getKey());
+            } else {
+                hashCode = entry.getValue().toString();
+            }
+            ArtworkDTO dto = new ArtworkDTO(AllocinePlugin.SCANNER_NAME, entry.getKey(), hashCode);
+            dtos.add(dto);
+        }
+        return dtos;
     }
 }

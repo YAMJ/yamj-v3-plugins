@@ -41,7 +41,7 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class ImdbArtworkScannerTest {
 
     private static ImdbPlugin plugin;
-    private static ImdbMovieArtworkScanner movieArtworkScanner;
+    private static ImdbArtworkScanner artworkScanner;
     
     @BeforeClass
     @SuppressWarnings("resource")
@@ -56,9 +56,9 @@ public class ImdbArtworkScannerTest {
         plugin.setHttpClient(httpClient);
         plugin.start();
         
-        movieArtworkScanner = new ImdbMovieArtworkScanner();
-        movieArtworkScanner.setConfigService(configService);
-        movieArtworkScanner.setLocaleService(localeService);
+        artworkScanner = new ImdbArtworkScanner();
+        artworkScanner.setConfigService(configService);
+        artworkScanner.setLocaleService(localeService);
     }
 
     @AfterClass
@@ -79,7 +79,7 @@ public class ImdbArtworkScannerTest {
         MovieMock movie = new MovieMock();
         movie.addId(Constants.SOURCE_IMDB, "tt0499549");
 
-        List<ArtworkDTO> dtos = movieArtworkScanner.getPosters(movie);
+        List<ArtworkDTO> dtos = artworkScanner.getPosters(movie);
         logArtworks(dtos, getClass());
     }
 
@@ -88,7 +88,7 @@ public class ImdbArtworkScannerTest {
         MovieMock movie = new MovieMock();
         movie.addId(Constants.SOURCE_IMDB, "tt0499549");
 
-        List<ArtworkDTO> dtos = movieArtworkScanner.getFanarts(movie);
+        List<ArtworkDTO> dtos = artworkScanner.getFanarts(movie);
         logArtworks(dtos, getClass());
     }
 }

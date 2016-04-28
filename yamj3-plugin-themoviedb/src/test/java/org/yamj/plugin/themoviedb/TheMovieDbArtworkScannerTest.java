@@ -45,9 +45,7 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class TheMovieDbArtworkScannerTest {
     
     private static TheMovieDbPlugin plugin;
-    private static TheMovieDbMovieArtworkScanner movieArtworkScanner;
-    private static TheMovieDbSeriesArtworkScanner seriesArtworkScanner;
-    private static TheMovieDbPersonArtworkScanner personArtworkScanner;
+    private static TheMovieDbArtworkScanner artworkScanner;
     
     @BeforeClass
     @SuppressWarnings("resource")
@@ -62,20 +60,10 @@ public class TheMovieDbArtworkScannerTest {
         plugin.setHttpClient(httpClient);
         plugin.start();
         
-        movieArtworkScanner = new TheMovieDbMovieArtworkScanner();
-        movieArtworkScanner.setConfigService(configService);
-        movieArtworkScanner.setLocaleService(localeService);
-        movieArtworkScanner.setMetadataService(metadataService);
-        
-        seriesArtworkScanner = new TheMovieDbSeriesArtworkScanner();
-        seriesArtworkScanner.setConfigService(configService);
-        seriesArtworkScanner.setLocaleService(localeService);
-        seriesArtworkScanner.setMetadataService(metadataService);
-
-        personArtworkScanner = new TheMovieDbPersonArtworkScanner();
-        personArtworkScanner.setConfigService(configService);
-        personArtworkScanner.setLocaleService(localeService);
-        personArtworkScanner.setMetadataService(metadataService);
+        artworkScanner = new TheMovieDbArtworkScanner();
+        artworkScanner.setConfigService(configService);
+        artworkScanner.setLocaleService(localeService);
+        artworkScanner.setMetadataService(metadataService);
     }
 
     @AfterClass
@@ -96,8 +84,8 @@ public class TheMovieDbArtworkScannerTest {
         SeriesMock series = new SeriesMock();
         series.addId(SOURCE_TMDB, "1399");
         
-        List<ArtworkDTO> dtos = seriesArtworkScanner.getPosters(series);
-        logArtworks(dtos, seriesArtworkScanner.getClass());
+        List<ArtworkDTO> dtos = artworkScanner.getPosters(series);
+        logArtworks(dtos, artworkScanner.getClass());
     }
 
     @Test
@@ -105,8 +93,8 @@ public class TheMovieDbArtworkScannerTest {
         SeriesMock series = new SeriesMock();
         series.addId(SOURCE_TMDB, "1399");
         
-        List<ArtworkDTO> dtos = seriesArtworkScanner.getFanarts(series);
-        logArtworks(dtos, seriesArtworkScanner.getClass());
+        List<ArtworkDTO> dtos = artworkScanner.getFanarts(series);
+        logArtworks(dtos, artworkScanner.getClass());
     }
 
     @Test
@@ -116,8 +104,8 @@ public class TheMovieDbArtworkScannerTest {
         SeasonMock season = new SeasonMock(1);
         season.setSeries(series);
         
-        List<ArtworkDTO> dtos = seriesArtworkScanner.getPosters(season);
-        logArtworks(dtos, seriesArtworkScanner.getClass());
+        List<ArtworkDTO> dtos = artworkScanner.getPosters(season);
+        logArtworks(dtos, artworkScanner.getClass());
     }
 
     @Test
@@ -127,8 +115,8 @@ public class TheMovieDbArtworkScannerTest {
         SeasonMock season = new SeasonMock(1);
         season.setSeries(series);
         
-        List<ArtworkDTO> dtos = seriesArtworkScanner.getFanarts(season);
-        logArtworks(dtos, seriesArtworkScanner.getClass());
+        List<ArtworkDTO> dtos = artworkScanner.getFanarts(season);
+        logArtworks(dtos, artworkScanner.getClass());
     }
 
     @Test
@@ -140,7 +128,7 @@ public class TheMovieDbArtworkScannerTest {
         EpisodeMock episode = new EpisodeMock(2);
         episode.setSeason(season);
         
-        List<ArtworkDTO> dtos = seriesArtworkScanner.getVideoImages(episode);
-        logArtworks(dtos, seriesArtworkScanner.getClass());
+        List<ArtworkDTO> dtos = artworkScanner.getVideoImages(episode);
+        logArtworks(dtos, artworkScanner.getClass());
     }
 }

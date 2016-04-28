@@ -49,7 +49,6 @@ public class TheMovieDbScannerTest {
     private static TheMovieDbMovieScanner movieScanner;
     private static TheMovieDbSeriesScanner seriesScanner;
     private static TheMovieDbPersonScanner personScanner;
-    private static TheMovieDbFilmographyScanner filmographyScanner;
     
     @BeforeClass
     @SuppressWarnings("resource")
@@ -78,11 +77,6 @@ public class TheMovieDbScannerTest {
         personScanner.setConfigService(configService);
         personScanner.setLocaleService(localeService);
         personScanner.setMetadataService(metadataService);
-
-        filmographyScanner = new TheMovieDbFilmographyScanner();
-        filmographyScanner.setConfigService(configService);
-        filmographyScanner.setLocaleService(localeService);
-        filmographyScanner.setMetadataService(metadataService);
     }
 
     @AfterClass
@@ -113,7 +107,7 @@ public class TheMovieDbScannerTest {
     @Test
     public void testScanFilmography() {
         LOG.info("testScanFilmography");
-        List<FilmographyDTO> result = filmographyScanner.scanFilmography("12795", false);
+        List<FilmographyDTO> result = personScanner.scanFilmography("12795", false);
 
         // Test that we get an error when scanning without an ID
         assertEquals(Boolean.FALSE, result.isEmpty());

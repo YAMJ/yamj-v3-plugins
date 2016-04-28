@@ -23,18 +23,21 @@
 package org.yamj.plugin.imdb;
 
 import com.omertron.imdbapi.model.ImdbImage;
+import com.omertron.imdbapi.model.ImdbPerson;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.MovieArtworkScanner;
+import org.yamj.plugin.api.artwork.PersonArtworkScanner;
 import org.yamj.plugin.api.model.IMovie;
+import org.yamj.plugin.api.model.IPerson;
 import org.yamj.plugin.api.model.type.ArtworkType;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class ImdbMovieArtworkScanner extends AbstractImdbScanner implements MovieArtworkScanner {
+public final class ImdbArtworkScanner extends AbstractImdbScanner implements MovieArtworkScanner, PersonArtworkScanner {
 
     @Override
     public List<ArtworkDTO> getPosters(IMovie movie) {
@@ -47,7 +50,23 @@ public final class ImdbMovieArtworkScanner extends AbstractImdbScanner implement
         String imdbId = getMovieId(movie, false);
         return getArtworks(imdbId, ArtworkType.FANART);
     }
-    
+
+    @Override
+    public List<ArtworkDTO> getPhotos(IPerson person) {
+        String imdbId = getPersonId(person, false);
+        if (isNoValidImdbId(imdbId)) {
+            return null;
+        }
+        
+        ImdbPerson imdbPerson = imdbApiWrapper.getPerson(imdbId, Locale.US, false);
+        if (imdbPerson == null || imdbPerson.getImage() == null) {
+            return null;
+        }
+        
+        final ArtworkDTO dto = new ArtworkDTO(getScannerName(), imdbPerson.getImage().getUrl(), imdbId);
+        return Collections.singletonList(dto);
+    }
+
     private List<ArtworkDTO> getArtworks(String imdbId, ArtworkType artworkType) {
         if (isNoValidImdbId(imdbId)) {
             return null;
