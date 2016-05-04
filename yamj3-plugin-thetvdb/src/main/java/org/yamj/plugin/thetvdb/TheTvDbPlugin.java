@@ -48,6 +48,7 @@ public class TheTvDbPlugin extends Plugin implements NeedsConfigService, NeedsHt
     private static TheTvDbApiWrapper theTvDbApiWrapper;
     private PluginConfigService configService;
     private CommonHttpClient httpClient;
+    private CacheManager cacheManager;
     
     public TheTvDbPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -77,6 +78,7 @@ public class TheTvDbPlugin extends Plugin implements NeedsConfigService, NeedsHt
             TheTVDBApi tvdbApi = new TheTVDBApi(apiKey, httpClient);
             
             // create cache
+            cacheManager = CacheManager.getInstance();
             Cache cache = new Cache(new CacheConfiguration().name(SOURCE_TVDB)
                             .eternal(false)
                             .maxEntriesLocalHeap(200)
@@ -87,7 +89,7 @@ public class TheTvDbPlugin extends Plugin implements NeedsConfigService, NeedsHt
                             .statistics(false));
             
             // normally the YAMJ cache manager will be used
-            CacheManager.getInstance().addCache(cache);
+            cacheManager.addCache(cache);
             
             theTvDbApiWrapper = new TheTvDbApiWrapper(tvdbApi, configService, cache);
         } catch (Exception ex) {
@@ -108,7 +110,7 @@ public class TheTvDbPlugin extends Plugin implements NeedsConfigService, NeedsHt
     public void stop() throws PluginException {
         LOG.trace("Stop TheTvDbPlugin");
         
-        CacheManager.getInstance().removeCache(SOURCE_TVDB);
+        cacheManager.removeCache(SOURCE_TVDB);
     }
 
     public static TheTvDbApiWrapper getTheTvDbApiWrapper() {
