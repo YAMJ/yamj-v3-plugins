@@ -182,10 +182,12 @@ public final class AllocineSeriesScanner extends AbstractAllocineScanner impleme
                 addCredit(episode, member, JobType.DIRECTOR);
             } else if (member.isWriter() && configService.isCastScanEnabled(JobType.WRITER)) {
                 addCredit(episode, member, JobType.WRITER);
-            } else if (member.isCamera() && configService.isCastScanEnabled(JobType.CAMERA)) {
-                addCredit(episode, member, JobType.CAMERA);
             } else if (member.isProducer() && configService.isCastScanEnabled(JobType.PRODUCER)) {
                 addCredit(episode, member, JobType.PRODUCER);
+            } else if (member.isCamera() && configService.isCastScanEnabled(JobType.CAMERA)) {
+                addCredit(episode, member, JobType.CAMERA);
+            } else if (member.isArt() && configService.isCastScanEnabled(JobType.ART)) {
+                addCredit(episode, member, JobType.ART);
             }
         }
     }

@@ -13,7 +13,7 @@
     <artifactId>yamj3-plugin-allocine</artifactId>
     <name>YAMJ3 Plugin Allocine</name>
     <description>YAMJ v3 Plugin for Allocine</description>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.moviejukebox</groupId>
             <artifactId>allocine-api</artifactId>
-            <version>1.5</version>
+            <version>1.6-SNAPSHOT</version>
         </dependency>
     </dependencies>
     

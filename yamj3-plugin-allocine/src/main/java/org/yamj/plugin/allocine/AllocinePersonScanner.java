@@ -93,10 +93,12 @@ public final class AllocinePersonScanner extends AbstractAllocineScanner impleme
                 dto.setJobType(JobType.DIRECTOR);
             } else if (participance.isWriter()) {
                 dto.setJobType(JobType.WRITER);
-            } else if (participance.isCamera()) {
-                dto.setJobType(JobType.CAMERA);
             } else if (participance.isProducer()) {
                 dto.setJobType(JobType.PRODUCER);
+            } else if (participance.isCamera()) {
+                dto.setJobType(JobType.CAMERA);
+            } else if (participance.isArt()) {
+                dto.setJobType(JobType.ART);
             } else {
                 // no entries with unknown job type
                 continue;

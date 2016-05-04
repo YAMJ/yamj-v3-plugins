@@ -101,7 +101,14 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
                 addCredit(movie, person, JobType.ACTOR, person.getRole());
             }
         }
-        
+
+        // PRODUCERS        
+        if (configService.isCastScanEnabled(JobType.PRODUCER)) {
+            for (MoviePerson person : movieInfos.getProducers()) {
+                addCredit(movie, person, JobType.PRODUCER);
+            }
+        }
+
         // CAMERA    
         if (configService.isCastScanEnabled(JobType.CAMERA)) {
             for (MoviePerson person : movieInfos.getCamera()) {
@@ -109,10 +116,10 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
             }
         }
         
-        // PRODUCERS        
-        if (configService.isCastScanEnabled(JobType.PRODUCER)) {
-            for (MoviePerson person : movieInfos.getProducers()) {
-                addCredit(movie, person, JobType.PRODUCER);
+        // CAMERA    
+        if (configService.isCastScanEnabled(JobType.ART)) {
+            for (MoviePerson person : movieInfos.getArt()) {
+                addCredit(movie, person, JobType.ART);
             }
         }
 
