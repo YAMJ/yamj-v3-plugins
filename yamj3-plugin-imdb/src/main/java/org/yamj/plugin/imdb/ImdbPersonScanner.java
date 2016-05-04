@@ -24,20 +24,26 @@ package org.yamj.plugin.imdb;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 
+import com.omertron.imdbapi.model.ImdbFilmography;
+import com.omertron.imdbapi.model.ImdbMovieCharacter;
 import com.omertron.imdbapi.model.ImdbPerson;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.MetadataTools;
-import org.yamj.plugin.api.metadata.PersonScanner;
+import org.yamj.plugin.api.metadata.*;
 import org.yamj.plugin.api.model.IPerson;
+import org.yamj.plugin.api.model.type.JobType;
+import org.yamj.plugin.api.model.type.ParticipationType;
 import org.yamj.plugin.api.web.HTMLTools;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class ImdbPersonScanner extends AbstractImdbScanner implements PersonScanner {
+public final class ImdbPersonScanner extends AbstractImdbScanner implements PersonScanner, FilmographyScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImdbPersonScanner.class);
 
@@ -107,5 +113,106 @@ public final class ImdbPersonScanner extends AbstractImdbScanner implements Pers
         }
 
         return true;
+    }
+
+    @Override
+    public List<FilmographyDTO> scanFilmography(String imdbId, boolean throwTempError) {
+        Locale locale = localeService.getLocale();
+        List<ImdbFilmography> imdbFilmography = this.imdbApiWrapper.getFilmopgraphy(imdbId, locale, throwTempError);
+        if (imdbFilmography == null || imdbFilmography.isEmpty()) {
+            return null;
+        }
+        
+        List<FilmographyDTO> result = new ArrayList<>();
+        for (ImdbFilmography imdbFilmo : imdbFilmography) {
+            if (StringUtils.isBlank(imdbFilmo.getToken()) || CollectionUtils.isEmpty(imdbFilmo.getList())) {
+                // missing info
+                continue;
+            }
+            
+            switch (imdbFilmo.getToken()) {
+            case "actor":
+                actorFilmography(result, imdbFilmo.getList());
+                break;
+            case "director":
+                crewFilmography(JobType.DIRECTOR, result, imdbFilmo.getList());
+                break;
+            case "writer":
+                crewFilmography(JobType.WRITER, result, imdbFilmo.getList());
+                break;
+            case "editor":
+                crewFilmography(JobType.EDITING, result, imdbFilmo.getList());
+                break;
+            case "producer":
+                crewFilmography(JobType.PRODUCER, result, imdbFilmo.getList());
+                break;
+            case "visualX20effects":
+                crewFilmography(JobType.EFFECTS, result, imdbFilmo.getList());
+                break;
+            case "cinematographer":
+                crewFilmography(JobType.CAMERA, result, imdbFilmo.getList());
+                break;
+            case "productionX20designer":
+            case "artX20director":
+                crewFilmography(JobType.ART, result, imdbFilmo.getList());
+                break;
+            case "cameraX20andX20electricalX20department":
+            case "miscellaneousX20crew":
+            case "secondX20unitX20directorX20orX20assistantX20director":
+            case "artX20department":
+                crewFilmography(JobType.CREW, result, imdbFilmo.getList());
+                break;
+            case "thanks":
+            case "self":
+                // ignore these jobs
+                break;
+            default:
+                LOG.info("Unhandled filmography job type: {}", imdbFilmo.getToken());
+                break;
+            }
+        }
+        return result;
+    }
+        
+    private static void actorFilmography(List<FilmographyDTO> result, List<ImdbMovieCharacter> characters) {
+        for (ImdbMovieCharacter character : characters) {
+            if (character.getTitle() == null) {
+                // movie info must be present
+                continue;
+            }
+
+            if ("feature".equals(character.getTitle().getType())) {
+                // MOVIE
+                result.add(new FilmographyDTO()
+                    .setJobType(JobType.ACTOR)
+                    .setParticipationType(ParticipationType.MOVIE)
+                    .setId(character.getTitle().getImdbId())
+                    .setTitle(character.getTitle().getTitle())
+                    .setYear(character.getTitle().getYear())
+                    .setReleaseDate(MetadataTools.parseToDate(character.getTitle().getReleaseDate()))
+                    .setRole(character.getCharacter())
+                    .setVoiceRole(MetadataTools.isVoiceRole(character.getAttribute())));
+            }
+        }
+    }
+    
+    private static void crewFilmography(JobType jobType, List<FilmographyDTO> result, List<ImdbMovieCharacter> characters) {
+        for (ImdbMovieCharacter character : characters) {
+            if (character.getTitle() == null) {
+                // movie info must be present
+                continue;
+            }
+            
+            if ("feature".equals(character.getTitle().getType())) {
+                // MOVIE
+                result.add(new FilmographyDTO()
+                    .setJobType(jobType)
+                    .setParticipationType(ParticipationType.MOVIE)
+                    .setId(character.getTitle().getImdbId())
+                    .setTitle(character.getTitle().getTitle())
+                    .setYear(character.getTitle().getYear())
+                    .setReleaseDate(MetadataTools.parseToDate(character.getTitle().getReleaseDate())));
+            }
+        }
     }
 }

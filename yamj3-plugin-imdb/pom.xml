@@ -13,7 +13,7 @@
     <artifactId>yamj3-plugin-imdb</artifactId>
     <name>YAMJ3 Plugin IMDb</name>
     <description>YAMJ v3 Plugin for IMDb</description>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <packaging>jar</packaging>
 
     <properties>

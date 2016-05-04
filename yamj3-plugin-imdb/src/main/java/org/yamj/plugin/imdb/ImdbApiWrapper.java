@@ -137,10 +137,22 @@ public class ImdbApiWrapper {
             }
         } catch (ImdbException ex) {
             checkTempError(throwTempError, ex);
-            LOG.error("Failed to get movie details using IMDb ID {}: {}", imdbId, ex.getMessage());
+            LOG.error("Failed to get person details using IMDb ID {}: {}", imdbId, ex.getMessage());
             LOG.trace(API_ERROR, ex);
         }
         return imdbPerson;
+    }
+
+    public List<ImdbFilmography> getFilmopgraphy(String imdbId, Locale locale, boolean throwTempError) {
+        List<ImdbFilmography> imdbFilmography = null;
+        try {
+            imdbFilmography = imdbApi.getActorFilmography(imdbId, locale);
+        } catch (ImdbException ex) {
+            checkTempError(throwTempError, ex);
+            LOG.error("Failed to get filmography using IMDb ID {}: {}", imdbId, ex.getMessage());
+            LOG.trace(API_ERROR, ex);
+        }
+        return imdbFilmography;
     }
 
     public Map<String,Integer> getTop250(Locale locale, boolean throwTempError) {
