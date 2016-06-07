@@ -58,7 +58,7 @@ public class RottenTomatoesPlugin extends Plugin implements NeedsConfigService, 
 
     @Override
     public void start() throws PluginException {
-        LOG.trace("Start MovieMeterPlugin");
+        LOG.trace("Start RottenTomatoesPlugin");
 
         // create API
         try (InputStream stream = getClass().getResourceAsStream("/rottentomatoes.apikey.properties")) {
@@ -83,7 +83,7 @@ public class RottenTomatoesPlugin extends Plugin implements NeedsConfigService, 
 
     @Override
     public void stop() throws PluginException {
-        LOG.trace("Stop MovieMeterPlugin");
+        LOG.trace("Stop RottenTomatoesPlugin");
     }
     
     public static RottenTomatoesApi getRottenTomatoesApi() {
