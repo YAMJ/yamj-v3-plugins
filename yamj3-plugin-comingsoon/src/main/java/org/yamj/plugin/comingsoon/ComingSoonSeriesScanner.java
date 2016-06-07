@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.IEpisode;
 import org.yamj.plugin.api.model.ISeason;
@@ -54,45 +53,6 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
         return isValidComingSoonId(seriesId);
     }
     
-    @Override
-    public String getSeriesId(ISeries series, boolean throwTempError) {
-        String comingSoonId = series.getId(SCANNER_NAME);
-        if (isValidComingSoonId(comingSoonId)) {
-            return comingSoonId;
-        }
-        
-        // search coming soon site by title
-        comingSoonId = getComingSoonId(series.getTitle(), series.getStartYear(), true, throwTempError);
-
-        // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
-            comingSoonId = getComingSoonId(series.getOriginalTitle(), series.getStartYear(), true, throwTempError);
-        }
-
-        // search coming soon with search engine tools
-        if (isNoValidComingSoonId(comingSoonId)) {
-            comingSoonId = this.searchEngineTools.searchURL(series.getTitle(), series.getStartYear(), "www.comingsoon.it/serietv", throwTempError);
-            int beginIndex = comingSoonId.indexOf("serietv/");
-            if (beginIndex < 0) {
-                comingSoonId = null;
-            } else {
-                beginIndex = comingSoonId.indexOf("/", beginIndex+9);
-                int endIndex = comingSoonId.indexOf("/", beginIndex+1);
-                if (beginIndex < endIndex) {
-                    comingSoonId = comingSoonId.substring(beginIndex+1, endIndex);
-                } else {
-                    comingSoonId = null;
-                }
-            }
-        }
-        
-        if (isValidComingSoonId(comingSoonId)) {
-            series.addId(SCANNER_NAME, comingSoonId);
-            return comingSoonId;
-        }
-        return null;
-    }
-
     @Override
     public boolean scanSeries(ISeries series, boolean throwTempError) {
         final String comingSoonId = series.getId(SCANNER_NAME);

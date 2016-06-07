@@ -36,8 +36,11 @@ import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsHttpClient;
+import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.NfoScanner;
+import org.yamj.plugin.api.model.IMovie;
+import org.yamj.plugin.api.model.ISeries;
 import org.yamj.plugin.api.model.IdMap;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginMetadataService;
@@ -61,7 +64,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     protected PluginConfigService configService;
     protected PluginMetadataService metadataService;
     protected CommonHttpClient httpClient;
-    protected SearchEngineTools searchEngineTools;
+    private SearchEngineTools searchEngineTools;
     
     @Override
     public final String getScannerName() {
@@ -77,6 +80,82 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     public final void setHttpClient(CommonHttpClient httpClient) {
         this.httpClient = httpClient;
         this.searchEngineTools = new SearchEngineTools(httpClient, Locale.ITALY);
+    }
+
+    public String getMovieId(IMovie movie, boolean throwTempError) {
+        String comingSoonId = movie.getId(SCANNER_NAME);
+        if (isValidComingSoonId(comingSoonId)) {
+            return comingSoonId;
+        }
+        
+        // search coming soon site by title
+        comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear(), false, throwTempError);
+
+        // search coming soon site by original title
+        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+            comingSoonId = getComingSoonId(movie.getOriginalTitle(), movie.getYear(), false, throwTempError);
+        }
+
+        // search coming soon with search engine tools
+        if (isNoValidComingSoonId(comingSoonId)) {
+            comingSoonId = this.searchEngineTools.searchURL(movie.getTitle(), movie.getYear(), "www.comingsoon.it/film", throwTempError);
+            int beginIndex = StringUtils.indexOf(comingSoonId, "film/");
+            if (beginIndex < 0) {
+                comingSoonId = null;
+            } else {
+                beginIndex = comingSoonId.indexOf("/", beginIndex+6);
+                int endIndex = comingSoonId.indexOf("/", beginIndex+1);
+                if (beginIndex < endIndex) {
+                    comingSoonId = comingSoonId.substring(beginIndex+1, endIndex);
+                } else {
+                    comingSoonId = null;
+                }
+            }
+        }
+        
+        if (isValidComingSoonId(comingSoonId)) {
+            movie.addId(SCANNER_NAME, comingSoonId);
+            return comingSoonId;
+        }
+        return null;
+    }
+
+    public String getSeriesId(ISeries series, boolean throwTempError) {
+        String comingSoonId = series.getId(SCANNER_NAME);
+        if (isValidComingSoonId(comingSoonId)) {
+            return comingSoonId;
+        }
+        
+        // search coming soon site by title
+        comingSoonId = getComingSoonId(series.getTitle(), series.getStartYear(), true, throwTempError);
+
+        // search coming soon site by original title
+        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
+            comingSoonId = getComingSoonId(series.getOriginalTitle(), series.getStartYear(), true, throwTempError);
+        }
+
+        // search coming soon with search engine tools
+        if (isNoValidComingSoonId(comingSoonId)) {
+            comingSoonId = this.searchEngineTools.searchURL(series.getTitle(), series.getStartYear(), "www.comingsoon.it/serietv", throwTempError);
+            int beginIndex = comingSoonId.indexOf("serietv/");
+            if (beginIndex < 0) {
+                comingSoonId = null;
+            } else {
+                beginIndex = comingSoonId.indexOf("/", beginIndex+9);
+                int endIndex = comingSoonId.indexOf("/", beginIndex+1);
+                if (beginIndex < endIndex) {
+                    comingSoonId = comingSoonId.substring(beginIndex+1, endIndex);
+                } else {
+                    comingSoonId = null;
+                }
+            }
+        }
+        
+        if (isValidComingSoonId(comingSoonId)) {
+            series.addId(SCANNER_NAME, comingSoonId);
+            return comingSoonId;
+        }
+        return null;
     }
 
     @Override

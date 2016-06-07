@@ -54,45 +54,6 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
     }
 
     @Override
-    public String getMovieId(IMovie movie, boolean throwTempError) {
-        String comingSoonId = movie.getId(SCANNER_NAME);
-        if (isValidComingSoonId(comingSoonId)) {
-            return comingSoonId;
-        }
-        
-        // search coming soon site by title
-        comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear(), false, throwTempError);
-
-        // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
-            comingSoonId = getComingSoonId(movie.getOriginalTitle(), movie.getYear(), false, throwTempError);
-        }
-
-        // search coming soon with search engine tools
-        if (isNoValidComingSoonId(comingSoonId)) {
-            comingSoonId = this.searchEngineTools.searchURL(movie.getTitle(), movie.getYear(), "www.comingsoon.it/film", throwTempError);
-            int beginIndex = StringUtils.indexOf(comingSoonId, "film/");
-            if (beginIndex < 0) {
-                comingSoonId = null;
-            } else {
-                beginIndex = comingSoonId.indexOf("/", beginIndex+6);
-                int endIndex = comingSoonId.indexOf("/", beginIndex+1);
-                if (beginIndex < endIndex) {
-                    comingSoonId = comingSoonId.substring(beginIndex+1, endIndex);
-                } else {
-                    comingSoonId = null;
-                }
-            }
-        }
-        
-        if (isValidComingSoonId(comingSoonId)) {
-            movie.addId(SCANNER_NAME, comingSoonId);
-            return comingSoonId;
-        }
-        return null;
-    }
-
-    @Override
     public boolean scanMovie(IMovie movie, boolean throwTempError) {
         final String comingSoonId = movie.getId(SCANNER_NAME);
         if (isNoValidComingSoonId(comingSoonId)) {
