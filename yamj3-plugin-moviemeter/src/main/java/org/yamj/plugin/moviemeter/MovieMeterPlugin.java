@@ -25,6 +25,11 @@ package org.yamj.plugin.moviemeter;
 import com.omertron.moviemeter.MovieMeterApi;
 import java.io.InputStream;
 import java.util.Properties;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
@@ -38,10 +43,12 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class MovieMeterPlugin extends Plugin implements NeedsConfigService, NeedsHttpClient {
     
     private static final Logger LOG = LoggerFactory.getLogger(MovieMeterPlugin.class);
+    protected static final String SCANNER_NAME = "moviemeter";
     private static MovieMeterApiWrapper movieMeterApiWrapper;
     private PluginConfigService configService;
     private CommonHttpClient httpClient;
-    
+    private CacheManager cacheManager;
+
     public MovieMeterPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -66,7 +73,23 @@ public class MovieMeterPlugin extends Plugin implements NeedsConfigService, Need
             props.load(stream);
 
             final String apiKey = props.getProperty("apikey.moviemeter");
-            movieMeterApiWrapper = new MovieMeterApiWrapper(new MovieMeterApi(apiKey, httpClient));
+            MovieMeterApi movieMeterApi = new MovieMeterApi(apiKey, httpClient);
+            
+            // create cache
+            cacheManager = CacheManager.getInstance();
+            Cache cache = new Cache(new CacheConfiguration().name(SCANNER_NAME)
+                            .eternal(false)
+                            .maxEntriesLocalHeap(100)
+                            .timeToIdleSeconds(0)
+                            .timeToLiveSeconds(1800)
+                            .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
+                            .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+                            .statistics(false));
+            
+            // normally the YAMJ cache manager will be used
+            cacheManager.addCache(cache);
+            
+            movieMeterApiWrapper = new MovieMeterApiWrapper(movieMeterApi, cache);
         } catch (Exception ex) {
             throw new PluginException("Failed to create moviemeter api", ex);
         }
@@ -84,6 +107,8 @@ public class MovieMeterPlugin extends Plugin implements NeedsConfigService, Need
     @Override
     public void stop() throws PluginException {
         LOG.trace("Stop MovieMeterPlugin");
+        
+        cacheManager.removeCache(SCANNER_NAME);
     }
     
     public static MovieMeterApiWrapper getMovieMeterApiWrapper() {

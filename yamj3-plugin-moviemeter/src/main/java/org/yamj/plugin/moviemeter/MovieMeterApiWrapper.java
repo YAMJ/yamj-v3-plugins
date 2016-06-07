@@ -27,11 +27,13 @@ import com.omertron.moviemeter.MovieMeterException;
 import com.omertron.moviemeter.model.FilmInfo;
 import com.omertron.moviemeter.model.SearchResult;
 import java.util.List;
+import net.sf.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.tools.ResponseTools;
+import org.yamj.plugin.api.tools.EhCacheWrapper;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 
 public class MovieMeterApiWrapper {
@@ -40,9 +42,11 @@ public class MovieMeterApiWrapper {
     private static final String API_ERROR = "MovieMeter error";
 
     private final MovieMeterApi movieMeterApi;
-
-    public MovieMeterApiWrapper(MovieMeterApi movieMeterApi) {
+    private final EhCacheWrapper cache;
+    
+    public MovieMeterApiWrapper(MovieMeterApi movieMeterApi, Cache cache) {
         this.movieMeterApi = movieMeterApi;
+        this.cache = new EhCacheWrapper(cache);
     }
 
     public String getMovieIdByIMDbId(String imdbId, boolean throwTempError) {
@@ -100,13 +104,17 @@ public class MovieMeterApiWrapper {
     }
 
     public FilmInfo getFilmInfo(String movieMeterId, boolean throwTempError) {
-        FilmInfo filmInfo = null;
-        try {
-            filmInfo = movieMeterApi.getFilm(NumberUtils.toInt(movieMeterId));
-        } catch (MovieMeterException ex) {
-            checkTempError(throwTempError, ex);
-            LOG.error("Failed to get film info using MovieMeter ID {}: {}", movieMeterId, ex.getMessage());
-            LOG.trace(API_ERROR, ex);
+        final String cacheKey = "movie###"+movieMeterId;
+        FilmInfo filmInfo = cache.get(cacheKey, FilmInfo.class);
+        if (filmInfo == null) {
+            try {
+                filmInfo = movieMeterApi.getFilm(NumberUtils.toInt(movieMeterId));
+            } catch (MovieMeterException ex) {
+                checkTempError(throwTempError, ex);
+                LOG.error("Failed to get film info using MovieMeter ID {}: {}", movieMeterId, ex.getMessage());
+                LOG.trace(API_ERROR, ex);
+            }
+            cache.store(cacheKey, filmInfo);
         }
         return filmInfo;
     }

@@ -20,8 +20,11 @@
  *      Web: https://github.com/YAMJ/yamj-v3-plugins
  *
  */
-package org.yamj.plugin.comingsoon;
+package org.yamj.plugin.moviemeter;
 
+import static org.yamj.plugin.moviemeter.MovieMeterPlugin.SCANNER_NAME;
+
+import com.omertron.moviemeter.model.FilmInfo;
 import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
@@ -29,24 +32,28 @@ import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.MovieArtworkScanner;
 import org.yamj.plugin.api.model.IMovie;
-import org.yamj.plugin.api.model.type.ImageType;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class ComingSoonArtworkScanner extends AbstractComingSoonScanner implements MovieArtworkScanner {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(ComingSoonArtworkScanner.class);
-    private static final String POSTER_BASE_URL = "http://www.comingsoon.it/imgdb/locandine/big/";
+public final class MovieMeterArtworkScanner extends AbstractMovieMeterScanner implements MovieArtworkScanner {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MovieMeterArtworkScanner.class);
 
     @Override
     public List<ArtworkDTO> getPosters(IMovie movie) {
-        final String comingSoonId = getMovieId(movie, false);
-        if (isNoValidComingSoonId(comingSoonId)) {
-            LOG.debug("ComingSoon id not available '{}'", movie.getTitle());
+        final String movieMeterId = getMovieId(movie, false);
+        if (!isValidMovieId(movieMeterId)) {
+            LOG.debug("MovieMeter id not available '{}'", movie.getTitle());
             return null;
         }
 
-        ArtworkDTO dto = new ArtworkDTO(SCANNER_NAME,  POSTER_BASE_URL+comingSoonId+".jpg", comingSoonId, ImageType.JPG);
+        FilmInfo filmInfo = this.movieMeterApiWrapper.getFilmInfo(movieMeterId,false);
+        if (filmInfo == null || filmInfo.getPosters() == null || filmInfo.getPosters().getLarge() == null) {
+            LOG.debug("No MovieMeter poster URL for movie: {}", movieMeterId);
+            return null;
+        }
+        
+        ArtworkDTO dto = new ArtworkDTO(SCANNER_NAME, filmInfo.getPosters().getLarge(), movieMeterId);
         return Collections.singletonList(dto);
     }
 

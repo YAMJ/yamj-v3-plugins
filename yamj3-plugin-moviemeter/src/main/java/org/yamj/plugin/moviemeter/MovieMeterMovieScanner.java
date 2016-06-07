@@ -23,6 +23,7 @@
 package org.yamj.plugin.moviemeter;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.moviemeter.MovieMeterPlugin.SCANNER_NAME;
 
 import com.omertron.moviemeter.model.Actor;
 import com.omertron.moviemeter.model.FilmInfo;
@@ -30,70 +31,16 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.NeedsConfigService;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.IdMap;
 import org.yamj.plugin.api.model.type.JobType;
-import org.yamj.plugin.api.service.PluginConfigService;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public final class MovieMeterScanner implements MovieScanner, NeedsConfigService {
+public final class MovieMeterMovieScanner extends AbstractMovieMeterScanner implements MovieScanner {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MovieMeterScanner.class);
-    private static final String SCANNER_NAME = "moviemeter";
-    
-    private PluginConfigService configService;
-    private MovieMeterApiWrapper movieMeterApiWrapper;
-    
-    @Override
-    public String getScannerName() {
-        return SCANNER_NAME;
-    }
-
-    @Override
-    public void setConfigService(PluginConfigService configService) {
-        this.configService = configService;
-        // also set the API wrapper
-        this.movieMeterApiWrapper = MovieMeterPlugin.getMovieMeterApiWrapper();
-    }
-    
-    @Override
-    public boolean isValidMovieId(String movieId) {
-        return StringUtils.isNumeric(movieId);
-    }
-
-    @Override
-    public String getMovieId(IMovie movie, boolean throwTempError) {
-        String movieMeterId = movie.getId(SCANNER_NAME);
-        if (isValidMovieId(movieMeterId)) {
-            return movieMeterId;
-        }
-        
-        // try to get the MovieMeter ID using the IMDB ID
-        String imdbId = movie.getId(SOURCE_IMDB);
-        if (StringUtils.isNotBlank(imdbId)) {
-            movieMeterId = movieMeterApiWrapper.getMovieIdByIMDbId(imdbId, throwTempError);
-        }
-
-        // try to get the MovieMeter ID using title and year
-        if (!isValidMovieId(movieMeterId)) {
-            movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(movie.getTitle(), movie.getYear(), throwTempError);
-        }
-
-        // try to get the MovieMeter ID using original title and year
-        if (!isValidMovieId(movieMeterId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
-            movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(movie.getOriginalTitle(), movie.getYear(), throwTempError);
-        }
-
-        if (isValidMovieId(movieMeterId)) {
-            movie.addId(SCANNER_NAME, movieMeterId);
-            return movieMeterId;
-        }
-        return null;
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(MovieMeterMovieScanner.class);
     
     @Override
     public boolean scanMovie(IMovie movie, boolean throwTempError) {
