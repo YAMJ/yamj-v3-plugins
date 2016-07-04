@@ -191,7 +191,7 @@ public final class TheMovieDbSeriesScanner extends AbstractTheMovieDbScanner imp
                 // GUEST STARS
                 if (CollectionUtils.isNotEmpty(credits.getGuestStars()) && configService.isCastScanEnabled(JobType.GUEST_STAR)) {
                     for (MediaCreditCast person : credits.getGuestStars()) {
-                        episode.addCredit(String.valueOf(person.getId()), JobType.ACTOR, person.getName(), person.getCharacter());
+                        episode.addCredit(String.valueOf(person.getId()), JobType.GUEST_STAR, person.getName(), person.getCharacter());
                     }
                 }
             
