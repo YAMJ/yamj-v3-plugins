@@ -44,12 +44,13 @@ import ro.fortsoft.pf4j.Extension;
 public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner implements SeriesArtworkScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(TvDbSeriesArtworkScanner.class);
-
+    private static final String ALTERNATE_LANGUAGE_KEY = "thetvdb.language.alternate";
+    
     @Override
     public List<ArtworkDTO> getPosters(ISeason season) {
         String id = getSeriesId(season.getSeries(), false);
         if (isNoValidTheTvDbId(id)) {
-            return null;
+            return null; //NOSONAR
         }
 
         LOG.debug("Scan posters for season {}-{}", id, season.getNumber());
@@ -59,7 +60,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
         List<ArtworkDTO> noLangDTOs = new ArrayList<>(5);
 
         final String language = localeService.getLocale().getLanguage();
-        final String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
+        final String altLanguage = configService.getProperty(ALTERNATE_LANGUAGE_KEY, language);
         
         // get series artwork
         final Banners bannerList = theTvDbApiWrapper.getBanners(id);
@@ -117,7 +118,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
     public List<ArtworkDTO> getPosters(ISeries series) {
         String id = getSeriesId(series, false);
         if (isNoValidTheTvDbId(id)) {
-            return null;
+            return null; //NOSONAR
         }
   
         LOG.debug("Scan posters for series {}", id);
@@ -127,7 +128,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
         List<ArtworkDTO> noLangDTOs = new ArrayList<>(5);
 
         final String language = localeService.getLocale().getLanguage();
-        final String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
+        final String altLanguage = configService.getProperty(ALTERNATE_LANGUAGE_KEY, language);
 
         // get series artwork
         final Banners bannerList = theTvDbApiWrapper.getBanners(id);
@@ -183,7 +184,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
     public List<ArtworkDTO> getFanarts(ISeason season) {
         String id = getSeriesId(season.getSeries(), false);
         if (isNoValidTheTvDbId(id)) {
-            return null;
+            return null; //NOSONAR
         }
   
         LOG.debug("Scan fanarts for season {}-{}", id, season.getNumber());
@@ -235,7 +236,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
     public List<ArtworkDTO> getFanarts(ISeries series) {
         String id = getSeriesId(series, false);
         if (isNoValidTheTvDbId(id)) {
-            return null;
+            return null; //NOSONAR
         }
   
         LOG.debug("Scan fanarts for series {}", id);
@@ -287,7 +288,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
     public List<ArtworkDTO> getBanners(ISeason season) {
         String id = getSeriesId(season.getSeries(), false);
         if (isNoValidTheTvDbId(id)) {
-            return null;
+            return null; //NOSONAR
         }
   
         LOG.debug("Scan banners for season {}-{}", id, season.getNumber());
@@ -301,7 +302,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
         List<ArtworkDTO> blankDTOs = new ArrayList<>(5);
 
         final String language = localeService.getLocale().getLanguage();
-        final String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
+        final String altLanguage = configService.getProperty(ALTERNATE_LANGUAGE_KEY, language);
         final boolean seasonBannerOnlySeries = configService.getBooleanProperty("thetvdb.season.banner.onlySeries", false);
 
         // get series artwork
@@ -394,7 +395,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
     public List<ArtworkDTO> getBanners(ISeries series) {
         String id = getSeriesId(series, false);
         if (isNoValidTheTvDbId(id)) {
-            return null;
+            return null; //NOSONAR
         }
   
         LOG.debug("Scan banners for series {}", id);
@@ -406,7 +407,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
 
         // get series artwork
         final String language = localeService.getLocale().getLanguage();
-        final String altLanguage = configService.getProperty("thetvdb.language.alternate", language);
+        final String altLanguage = configService.getProperty(ALTERNATE_LANGUAGE_KEY, language);
 
         final Banners bannerList = theTvDbApiWrapper.getBanners(id);
         if (bannerList != null) {
@@ -485,7 +486,7 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
     public List<ArtworkDTO> getVideoImages(IEpisode episode) {
         String id = getSeriesId(episode.getSeason().getSeries(), false);
         if (isNoValidTheTvDbId(id)) {
-            return null;
+            return null; //NOSONAR
         }
         
         final String language = localeService.getLocale().getLanguage();
@@ -495,6 +496,6 @@ public final class TvDbSeriesArtworkScanner extends AbstractTheTvDbScanner imple
             return Collections.singletonList(artworkDTO);
         }
         
-        return null;
+        return null; //NOSONAR
     }
 }

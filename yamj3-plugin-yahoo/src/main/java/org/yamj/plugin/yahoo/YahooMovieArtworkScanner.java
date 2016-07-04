@@ -90,6 +90,6 @@ public final class YahooMovieArtworkScanner implements MovieArtworkScanner, Need
 
     @Override
     public List<ArtworkDTO> getFanarts(IMovie movie) {
-        return null;
+        return null; //NOSONAR
     }
 }

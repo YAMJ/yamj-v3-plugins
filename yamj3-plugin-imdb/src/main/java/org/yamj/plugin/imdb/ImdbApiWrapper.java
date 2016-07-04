@@ -192,13 +192,15 @@ public class ImdbApiWrapper {
             LOG.error("Failed to get title photos using IMDb ID {}: {}", imdbId, ex.getMessage());
             LOG.trace(API_ERROR, ex);
         }
-        return (titlePhotos == null ? new ArrayList<ImdbImage>(0) : titlePhotos);
+        return titlePhotos == null ? new ArrayList<ImdbImage>(0) : titlePhotos;
     }
 
     public Map<Integer,List<ImdbEpisodeDTO>> getTitleEpisodes(String imdbId, Locale locale) {
         final String cacheKey = "episodes###"+imdbId+"###"+locale.getLanguage();
         Map<Integer,List<ImdbEpisodeDTO>> result = cache.get(cacheKey, Map.class);
-        if (result != null) return result;
+        if (result != null) {
+            return result;
+        }
                         
         List<ImdbSeason> seasons = null;
         try {
@@ -387,7 +389,7 @@ public class ImdbApiWrapper {
                         String outcome = HTMLTools.extractTag(outcomeBlock, "<b>", "</b>");
                         
                         if (StringUtils.isNotBlank(outcome)) {
-                            awardWon = outcome.equalsIgnoreCase("won");
+                            awardWon = "won".equalsIgnoreCase(outcome);
                         }
                         
                         String category = StringUtils.trimToEmpty(HTMLTools.extractTag(outcomeBlock, "<td class=\"award_description\">", "<br />"));

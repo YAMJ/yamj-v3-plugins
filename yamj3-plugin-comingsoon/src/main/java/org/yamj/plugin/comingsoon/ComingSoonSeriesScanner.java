@@ -80,7 +80,9 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
 
             String tag = xml.substring(beginIndex, xml.indexOf(">", beginIndex)+1);
             String title = HTMLTools.extractTag(xml, tag, "</h1>").trim();
-            if (StringUtils.isBlank(title)) return false;
+            if (StringUtils.isBlank(title)) {
+                return false;
+            }
             title = WordUtils.capitalizeFully(title);
     
             final String originalTitle = parseTitleOriginal(xml);

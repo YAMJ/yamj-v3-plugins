@@ -79,7 +79,7 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
         if (StringUtils.isNotBlank(faDate) && (faDate.length() >= 4)) {
             try {
                 series.setStartYear(Integer.parseInt(faDate.substring(0, 4)));
-            } catch (Exception ignore) {
+            } catch (Exception ignore) { //NOSONAR
                 // ignore error if year is invalid
             }
         }

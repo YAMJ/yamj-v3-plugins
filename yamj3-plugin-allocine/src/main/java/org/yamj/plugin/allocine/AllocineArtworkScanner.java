@@ -43,13 +43,13 @@ public final class AllocineArtworkScanner extends AbstractAllocineScanner
     public List<ArtworkDTO> getPosters(IMovie movie) {
         String allocineId = getMovieId(movie, false);
         if (isNoValidAllocineId(allocineId)) {
-            LOG.debug("Allocine id not available '{}'", movie.getTitle());
-            return null;
+            LOG.debug("Allocine id not available '{}'", movie.getTitle()); //NOSONAR
+            return null; //NOSONAR
         }
 
         MovieInfos movieInfos = allocineApiWrapper.getMovieInfos(allocineId, false);
         if (movieInfos == null || movieInfos.isNotValid() || MapUtils.isEmpty(movieInfos.getPosters())) {
-            return null;
+            return null; //NOSONAR
         }
         
         return buildArtworkDetails(movieInfos.getPosters());
@@ -65,13 +65,14 @@ public final class AllocineArtworkScanner extends AbstractAllocineScanner
         String allocineId = getSeriesId(season.getSeries(), false);
         if (isNoValidAllocineId(allocineId)) {
             LOG.debug("Allocine id not available '{}' - Season {}", season.getSeries().getTitle(), season.getNumber());
-            return null;
+            return null; //NOSONAR
         }
 
         TvSeasonInfos tvSeasonInfos = allocineApiWrapper.getTvSeasonInfos(allocineId);
         if (tvSeasonInfos == null || tvSeasonInfos.isNotValid() || MapUtils.isEmpty(tvSeasonInfos.getPosters())) {
-            return null;
+            return null; //NOSONAR
         }
+        
         return buildArtworkDetails(tvSeasonInfos.getPosters());
     }
 
@@ -79,53 +80,54 @@ public final class AllocineArtworkScanner extends AbstractAllocineScanner
     public List<ArtworkDTO> getPosters(ISeries series) {
         String allocineId = getSeriesId(series, false);
         if (isNoValidAllocineId(allocineId)) {
-            LOG.debug("Allocine id not available '{}'", series.getTitle());
-            return null;
+            LOG.debug("Allocine id not available '{}'", series.getTitle()); //NOSONAR
+            return null; //NOSONAR
         }
         
         TvSeriesInfos tvSeriesInfos = allocineApiWrapper.getTvSeriesInfos(allocineId, false);
         if (tvSeriesInfos == null || tvSeriesInfos.isNotValid() || MapUtils.isEmpty(tvSeriesInfos.getPosters())) {
-            return null;
+            return null; //NOSONAR
         }
+        
         return buildArtworkDetails(tvSeriesInfos.getPosters());
     }
 
     @Override
     public List<ArtworkDTO> getFanarts(ISeason season) {
-        return null;
+        return null; //NOSONAR
     }
 
     @Override
     public List<ArtworkDTO> getFanarts(ISeries series) {
-        return null;
+        return null; //NOSONAR
     }
 
     @Override
     public List<ArtworkDTO> getBanners(ISeason season) {
-        return null;
+        return null; //NOSONAR
     }
 
     @Override
     public List<ArtworkDTO> getBanners(ISeries series) {
-        return null;
+        return null; //NOSONAR
     }
 
     @Override
     public List<ArtworkDTO> getVideoImages(IEpisode episode) {
-        return null;
+        return null; //NOSONAR
     }
 
     @Override
     public List<ArtworkDTO> getPhotos(IPerson person) {
         String allocineId = getPersonId(person, false);
         if (isNoValidAllocineId(allocineId)) {
-            LOG.debug("Allocine id not available '{}'", person.getName());
-            return null;
+            LOG.debug("Allocine id not available '{}'", person.getName()); //NOSONAR
+            return null; //NOSONAR
         }
         
         PersonInfos personInfos = allocineApiWrapper.getPersonInfos(allocineId, false);
         if (personInfos == null || personInfos.isNotValid() || StringUtils.isBlank(personInfos.getPhotoURL())) {
-            return null;
+            return null; //NOSONAR
         }
 
         ArtworkDTO dto = new ArtworkDTO(getScannerName(), personInfos.getPhotoURL(), allocineId);

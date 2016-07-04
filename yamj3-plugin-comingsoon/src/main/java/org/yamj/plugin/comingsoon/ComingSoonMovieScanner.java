@@ -80,7 +80,9 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
                 
             String tag = xml.substring(beginIndex, xml.indexOf(">", beginIndex)+1);
             String title = HTMLTools.extractTag(xml, tag, "</h1>").trim();
-            if (StringUtils.isBlank(title)) return false;
+            if (StringUtils.isBlank(title)) {
+                return false;
+            }
 
             final String plot = parsePlot(xml);
 

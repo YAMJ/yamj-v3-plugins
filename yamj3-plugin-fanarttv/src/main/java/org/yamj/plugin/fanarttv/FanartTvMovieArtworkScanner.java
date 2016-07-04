@@ -69,12 +69,12 @@ public final class FanartTvMovieArtworkScanner extends AbstractFanartTvArtworkSc
      */
     private List<ArtworkDTO> getMovieArtworkType(String id, FTArtworkType artworkType) {
         if (StringUtils.isBlank(id)) {
-            return null;
+            return null; //NOSONAR
         }
         
         FTMovie ftMovie = fanartTvApiWrapper.getFanartMovie(id);
         if (ftMovie == null) {
-            return null;
+            return null; //NOSONAR
         }
         
         return getArtworkList(ftMovie.getArtwork(artworkType), -1);

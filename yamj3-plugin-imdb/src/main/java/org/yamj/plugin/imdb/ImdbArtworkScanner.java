@@ -55,12 +55,12 @@ public final class ImdbArtworkScanner extends AbstractImdbScanner implements Mov
     public List<ArtworkDTO> getPhotos(IPerson person) {
         String imdbId = getPersonId(person, false);
         if (isNoValidImdbId(imdbId)) {
-            return null;
+            return null; //NOSONAR
         }
         
         ImdbPerson imdbPerson = imdbApiWrapper.getPerson(imdbId, Locale.US, false);
         if (imdbPerson == null || imdbPerson.getImage() == null) {
-            return null;
+            return null; //NOSONAR
         }
         
         final ArtworkDTO dto = new ArtworkDTO(getScannerName(), imdbPerson.getImage().getUrl(), imdbId);
@@ -69,7 +69,7 @@ public final class ImdbArtworkScanner extends AbstractImdbScanner implements Mov
 
     private List<ArtworkDTO> getArtworks(String imdbId, ArtworkType artworkType) {
         if (isNoValidImdbId(imdbId)) {
-            return null;
+            return null; //NOSONAR
         }
 
         List<ArtworkDTO> dtos = new ArrayList<>();

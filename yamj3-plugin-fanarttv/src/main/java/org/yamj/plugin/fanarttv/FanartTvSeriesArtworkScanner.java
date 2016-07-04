@@ -78,7 +78,7 @@ public final class FanartTvSeriesArtworkScanner extends AbstractFanartTvArtworkS
 
     @Override
     public List<ArtworkDTO> getVideoImages(IEpisode episode) {
-        return null;
+        return null; //NOSONAR
     }
 
     private String getTvdbId(ISeries series) {
@@ -101,12 +101,12 @@ public final class FanartTvSeriesArtworkScanner extends AbstractFanartTvArtworkS
      */
     private List<ArtworkDTO> getSeriesArtworkType(String id, FTArtworkType artworkType, int seasonNumber) {
         if (StringUtils.isBlank(id)) {
-            return null;
+            return null; //NOSONAR
         }
         
         FTSeries ftSeries = fanartTvApiWrapper.getFanartSeries(id);
         if (ftSeries == null) {
-            return null;
+            return null; //NOSONAR
         }
 
         return getArtworkList(ftSeries.getArtwork(artworkType), seasonNumber);

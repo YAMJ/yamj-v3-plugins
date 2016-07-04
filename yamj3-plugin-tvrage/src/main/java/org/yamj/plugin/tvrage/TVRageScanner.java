@@ -123,10 +123,10 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
         String title = showInfo.getShowName();
         if (showInfo.getAkas() != null) {
             // try AKAs for title in another country
-            loop: for (CountryDetail cd : showInfo.getAkas()) {
+            for (CountryDetail cd : showInfo.getAkas()) {
                 if (locale.getCountry().equalsIgnoreCase(cd.getCountry())) {
                     title = cd.getDetail();
-                    break loop;
+                    break;
                 }
             }
         }

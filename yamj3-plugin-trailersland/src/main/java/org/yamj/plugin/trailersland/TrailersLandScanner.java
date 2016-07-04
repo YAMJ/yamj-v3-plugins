@@ -81,7 +81,7 @@ public final class TrailersLandScanner implements MovieTrailerScanner, NeedsConf
     public List<TrailerDTO> scanForTrailer(IMovie movie) {
         String trailersLandId = getTrailersLandId(movie);
         if (StringUtils.isBlank(trailersLandId)) {
-            return null;
+            return null; //NOSONAR
         }
         return getTrailerDTOS(trailersLandId);
     }
@@ -232,7 +232,7 @@ public final class TrailersLandScanner implements MovieTrailerScanner, NeedsConf
         return result;
     }
 
-    public class TrailersLandTrailer implements Comparable<TrailersLandTrailer> {
+    public static class TrailersLandTrailer implements Comparable<TrailersLandTrailer> {
 
         private final String pageUrl;
         private final int index;

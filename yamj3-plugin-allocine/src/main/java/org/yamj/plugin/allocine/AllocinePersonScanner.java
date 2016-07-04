@@ -78,7 +78,7 @@ public final class AllocinePersonScanner extends AbstractAllocineScanner impleme
         FilmographyInfos filmographyInfos = allocineApiWrapper.getFilmographyInfos(allocineId, throwTempError);
         if (filmographyInfos == null || filmographyInfos.isNotValid() || filmographyInfos.getParticipances() == null) {
             LOG.trace("No filmography found for person ID {}", allocineId);
-            return null;
+            return null; //NOSONAR
         }
         
         List<FilmographyDTO> result = new ArrayList<>();
@@ -105,12 +105,12 @@ public final class AllocinePersonScanner extends AbstractAllocineScanner impleme
             }
 
             if (participance.isTvShow()) {
-                dto.setParticipationType(ParticipationType.SERIES);
-                dto.setYear(participance.getYearStart());
-                dto.setYearEnd(participance.getYearEnd());
+                dto.setParticipationType(ParticipationType.SERIES)
+                    .setYear(participance.getYearStart())
+                    .setYearEnd(participance.getYearEnd());
             } else {
-                dto.setParticipationType(ParticipationType.MOVIE);
-                dto.setYear(participance.getYear());
+                dto.setParticipationType(ParticipationType.MOVIE)
+                    .setYear(participance.getYear());
             }
             
             dto.setTitle(participance.getTitle())

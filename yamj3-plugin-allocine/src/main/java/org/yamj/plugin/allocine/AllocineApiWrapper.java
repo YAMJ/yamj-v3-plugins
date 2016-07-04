@@ -69,14 +69,8 @@ public class AllocineApiWrapper {
         // if we have a valid year try to find the first movie that match
         if (search.getTotalResults() > 1 && year > 0) {
             for (Movie movie : search.getMovies()) {
-                if (movie != null) {
-                    int movieProductionYear = movie.getProductionYear();
-                    if (movieProductionYear <= 0) {
-                        continue;
-                    }
-                    if (movieProductionYear == year) {
-                        return movie.getCode();
-                    }
+                if (movie != null && year == movie.getProductionYear()) {
+                    return movie.getCode();
                 }
             }
         }
@@ -111,14 +105,8 @@ public class AllocineApiWrapper {
         if (search.getTotalResults() > 1 && year > 0) {
             for (TvSeries serie : search.getTvSeries()) {
                 if (serie != null) {
-                    int serieStart = serie.getYearStart();
-                    if (serieStart <= 0) {
-                        continue;
-                    }
-                    int serieEnd = serie.getYearEnd();
-                    if (serieEnd <= 0) {
-                        serieEnd = serieStart;
-                    }
+                    final int serieStart = serie.getYearStart();
+                    final int serieEnd = serie.getYearEnd() <= 0 ? serieStart : serie.getYearEnd();
                     if (year >= serieStart && year <= serieEnd) {
                         return serie.getCode();
                     }
@@ -155,11 +143,8 @@ public class AllocineApiWrapper {
         // find for matching person
         if (search.getTotalResults() > 1) {
             for (ShortPerson person : search.getPersons()) {
-                if (person != null) {
-                    // find exact name (ignoring case)
-                    if (StringUtils.equalsIgnoreCase(name, person.getName())) {
-                        return person.getCode();
-                    }
+                if (person != null && StringUtils.equalsIgnoreCase(name, person.getName())) {
+                    return person.getCode();
                 }
             }
         }

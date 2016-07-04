@@ -73,9 +73,9 @@ public class TheMovieDbArtworkScannerTest {
 
     @SuppressWarnings("rawtypes")
     protected static void logArtworks(List<ArtworkDTO> dtos, Class scannerClass) {
-        Logger LOG = LoggerFactory.getLogger(scannerClass);
+        Logger logger = LoggerFactory.getLogger(scannerClass);
         for (ArtworkDTO dto : dtos) {
-            LOG.info("{}", dto);
+            logger.info("{}", dto);
         }
     }
     

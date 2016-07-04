@@ -44,13 +44,13 @@ public final class MovieMeterArtworkScanner extends AbstractMovieMeterScanner im
         final String movieMeterId = getMovieId(movie, false);
         if (!isValidMovieId(movieMeterId)) {
             LOG.debug("MovieMeter id not available '{}'", movie.getTitle());
-            return null;
+            return null; //NOSONAR
         }
 
         FilmInfo filmInfo = this.movieMeterApiWrapper.getFilmInfo(movieMeterId,false);
         if (filmInfo == null || filmInfo.getPosters() == null || filmInfo.getPosters().getLarge() == null) {
             LOG.debug("No MovieMeter poster URL for movie: {}", movieMeterId);
-            return null;
+            return null; //NOSONAR
         }
         
         ArtworkDTO dto = new ArtworkDTO(SCANNER_NAME, filmInfo.getPosters().getLarge(), movieMeterId);
@@ -59,6 +59,6 @@ public final class MovieMeterArtworkScanner extends AbstractMovieMeterScanner im
 
     @Override
     public List<ArtworkDTO> getFanarts(IMovie movie) {
-        return null;
+        return null; //NOSONAR
     }
 }

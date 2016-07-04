@@ -88,7 +88,7 @@ public final class TheMovieDbPersonScanner extends AbstractTheMovieDbScanner imp
         PersonCreditList<CreditBasic> credits = theMovieDbApiWrapper.getPersonCredits(Integer.parseInt(tmdbId), localeService.getLocale(), throwTempError);
         if (credits == null || CollectionUtils.isEmpty(credits.getCast())) {
             LOG.trace("No filmography found for person ID {}", tmdbId);
-            return null;
+            return null; //NOSONAR
         }
 
         // Fill in cast data

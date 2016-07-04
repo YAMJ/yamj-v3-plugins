@@ -313,7 +313,7 @@ public class TheMovieDbApiWrapper {
             LOG.warn(API_ERROR, ex);
         }
         
-        return null;
+        return null; //NOSONAR
     }
     
     public URL createImageURL(Artwork artwork, String requiredSize) throws MovieDbException {

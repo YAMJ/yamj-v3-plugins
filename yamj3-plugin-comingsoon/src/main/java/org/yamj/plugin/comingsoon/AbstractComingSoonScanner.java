@@ -192,12 +192,16 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     }
 
     protected static boolean isValidComingSoonId(String comingSoonId) {
-        if (StringUtils.isBlank(comingSoonId)) return false;
+        if (StringUtils.isBlank(comingSoonId)) {
+            return false;
+        }
         return !StringUtils.equalsIgnoreCase(comingSoonId, "na");
     }
 
     protected static boolean isNoValidComingSoonId(String comingSoonId) {
-        if (StringUtils.isBlank(comingSoonId)) return true;
+        if (StringUtils.isBlank(comingSoonId)) {
+            return true;
+        }
         return StringUtils.equalsIgnoreCase(comingSoonId, "na");
     }
 
@@ -206,7 +210,9 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     }
 
     private String getComingSoonId(String title, int year, int scoreToBeat, boolean tvShow, boolean throwTempError) {
-        if (scoreToBeat == 0) return null;
+        if (scoreToBeat == 0) {
+            return null;
+        }
         int currentScore = scoreToBeat;
 
         try {
@@ -227,7 +233,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
             int searchPage = 0;
             String comingSoonId = null;
             
-            loop: while (searchPage++ < COMINGSOON_MAX_SEARCH_PAGES) {
+            while (searchPage++ < COMINGSOON_MAX_SEARCH_PAGES) {
 
                 StringBuilder urlPage = new StringBuilder(urlBase);
                 if (searchPage > 1) {
@@ -245,17 +251,16 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
 
                 List<String[]> resultList = parseComingSoonSearchResults(response.getContent(), tvShow);
                 if (resultList.isEmpty()) {
-                    break loop;
+                    break;
                 }
                 
                 for (int i = 0; i < resultList.size() && currentScore > 0; i++) {
                     String lId = resultList.get(i)[0];
                     String lTitle = resultList.get(i)[1];
                     String lOrig = resultList.get(i)[2];
-                    //String lYear = (String) movieList.get(i)[3];
                     int difference = compareTitles(title, lTitle);
                     int differenceOrig = compareTitles(title, lOrig);
-                    difference = (differenceOrig < difference ? differenceOrig : difference);
+                    difference = differenceOrig < difference ? differenceOrig : difference;
                     if (difference < currentScore) {
                         if (difference == 0) {
                             LOG.debug("Found perfect match for: {}, {}", lTitle, lOrig);
@@ -272,7 +277,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
             if (year>0 && currentScore>0) {
                 LOG.debug("Perfect match not found, trying removing by year ...");
                 String newComingSoonId = getComingSoonId(title, -1, currentScore, tvShow, throwTempError);
-                comingSoonId = (isNoValidComingSoonId(newComingSoonId) ? comingSoonId : newComingSoonId);
+                comingSoonId = isNoValidComingSoonId(newComingSoonId) ? comingSoonId : newComingSoonId;
             }
 
             if (StringUtils.isNotBlank(comingSoonId)) {
@@ -333,14 +338,21 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
             if (beginIndex >= 0) {
                 comingSoonId = getComingSoonIdFromURL(searchResult);
             }
-            if (StringUtils.isBlank(comingSoonId)) continue;
+            
+            if (StringUtils.isBlank(comingSoonId)) {
+                continue;
+            }
 
             String title = HTMLTools.extractTag(searchResult, "<div class=\"h5 titolo cat-hover-color anim25\">", "</div>");
-            if (StringUtils.isBlank(title)) continue;
+            if (StringUtils.isBlank(title)) {
+                continue;
+            }
             
             String originalTitle = HTMLTools.extractTag(searchResult, "<div class=\"h6 sottotitolo\">", "</div>");
             originalTitle = StringUtils.trimToEmpty(originalTitle);
-            if (originalTitle.startsWith("(")) originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
+            if (originalTitle.startsWith("(")) {
+                originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
+            }
             
             String year = null;
             beginIndex = searchResult.indexOf("ANNO</span>:");
@@ -380,7 +392,9 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
      * @return
      */
     private static int compareTitles(String searchedTitle, String returnedTitle) {
-        if (StringUtils.isBlank(returnedTitle)) return COMINGSOON_MAX_DIFF;
+        if (StringUtils.isBlank(returnedTitle)) {
+            return COMINGSOON_MAX_DIFF;
+        }
         LOG.trace("Comparing {} and {}", searchedTitle, returnedTitle);
 
         String title1 = searchedTitle.toLowerCase().replaceAll("[,.\\!\\?\"']", "");
@@ -398,10 +412,14 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     
     protected static String parsePlot(String xml) {
         int beginIndex = xml.indexOf("<div class=\"contenuto-scheda-destra");
-        if (beginIndex < 0) return null;
+        if (beginIndex < 0) {
+            return null;
+        }
         
         int endIndex = xml.indexOf("<div class=\"box-descrizione\"", beginIndex);
-        if (endIndex < 0) return null;
+        if (endIndex < 0) {
+            return null;
+        }
 
         return  HTMLTools.stripTags(HTMLTools.extractTag(xml.substring(beginIndex, endIndex), "<p>", "</p>"));
     }
@@ -422,7 +440,9 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     
     protected static Collection<String> parseStudios(String xml) {
         final String studioList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE</span>: ","</li>"));
-        if (StringUtils.isBlank(studioList)) return null;
+        if (StringUtils.isBlank(studioList)) {
+            return null; //NOSONAR
+        }
         
         Collection<String> studioNames = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(studioList, ",");
@@ -434,7 +454,9 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     
     protected static Collection<String> parseGenres(String xml) {
         final String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE</span>: ", "</li>"));
-        if (StringUtils.isBlank(genreList)) return null;
+        if (StringUtils.isBlank(genreList)) {
+            return null; //NOSONAR
+        }
         
         Collection<String> genreNames = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(genreList, ",");

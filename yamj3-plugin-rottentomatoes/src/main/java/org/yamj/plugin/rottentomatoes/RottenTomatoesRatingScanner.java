@@ -65,7 +65,7 @@ public class RottenTomatoesRatingScanner implements MovieExtrasScanner, NeedsCon
         if (rtId > 0) {
             try {
                 rtMovie = RottenTomatoesPlugin.getRottenTomatoesApi().getDetailedInfo(rtId);
-            } catch (RottenTomatoesException ex) {
+            } catch (RottenTomatoesException ex) { //NOSONAR
                 LOG.warn("Failed to get RottenTomatoes information: {}", ex.getMessage());
             }
         } else {
@@ -79,7 +79,7 @@ public class RottenTomatoesRatingScanner implements MovieExtrasScanner, NeedsCon
                         break;
                     }
                 }
-            } catch (RottenTomatoesException ex) {
+            } catch (RottenTomatoesException ex) { //NOSONAR
                 LOG.warn("Failed to get RottenTomatoes information: {}", ex.getMessage());
             }
         }

@@ -111,10 +111,11 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
         // CERTIFICATIONS
         if (CollectionUtils.isNotEmpty(movieInfo.getReleases())) {
             for (String countryCode : localeService.getCertificationCountryCodes(locale)) {
-                relLoop: for (ReleaseInfo releaseInfo : movieInfo.getReleases()) {
+                // iterate over release info to build certifications
+                for (ReleaseInfo releaseInfo : movieInfo.getReleases()) {
                     if (countryCode.equalsIgnoreCase(releaseInfo.getCountry())) {
                         movie.addCertification(releaseInfo.getCountry(), releaseInfo.getCertification());
-                        break relLoop;
+                        break;
                     }
                 }
             }

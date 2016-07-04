@@ -138,7 +138,7 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
     }
 
     private static void addCredit(IMovie movie, MoviePerson person, JobType jobType, String role) {
-        String sourceId = (person.getCode() > 0 ?  String.valueOf(person.getCode()) : null);
+        String sourceId = person.getCode() > 0 ? String.valueOf(person.getCode()) : null;
         movie.addCredit(sourceId, jobType, person.getName(), role);
     }
 }

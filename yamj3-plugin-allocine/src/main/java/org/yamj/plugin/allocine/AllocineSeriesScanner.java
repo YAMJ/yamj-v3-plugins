@@ -175,9 +175,11 @@ public final class AllocineSeriesScanner extends AbstractAllocineScanner impleme
                 continue;
             }
             
-            if (member.isActor() && configService.isCastScanEnabled(JobType.ACTOR)) {
-                final JobType jobType = (member.isLeadActor() ? JobType.ACTOR : JobType.GUEST_STAR);
-                addCredit(episode, member, jobType, member.getRole());
+            if (member.isActor()) {
+                final JobType jobType = member.isLeadActor() ? JobType.ACTOR : JobType.GUEST_STAR;
+                if (configService.isCastScanEnabled(jobType)) {
+                    addCredit(episode, member, jobType, member.getRole());
+                }
             } else if (member.isDirector() && configService.isCastScanEnabled(JobType.DIRECTOR)) {
                 addCredit(episode, member, JobType.DIRECTOR);
             } else if (member.isWriter() && configService.isCastScanEnabled(JobType.WRITER)) {
@@ -197,7 +199,7 @@ public final class AllocineSeriesScanner extends AbstractAllocineScanner impleme
     }
 
     private static void addCredit(IEpisode episode, CastMember member, JobType jobType, String role) {
-        final String sourceId = (member.getShortPerson().getCode() > 0 ?  String.valueOf(member.getShortPerson().getCode()) : null);
+        final String sourceId = member.getShortPerson().getCode() > 0 ?  String.valueOf(member.getShortPerson().getCode()) : null;
         episode.addCredit(sourceId, jobType, member.getShortPerson().getName(), role);
     }        
 }

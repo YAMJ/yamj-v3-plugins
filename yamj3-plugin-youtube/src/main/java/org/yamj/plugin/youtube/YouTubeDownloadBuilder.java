@@ -243,7 +243,7 @@ public class YouTubeDownloadBuilder implements TrailerDownloadBuilder, NeedsHttp
             try {
                 streamCapture(videoDownloads, videoId);
                 extractEmbedded = (videoDownloads.size() == 0);
-            } catch (Exception e) {
+            } catch (Exception e) { //NOSONAR
                 extractEmbedded = true;
             }
             

@@ -43,7 +43,7 @@ public final class ComingSoonArtworkScanner extends AbstractComingSoonScanner im
         final String comingSoonId = getMovieId(movie, false);
         if (isNoValidComingSoonId(comingSoonId)) {
             LOG.debug("ComingSoon id not available '{}'", movie.getTitle());
-            return null;
+            return null; //NOSONAR
         }
 
         ArtworkDTO dto = new ArtworkDTO(SCANNER_NAME,  POSTER_BASE_URL+comingSoonId+".jpg", comingSoonId, ImageType.JPG);
@@ -52,6 +52,6 @@ public final class ComingSoonArtworkScanner extends AbstractComingSoonScanner im
 
     @Override
     public List<ArtworkDTO> getFanarts(IMovie movie) {
-        return null;
+        return null; //NOSONAR
     }
 }

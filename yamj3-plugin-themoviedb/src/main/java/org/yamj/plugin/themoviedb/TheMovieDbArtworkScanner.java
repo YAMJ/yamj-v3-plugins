@@ -48,13 +48,14 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
     private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbArtworkScanner.class);
 
     protected static final String DEFAULT_SIZE = "original";
-
+    private static final String ID_NOT_AVAILABLE = "TheMovieDb id not available '{}'";
+    
     @Override
     public List<ArtworkDTO> getPosters(IMovie movie) {
         String tmdbId = getMovieId(movie, false);
         if (isNoValidTheMovieDbId(tmdbId)) {
-            LOG.debug("TheMovieDb id not available '{}'", movie.getTitle());
-            return null;
+            LOG.debug(ID_NOT_AVAILABLE, movie.getTitle());
+            return null; //NOSONAR
         }
 
         final Locale locale = localeService.getLocale();
@@ -66,8 +67,8 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
     public List<ArtworkDTO> getFanarts(IMovie movie) {
         String tmdbId = getMovieId(movie, false);
         if (isNoValidTheMovieDbId(tmdbId)) {
-            LOG.debug("TheMovieDb id not available '{}'", movie.getTitle());
-            return null;
+            LOG.debug(ID_NOT_AVAILABLE, movie.getTitle());
+            return null; //NOSONAR
         }
         
         final Locale locale = localeService.getLocale();
@@ -79,8 +80,8 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
     public List<ArtworkDTO> getPosters(ISeason season) {
         String tmdbId = getSeriesId(season.getSeries(), false);
         if (isNoValidTheMovieDbId(tmdbId)) {
-            LOG.debug("TheMovieDb id not available '{}'", season.getSeries().getTitle());
-            return null;
+            LOG.debug(ID_NOT_AVAILABLE, season.getSeries().getTitle());
+            return null; //NOSONAR
         }
         
         final Locale locale = localeService.getLocale();
@@ -92,8 +93,8 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
     public List<ArtworkDTO> getPosters(ISeries series) {
         String tmdbId = getSeriesId(series, false);
         if (isNoValidTheMovieDbId(tmdbId)) {
-            LOG.debug("TheMovieDb id not available '{}'", series.getTitle());
-            return null;
+            LOG.debug(ID_NOT_AVAILABLE, series.getTitle());
+            return null; //NOSONAR
         }
 
         final Locale locale = localeService.getLocale();
@@ -105,8 +106,8 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
     public List<ArtworkDTO> getFanarts(ISeason season) {
         String tmdbId = getSeriesId(season.getSeries(), false);
         if (isNoValidTheMovieDbId(tmdbId)) {
-            LOG.debug("TheMovieDb id not available '{}'", season.getSeries().getTitle());
-            return null;
+            LOG.debug(ID_NOT_AVAILABLE, season.getSeries().getTitle());
+            return null; //NOSONAR
         }
 
         final Locale locale = localeService.getLocale();
@@ -118,8 +119,8 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
     public List<ArtworkDTO> getFanarts(ISeries series) {
         String tmdbId = getSeriesId(series, false);
         if (isNoValidTheMovieDbId(tmdbId)) {
-            LOG.debug("TheMovieDb id not available '{}'", series.getTitle());
-            return null;
+            LOG.debug(ID_NOT_AVAILABLE, series.getTitle());
+            return null; //NOSONAR
         }
         
         final Locale locale = localeService.getLocale();
@@ -129,20 +130,20 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
 
     @Override
     public List<ArtworkDTO> getBanners(ISeason season) {
-        return null;
+        return null; //NOSONAR
     }
 
     @Override
     public List<ArtworkDTO> getBanners(ISeries series) {
-        return null;
+        return null; //NOSONAR
     }
 
     @Override
     public List<ArtworkDTO> getVideoImages(IEpisode episode) {
         String tmdbId = getSeriesId(episode.getSeason().getSeries(), false);
         if (isNoValidTheMovieDbId(tmdbId)) {
-            LOG.debug("TheMovieDb id not available '{}'", episode.getSeason().getSeries().getTitle());
-            return null;
+            LOG.debug(ID_NOT_AVAILABLE, episode.getSeason().getSeries().getTitle());
+            return null; //NOSONAR
         }
 
         final Locale locale = localeService.getLocale();
@@ -154,8 +155,8 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
     public List<ArtworkDTO> getPhotos(IPerson person) {
         String tmdbId = getPersonId(person, false);
         if (isNoValidTheMovieDbId(tmdbId)) {
-            LOG.debug("TheMovieDb id not available '{}'", person.getName());
-            return null;
+            LOG.debug(ID_NOT_AVAILABLE, person.getName());
+            return null; //NOSONAR
         }
         
         ResultList<Artwork> resultList = theMovieDbApiWrapper.getPersonImages(Integer.parseInt(tmdbId));
@@ -171,7 +172,7 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
         if (isNoValidTheMovieDbId(tmdbId)) {
             Collection collection = theMovieDbApiWrapper.findCollection(boxedSet.getName(), locale.getLanguage());
             if (collection == null) {
-                return null;
+                return null; //NOSONAR
             }
             id = collection.getId();
         } else {
@@ -191,7 +192,7 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
         if (isNoValidTheMovieDbId(tmdbId)) {
             Collection collection = theMovieDbApiWrapper.findCollection(boxedSet.getName(), locale.getLanguage());
             if (collection == null) {
-                return null;
+                return null; //NOSONAR
             }
             id = collection.getId();
         } else {
@@ -204,7 +205,7 @@ public final class TheMovieDbArtworkScanner extends AbstractTheMovieDbScanner
 
     @Override
     public List<ArtworkDTO> getBanners(IBoxedSet boxedSet) {
-        return null;
+        return null; //NOSONAR
     }
 
     /**
