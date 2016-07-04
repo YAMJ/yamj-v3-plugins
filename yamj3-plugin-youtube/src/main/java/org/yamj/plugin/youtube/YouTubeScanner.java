@@ -136,6 +136,6 @@ public class YouTubeScanner implements MovieTrailerScanner, NeedsConfigService, 
             LOG.error("YouTube trailer scanner error: '" + movie.getTitle() + "'", e);
         }
         
-        return null;
+        return null; //NOSONAR
     }
 }

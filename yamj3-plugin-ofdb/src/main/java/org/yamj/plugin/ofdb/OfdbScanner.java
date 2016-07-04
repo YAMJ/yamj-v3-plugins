@@ -33,9 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
-import org.yamj.plugin.api.NeedsConfigService;
-import org.yamj.plugin.api.NeedsHttpClient;
-import org.yamj.plugin.api.NeedsMetadataService;
+import org.yamj.plugin.api.*;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
@@ -57,6 +55,7 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
     private static final String HTML_TABLE_END = "</table>";
     private static final String HTML_TR_START = "<tr";
     private static final String HTML_TR_END = "</tr>";
+    private static final String HTML_CLASS_DATEN = "class=\"Daten\">";
     
     private PluginConfigService configService;
     private PluginMetadataService metadataService;
@@ -218,7 +217,7 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
             if (throwTempError && ResponseTools.isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("OFDb service is temporary not available: " + response.getStatusCode());
             } else if (ResponseTools.isNotOK(response)) {
-                throw new RuntimeException("OFDb request failed: " + response.getStatusCode());
+                throw new PluginExtensionException("OFDb request failed: " + response.getStatusCode());
             }
             
             String xml = response.getContent();
@@ -247,7 +246,7 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
                 if (throwTempError && ResponseTools.isTemporaryError(response)) {
                     throw new TemporaryUnavailableException("OFDb service failed to get plot: " + response.getStatusCode());
                 } else if (ResponseTools.isNotOK(response)) {
-                    throw new RuntimeException("OFDb plot request failed: " + response.getStatusCode());
+                    throw new PluginExtensionException("OFDb plot request failed: " + response.getStatusCode());
                 }
                 
                 int firstindex = response.getContent().indexOf("gelesen</b></b><br><br>") + 23;
@@ -273,7 +272,7 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
             if (throwTempError && ResponseTools.isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("OFDb service failed to get details: " + response.getStatusCode());
             } else if (ResponseTools.isNotOK(response)) {
-                throw new RuntimeException("OFDb details request failed: " + response.getStatusCode());
+                throw new PluginExtensionException("OFDb details request failed: " + response.getStatusCode());
             }
             
             // get detail XML
@@ -284,12 +283,12 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
     
             for (String tag : tags) {
                 if (tag.contains("Originaltitel")) {
-                    String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", HTML_FONT)).trim();
+                    String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, HTML_CLASS_DATEN, HTML_FONT)).trim();
                     movie.setOriginalTitle(scraped);
                 }
     
                 if (tag.contains("Erscheinungsjahr")) {
-                    String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", HTML_FONT)).trim();
+                    String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, HTML_CLASS_DATEN, HTML_FONT)).trim();
                     movie.setYear(MetadataTools.toYear(scraped));
                 }
     
@@ -346,12 +345,12 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
             // everything is fine
             return true;
         } catch (IOException ioe) {
-            throw new RuntimeException("OFDb scanning error for movie '"+movie.getTitle()+"'", ioe);
+            throw new PluginExtensionException("OFDb scanning error for movie '"+movie.getTitle()+"'", ioe);
         }
     }
 
     private static String extractName(String tag) {
-        String name = HTMLTools.extractTag(tag, "class=\"Daten\">", HTML_FONT);
+        String name = HTMLTools.extractTag(tag, HTML_CLASS_DATEN, HTML_FONT);
         int akaIndex = name.indexOf("als <i>");
         if (akaIndex > 0) {
             name = name.substring(0, akaIndex);

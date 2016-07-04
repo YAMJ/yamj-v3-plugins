@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.plugin.api.NeedsHttpClient;
+import org.yamj.plugin.api.PluginExtensionException;
 import org.yamj.plugin.api.model.ITrailer;
 import org.yamj.plugin.api.model.type.ContainerType;
 import org.yamj.plugin.api.trailer.TrailerDownloadBuilder;
@@ -215,7 +216,7 @@ public class YouTubeDownloadBuilder implements TrailerDownloadBuilder, NeedsHttp
                                 + s(38, 34, -1) + s(0) + s(33, 29, -1) + s(34)
                                 + s(28, 9, -1) + s(29) + s(8, 0, -1) + s(9);
             default:    
-                throw new RuntimeException("Unable to decrypt signature; key length" + sig.length() + " not supported");
+                throw new PluginExtensionException("Unable to decrypt signature; key length" + sig.length() + " not supported");
             }
         }
     }
@@ -242,7 +243,7 @@ public class YouTubeDownloadBuilder implements TrailerDownloadBuilder, NeedsHttp
             boolean extractEmbedded = false;
             try {
                 streamCapture(videoDownloads, videoId);
-                extractEmbedded = (videoDownloads.size() == 0);
+                extractEmbedded = videoDownloads.isEmpty();
             } catch (Exception e) { //NOSONAR
                 extractEmbedded = true;
             }
@@ -255,7 +256,7 @@ public class YouTubeDownloadBuilder implements TrailerDownloadBuilder, NeedsHttp
             LOG.trace("YouTube parser error", e);
         }
 
-        if (videoDownloads.size() == 0) {
+        if (videoDownloads.isEmpty()) {
             return null;
         }
         
@@ -289,9 +290,9 @@ public class YouTubeDownloadBuilder implements TrailerDownloadBuilder, NeedsHttp
         Map<String, String> map = getQueryMap(response.getContent());
         if ("fail".equals(map.get("status"))) {
             if ("150".equals(map.get("errorcode")))
-                throw new RuntimeException("Embedding is disabled"); //NOSONAR
+                throw new PluginExtensionException("Embedding is disabled");
             if ("100".equals(map.get("errorcode")))
-                throw new RuntimeException("Video is deleted"); //NOSONAR
+                throw new PluginExtensionException("Video is deleted");
             throw new Exception(HTMLTools.decodeUrl(map.get("reason"))); //NOSONAR
         }
 
@@ -308,17 +309,17 @@ public class YouTubeDownloadBuilder implements TrailerDownloadBuilder, NeedsHttp
         return map;
     }
 
-    private static void extractHtmlInfo(Set<VideoDownload> videoDownloads, String html) throws Exception { //NOSONAR
+    private static void extractHtmlInfo(Set<VideoDownload> videoDownloads, String html) throws MalformedURLException {
         
         Matcher ageMatcher = Pattern.compile("(verify_age)").matcher(html);
         if (ageMatcher.find()) {
-            throw new RuntimeException("Age restriction, account required"); //NOSONAR
+            throw new PluginExtensionException("Age restriction, account required");
         }
         
         
         Matcher playerMatcher = Pattern.compile("(unavailable-player)").matcher(html);
         if (playerMatcher.find()) {
-            throw new RuntimeException("Video player is unavailable"); //NOSONAR
+            throw new PluginExtensionException("Video player is unavailable");
         }
 
 

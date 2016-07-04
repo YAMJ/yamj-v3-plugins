@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
+import org.yamj.plugin.api.PluginExtensionException;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
@@ -67,7 +68,7 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
             if (throwTempError && ResponseTools.isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("ComingSoon service is temporary not available: " + response.getStatusCode());
             } else if (ResponseTools.isNotOK(response)) {
-                throw new RuntimeException("ComingSoon request failed: " + response.getStatusCode());
+                throw new PluginExtensionException("ComingSoon request failed: " + response.getStatusCode());
             }
             String xml = response.getContent();
             
@@ -141,7 +142,7 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
 
             return true;
         } catch (IOException ioe) {
-            throw new RuntimeException("ComingSoon scanning error", ioe);
+            throw new PluginExtensionException("ComingSoon scanning error", ioe);
         }
     }
 

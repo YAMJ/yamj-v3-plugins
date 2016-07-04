@@ -13,7 +13,7 @@
     <artifactId>yamj3-plugin-youtube</artifactId>
     <name>YAMJ3 Plugin YouTube</name>
     <description>YAMJ v3 Plugin for YouTube</description>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <packaging>jar</packaging>
 
     <properties>

@@ -193,24 +193,26 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
             if (tvRageEpisode == null || !tvRageEpisode.isValid()) {
                 // mark episode as not found
                 episode.setNotFound();
-                continue;
+            } else {
+                
+                try {
+                    int lastIdx = StringUtils.lastIndexOf(tvRageEpisode.getLink(), "/");
+                    if (lastIdx > 0) {
+                        String tvRageId = tvRageEpisode.getLink().substring(lastIdx+1);
+                        episode.addId(SOURCE_TVRAGE, tvRageId);
+                    }   
+                } catch (Exception ex) { //NOSONAR
+                    // ignore any error
+                }
+                
+                episode.setTitle(tvRageEpisode.getTitle());
+                episode.setPlot(tvRageEpisode.getSummary());
+                episode.setRelease(tvRageEpisode.getAirDate());
+                episode.setRating(MetadataTools.parseRating(tvRageEpisode.getRating()));
+                
+                // mark episode as done
+                episode.setDone();
             }
-            
-            try {
-                int lastIdx = StringUtils.lastIndexOf(tvRageEpisode.getLink(), "/");
-                if (lastIdx > 0) {
-                    String tvRageId = tvRageEpisode.getLink().substring(lastIdx+1);
-                    episode.addId(SOURCE_TVRAGE, tvRageId);
-                }   
-            } catch (Exception ex) {/*ignore*/}
-            
-            episode.setTitle(tvRageEpisode.getTitle());
-            episode.setPlot(tvRageEpisode.getSummary());
-            episode.setRelease(tvRageEpisode.getAirDate());
-            episode.setRating(MetadataTools.parseRating(tvRageEpisode.getRating()));
-            
-            // mark episode as done
-            episode.setDone();
         }
     }
     

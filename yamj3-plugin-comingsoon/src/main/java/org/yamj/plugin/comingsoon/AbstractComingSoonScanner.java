@@ -60,6 +60,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     protected static final String COMINGSOON_KEY_PARAM = "key=";
     private static final int COMINGSOON_MAX_DIFF = 1000;
     private static final int COMINGSOON_MAX_SEARCH_PAGES = 5;
+    private static final String HTML_LI_END = "</li>";
 
     protected PluginConfigService configService;
     protected PluginMetadataService metadataService;
@@ -335,6 +336,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
             } else {
                 beginIndex = searchResult.indexOf("ref=\"/film/");
             }
+            
             if (beginIndex >= 0) {
                 comingSoonId = getComingSoonIdFromURL(searchResult);
             }
@@ -357,7 +359,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
             String year = null;
             beginIndex = searchResult.indexOf("ANNO</span>:");
             if (beginIndex > 0) {
-                int endIndex = searchResult.indexOf("</li>", beginIndex);
+                int endIndex = searchResult.indexOf(HTML_LI_END, beginIndex);
                 if (endIndex > 0) {
                     year = searchResult.substring(beginIndex + 12, endIndex).trim();
                 }
@@ -434,12 +436,12 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     }
 
     protected Collection<String> parseCountries(String xml) {
-        final String country = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE</span>:", "</li>")).trim();
+        final String country = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE</span>:", HTML_LI_END)).trim();
         return Collections.singleton(country);
     }
     
     protected static Collection<String> parseStudios(String xml) {
-        final String studioList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE</span>: ","</li>"));
+        final String studioList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE</span>: ", HTML_LI_END));
         if (StringUtils.isBlank(studioList)) {
             return null; //NOSONAR
         }
@@ -453,7 +455,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     }
     
     protected static Collection<String> parseGenres(String xml) {
-        final String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE</span>: ", "</li>"));
+        final String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE</span>: ", HTML_LI_END));
         if (StringUtils.isBlank(genreList)) {
             return null; //NOSONAR
         }

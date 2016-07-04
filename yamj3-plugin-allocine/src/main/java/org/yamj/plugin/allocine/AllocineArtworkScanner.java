@@ -57,7 +57,7 @@ public final class AllocineArtworkScanner extends AbstractAllocineScanner
 
     @Override
     public List<ArtworkDTO> getFanarts(IMovie movie) {
-        return null;
+        return null; //NOSONAR
     }
 
     @Override

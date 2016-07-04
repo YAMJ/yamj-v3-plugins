@@ -67,11 +67,7 @@ public abstract class AbstractFanartTvArtworkScanner implements ArtworkScanner, 
         
         // first try for default language
         for (FTArtwork artwork : ftArtwork) {
-            if (!season.equals(artwork.getSeason())) {
-                continue;
-            }
-            
-            if (language.equalsIgnoreCase(artwork.getLanguage())) {
+            if (season.equals(artwork.getSeason()) && language.equalsIgnoreCase(artwork.getLanguage())) {
                 ArtworkDTO aDto = new ArtworkDTO(SCANNER_NAME, artwork.getUrl());
                 aDto.setLanguageCode(artwork.getLanguage());
                 artworkList.add(aDto);
@@ -81,11 +77,7 @@ public abstract class AbstractFanartTvArtworkScanner implements ArtworkScanner, 
         // try with English if nothing found with default language
         if (artworkList.isEmpty() && !LANGUAGE_EN.equalsIgnoreCase(language)) {
             for (FTArtwork artwork : ftArtwork) {
-                if (!season.equals(artwork.getSeason())) {
-                    continue;
-                }
-
-                if (LANGUAGE_EN.equalsIgnoreCase(artwork.getLanguage())) {
+                if (season.equals(artwork.getSeason()) && LANGUAGE_EN.equalsIgnoreCase(artwork.getLanguage())) {
                     ArtworkDTO aDto = new ArtworkDTO(SCANNER_NAME, artwork.getUrl());
                     aDto.setLanguageCode(artwork.getLanguage());
                     artworkList.add(aDto);
@@ -95,11 +87,7 @@ public abstract class AbstractFanartTvArtworkScanner implements ArtworkScanner, 
 
         // add artwork without language
         for (FTArtwork artwork : ftArtwork) {
-            if (!season.equals(artwork.getSeason())) {
-                continue;
-            }
-
-            if (LANGUAGE_NONE.equalsIgnoreCase(artwork.getLanguage())) {
+            if (season.equals(artwork.getSeason()) && LANGUAGE_NONE.equalsIgnoreCase(artwork.getLanguage())) {
                 artworkList.add(new ArtworkDTO(SCANNER_NAME, artwork.getUrl()));
             }
         }

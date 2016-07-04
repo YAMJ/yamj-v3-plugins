@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
+import org.yamj.plugin.api.PluginExtensionException;
 import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.model.ICombined;
 import org.yamj.plugin.api.service.PluginConfigService;
@@ -110,7 +111,7 @@ public class ImdbApiWrapper {
         } catch (RuntimeException | IOException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new RuntimeException("IMDb request failed", ex);
+            throw new PluginExtensionException("IMDb request failed", ex);
         }
     }
     
@@ -259,7 +260,7 @@ public class ImdbApiWrapper {
         } catch (IOException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new RuntimeException("IMDb request failed", ex);
+            throw new PluginExtensionException("IMDb request failed", ex);
         }
 
         checkTempError(throwTempError, response);
@@ -411,7 +412,7 @@ public class ImdbApiWrapper {
         if (throwTempError && ResponseTools.isTemporaryError(response)) {
             throw new TemporaryUnavailableException("IMDb service is temporary not available: " + response.getStatusCode());
         } else if (ResponseTools.isNotOK(response)) {
-            throw new RuntimeException("IMDb request failed: " + response.getStatusCode());
+            throw new PluginExtensionException("IMDb request failed: " + response.getStatusCode());
         }
     }
 

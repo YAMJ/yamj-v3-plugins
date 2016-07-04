@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.DigestedResponse;
 import org.yamj.api.common.tools.ResponseTools;
+import org.yamj.plugin.api.PluginExtensionException;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.IEpisode;
 import org.yamj.plugin.api.model.ISeason;
@@ -47,7 +48,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
 
     private static final Logger LOG = LoggerFactory.getLogger(ComingSoonSeriesScanner.class);
     private static final String COMINGSOON_SERIES_URL = "serietv/scheda/?";
-
+    private static final String HTML_DIV_END = "</div>";
     @Override
     public boolean isValidSeriesId(String seriesId) {
         return isValidComingSoonId(seriesId);
@@ -67,7 +68,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
             if (throwTempError && ResponseTools.isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("ComingSoon service is temporary not available: " + response.getStatusCode());
             } else if (ResponseTools.isNotOK(response)) {
-                throw new RuntimeException("ComingSoon request failed: " + response.getStatusCode());
+                throw new PluginExtensionException("ComingSoon request failed: " + response.getStatusCode());
             }
             String xml = response.getContent();
             
@@ -116,7 +117,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
         
             return true;
         } catch (IOException ioe) {
-            throw new RuntimeException("ComingSoon scanning error", ioe);
+            throw new PluginExtensionException("ComingSoon scanning error", ioe);
         }
     }
 
@@ -161,22 +162,21 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
             if (comingSoonEpisode == null) {
                 // mark episode as not found
                 episode.setNotFound();
-                continue;
-            }
-            
-            // set coming soon id for episode
-            episode.addId(SCANNER_NAME, comingSoonId);
-            episode.setTitle(comingSoonEpisode.getTitle());
-            episode.setOriginalTitle(comingSoonEpisode.getOriginalTitle());
-
-            for (String director : comingSoonEpisode.getDirectors()) {
-                episode.addCredit(JobType.DIRECTOR, director);
-            }
-            for (String writer : comingSoonEpisode.getWriters()) {
-                episode.addCredit(JobType.WRITER, writer);
-            }
-            for (ComingSoonActor actor : actors) {
-                episode.addCredit(actor.getSourceId(), actor.getJobType(), actor.getName(), actor.getRole(), actor.getPhotoUrl());
+            } else  {
+                // set coming soon id for episode
+                episode.addId(SCANNER_NAME, comingSoonId);
+                episode.setTitle(comingSoonEpisode.getTitle());
+                episode.setOriginalTitle(comingSoonEpisode.getOriginalTitle());
+    
+                for (String director : comingSoonEpisode.getDirectors()) {
+                    episode.addCredit(JobType.DIRECTOR, director);
+                }
+                for (String writer : comingSoonEpisode.getWriters()) {
+                    episode.addCredit(JobType.WRITER, writer);
+                }
+                for (ComingSoonActor actor : actors) {
+                    episode.addCredit(actor.getSourceId(), actor.getJobType(), actor.getName(), actor.getRole(), actor.getPhotoUrl());
+                }
             }
         }
     }
@@ -200,7 +200,9 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
     
     private Map<Integer,ComingSoonEpisode> parseEpisodes(String seasonXML) {
         Map<Integer,ComingSoonEpisode> episodes = new HashMap<>();
-        if (StringUtils.isBlank(seasonXML)) return episodes;
+        if (StringUtils.isBlank(seasonXML)) {
+            return episodes;
+        }
         
         List<String> tags = HTMLTools.extractTags(seasonXML, "BOX LISTA EPISODI SERIE TV", "BOX LISTA EPISODI SERIE TV", "<div class=\"box-contenitore", "<!-");
         for (String tag : tags) {
@@ -208,7 +210,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
             if (number > -1) {
                 ComingSoonEpisode episode = new ComingSoonEpisode(number);
                 episode.setTitle(HTMLTools.extractTag(tag, "img title=\"", "\""));
-                episode.setOriginalTitle(HTMLTools.extractTag(tag, " descrizione\">", "</div>"));
+                episode.setOriginalTitle(HTMLTools.extractTag(tag, " descrizione\">", HTML_DIV_END));
                     
                 if (configService.isCastScanEnabled(JobType.DIRECTOR)) {
                     episode.setDirectors(parseEpisodeCredits(tag, ">REGIA</strong>:"));
@@ -238,8 +240,8 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
     private static List<ComingSoonActor> parseActors(String xml) {
         List<ComingSoonActor> actors = new ArrayList<>();
         for (String tag : HTMLTools.extractTags(xml, "Il Cast</div>", "IL CAST -->", "<a href=\"/personaggi/", "</a>", false)) {
-            String name = HTMLTools.extractTag(tag, "<div class=\"h6 titolo\">", "</div>");
-            String role = HTMLTools.extractTag(tag, "<div class=\"h6 descrizione\">", "</div>");
+            String name = HTMLTools.extractTag(tag, "<div class=\"h6 titolo\">", HTML_DIV_END);
+            String role = HTMLTools.extractTag(tag, "<div class=\"h6 descrizione\">", HTML_DIV_END);
             
             String sourceId = null;
             int beginIndex = tag.indexOf('/');
