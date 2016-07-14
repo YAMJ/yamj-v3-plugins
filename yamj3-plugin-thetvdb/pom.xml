@@ -13,7 +13,7 @@
     <artifactId>yamj3-plugin-thetvdb</artifactId>
     <name>YAMJ3 Plugin TheTvDb</name>
     <description>YAMJ v3 Plugin for TheTvDb</description>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <packaging>jar</packaging>
 
     <properties>
