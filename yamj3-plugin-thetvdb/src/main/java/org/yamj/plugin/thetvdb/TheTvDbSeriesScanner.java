@@ -29,6 +29,7 @@ import com.omertron.thetvdbapi.model.Actor;
 import com.omertron.thetvdbapi.model.Episode;
 import com.omertron.thetvdbapi.model.Series;
 import java.util.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,11 +91,11 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
         }
 
         // ACTORS (to store in episodes)
-        List<Actor> actors;
+        final List<Actor> actors;
         if (configService.isCastScanEnabled(JobType.ACTOR)) {
             actors = theTvDbApiWrapper.getActors(tvdbSeries.getId());
         } else {
-            actors = Collections.emptyList();
+            actors = null;
         }
         
         // SCAN SEASONS
@@ -170,9 +171,11 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
     }
 
     private static void addActors(IEpisode episode, Collection<Actor> actors) {
-        for (Actor actor : actors) {
-            final String sourceId = (actor.getId() > 0 ? Integer.toString(actor.getId()) : null);
-            episode.addCredit(sourceId, JobType.ACTOR, actor.getName(), actor.getRole());
+        if (CollectionUtils.isNotEmpty(actors)) {
+            for (Actor actor : actors) {
+                final String sourceId = (actor.getId() > 0 ? Integer.toString(actor.getId()) : null);
+                episode.addCredit(sourceId, JobType.ACTOR, actor.getName(), actor.getRole());
+            }
         }
     }
 

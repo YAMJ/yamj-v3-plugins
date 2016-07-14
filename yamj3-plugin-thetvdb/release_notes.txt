@@ -2,6 +2,7 @@
 ** YAMJ 3 PlugIn: TheTVDb
 ***************************************
 
+3.0.3   - Fixed NullPointerException if series actors are not present
 3.0.2   - Set correct season id
 3.0.1   - Fixed setting of series id
 3.0.0   - Initial commit
