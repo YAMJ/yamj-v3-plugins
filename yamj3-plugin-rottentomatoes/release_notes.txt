@@ -1,0 +1,6 @@
+***************************************
+** YAMJ 3 PlugIn: RottenTomatoes
+***************************************
+
+3.0.1   - Fixed log messages
+3.0.0   - Initial commit

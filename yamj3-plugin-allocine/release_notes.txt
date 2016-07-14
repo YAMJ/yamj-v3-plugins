@@ -1,0 +1,6 @@
+***************************************
+** YAMJ 3 PlugIn: Allocine
+***************************************
+
+3.0.1   - Scan for new job type ART
+3.0.0   - Initial commit

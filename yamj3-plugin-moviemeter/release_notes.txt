@@ -1,0 +1,6 @@
+***************************************
+** YAMJ 3 PlugIn: MovieMeter
+***************************************
+
+3.0.1   - Added artwork scanning
+3.0.0   - Initial commit

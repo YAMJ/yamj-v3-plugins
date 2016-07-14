@@ -1,0 +1,6 @@
+***************************************
+** YAMJ 3 PlugIn: OFDb
+***************************************
+
+3.0.1   - Fixed several sonar issues
+3.0.0   - Initial commit

@@ -144,6 +144,9 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
                 continue;
             }
 
+            // set season id
+            season.addId(SOURCE_TVDB, tvdbEpisode.getSeasonId());
+            
             // fill in data
             episode.addId(SOURCE_TVDB, tvdbEpisode.getId());
             episode.addId(SOURCE_IMDB, tvdbEpisode.getImdbId());
