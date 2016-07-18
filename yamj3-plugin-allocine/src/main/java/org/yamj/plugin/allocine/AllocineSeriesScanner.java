@@ -90,7 +90,7 @@ public final class AllocineSeriesScanner extends AbstractAllocineScanner impleme
         // SCAN SEASONS
         scanSeasons(series, tvSeriesInfos);
 
-        return false;
+        return true;
     }
 
     private void scanSeasons(ISeries series, TvSeriesInfos tvSeriesInfos) {

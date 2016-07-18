@@ -2,5 +2,6 @@
 ** YAMJ 3 PlugIn: Allocine
 ***************************************
 
+3.0.2   - Fixed false return value when scanning series
 3.0.1   - Scan for new job type ART
 3.0.0   - Initial commit
