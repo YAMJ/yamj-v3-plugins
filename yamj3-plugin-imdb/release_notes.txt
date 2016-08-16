@@ -2,6 +2,7 @@
 ** YAMJ 3 PlugIn: IMDb
 ***************************************
 
+3.0.3   - Adjustment to plugin API changes
 3.0.2   - Fixed several sonar issues
 3.0.1   - Added filmography scanning
 3.0.0   - Initial commit

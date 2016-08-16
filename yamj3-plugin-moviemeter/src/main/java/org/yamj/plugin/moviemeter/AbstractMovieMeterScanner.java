@@ -69,7 +69,7 @@ public abstract class AbstractMovieMeterScanner implements NeedsConfigService {
         }
 
         // try to get the MovieMeter ID using original title and year
-        if (!isValidMovieId(movieMeterId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+        if (!isValidMovieId(movieMeterId) && MetadataTools.isOriginalTitleScannable(movie)) {
             movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
 

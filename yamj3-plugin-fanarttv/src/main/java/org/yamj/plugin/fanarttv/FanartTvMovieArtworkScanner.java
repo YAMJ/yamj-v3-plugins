@@ -30,7 +30,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.MovieArtworkScanner;
-import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
 import ro.fortsoft.pf4j.Extension;
 
@@ -52,10 +51,7 @@ public final class FanartTvMovieArtworkScanner extends AbstractFanartTvArtworkSc
     private String getImdbId(IMovie movie) {
         String imdbId = movie.getId(SOURCE_IMDB);
         if (StringUtils.isBlank(imdbId)) {
-            MovieScanner imdbScanner = metadataService.getMovieScanner(SOURCE_IMDB);
-            if (imdbScanner != null) {
-                imdbId = imdbScanner.getMovieId(movie, false);
-            }
+            imdbId = metadataService.getMovieId(SOURCE_IMDB, movie);
         }
         return imdbId;
     }

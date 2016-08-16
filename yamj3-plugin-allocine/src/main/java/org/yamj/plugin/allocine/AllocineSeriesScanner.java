@@ -199,7 +199,7 @@ public final class AllocineSeriesScanner extends AbstractAllocineScanner impleme
     }
 
     private static void addCredit(IEpisode episode, CastMember member, JobType jobType, String role) {
-        final String sourceId = member.getShortPerson().getCode() > 0 ?  String.valueOf(member.getShortPerson().getCode()) : null;
+        final String sourceId = member.getShortPerson().getCode() > 0 ?  Integer.toString(member.getShortPerson().getCode()) : null;
         episode.addCredit(sourceId, jobType, member.getShortPerson().getName(), role);
     }        
 }

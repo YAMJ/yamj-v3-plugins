@@ -33,7 +33,6 @@ import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsLocaleService;
 import org.yamj.plugin.api.NeedsMetadataService;
 import org.yamj.plugin.api.metadata.MetadataTools;
-import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.ISeries;
 import org.yamj.plugin.api.model.IdMap;
@@ -75,14 +74,7 @@ public abstract class AbstractTheTvDbScanner implements NfoScanner, NeedsConfigS
     @Override
     public boolean scanNFO(String nfoContent, IdMap idMap) {
         if (configService.getBooleanProperty("thetvdb.search.imdb", false)) {
-            try {
-                MovieScanner imdbScanner = metadataService.getMovieScanner(SOURCE_IMDB);
-                if (imdbScanner != null) {
-                    imdbScanner.scanNFO(nfoContent, idMap);
-                }
-            } catch (Exception ex) {
-                LOG.error("Failed to scan for IMDb ID in NFO", ex);
-            }
+            metadataService.scanNFO(SOURCE_IMDB, nfoContent, idMap);
         }
 
         // if we already have the ID, skip the scanning of the NFO file
@@ -142,7 +134,7 @@ public abstract class AbstractTheTvDbScanner implements NfoScanner, NeedsConfigS
         }
         
         // search by original title
-        if (isNoValidTheTvDbId(tvdbId) && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
+        if (isNoValidTheTvDbId(tvdbId) && MetadataTools.isOriginalTitleScannable(series)) {
             tvdbId = theTvDbApiWrapper.getSeriesId(series.getOriginalTitle(), series.getStartYear(), locale.getLanguage(), throwTempError);
         }
         

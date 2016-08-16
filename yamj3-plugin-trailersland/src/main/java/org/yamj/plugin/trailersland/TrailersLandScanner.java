@@ -93,7 +93,7 @@ public final class TrailersLandScanner implements MovieTrailerScanner, NeedsConf
             trailersLandId = getTrailersLandId(movie.getTitle());
         }
 
-        if (StringUtils.isBlank(trailersLandId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) { 
+        if (StringUtils.isBlank(trailersLandId) && MetadataTools.isOriginalTitleScannable(movie)) { 
             trailersLandId = getTrailersLandId(movie.getOriginalTitle());
         }
 
@@ -369,7 +369,7 @@ public final class TrailersLandScanner implements MovieTrailerScanner, NeedsConf
             return evaluateAgainstList(type, preferredTypes) > 0;
         }
 
-        private int evaluateAgainstList(String what, String list) {
+        private static int evaluateAgainstList(String what, String list) {
             if (list.indexOf(',') < 0) {
                 return what.equalsIgnoreCase(list) ? 1 : -1;
             }

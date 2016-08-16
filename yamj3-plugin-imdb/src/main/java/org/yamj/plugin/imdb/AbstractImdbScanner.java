@@ -121,7 +121,7 @@ public abstract class AbstractImdbScanner implements NfoScanner, NeedsConfigServ
         }
         
         // search by original title
-        if (isNoValidImdbId(imdbId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+        if (isNoValidImdbId(imdbId) && MetadataTools.isOriginalTitleScannable(movie)) {
             imdbId = imdbSearchEngine.getImdbId(movie.getOriginalTitle(), movie.getYear(), false, throwTempError);
             movie.addId(SOURCE_IMDB, imdbId);
         }

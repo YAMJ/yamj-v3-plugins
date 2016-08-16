@@ -68,9 +68,9 @@ public class AllocinePlugin extends Plugin implements NeedsConfigService, NeedsH
         LOG.trace("Start AllocinePlugin");
 
         // create API
-        try (InputStream stream = getClass().getResourceAsStream("/allocine.apikey.properties")) {
+        try (InputStream apiStream = getClass().getResourceAsStream("/allocine.apikey.properties")) { //NOSONAR
             Properties props = new Properties();
-            props.load(stream);
+            props.load(apiStream);
 
             final String partnerKey = props.getProperty("apikey.allocine.partnerKey");
             final String secretKey = props.getProperty("apikey.allocine.secretKey");
@@ -96,9 +96,9 @@ public class AllocinePlugin extends Plugin implements NeedsConfigService, NeedsH
         }
         
         // load properties
-        try (InputStream stream = getClass().getResourceAsStream("/allocine.plugin.properties")) {
+        try (InputStream propStream = getClass().getResourceAsStream("/allocine.plugin.properties")) { //NOSONAR
             Properties props = new Properties();
-            props.load(stream);
+            props.load(propStream);
             configService.pluginConfiguration(props);
         } catch (Exception ex) {
             throw new PluginException("Failed to load allocine properties", ex);

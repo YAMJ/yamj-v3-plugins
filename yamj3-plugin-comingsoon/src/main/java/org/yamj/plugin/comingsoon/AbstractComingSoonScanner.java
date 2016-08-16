@@ -37,7 +37,6 @@ import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsHttpClient;
 import org.yamj.plugin.api.metadata.MetadataTools;
-import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.ISeries;
@@ -93,7 +92,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
         comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear(), false, throwTempError);
 
         // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(movie)) {
             comingSoonId = getComingSoonId(movie.getOriginalTitle(), movie.getYear(), false, throwTempError);
         }
 
@@ -131,7 +130,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
         comingSoonId = getComingSoonId(series.getTitle(), series.getStartYear(), true, throwTempError);
 
         // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
+        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(series)) {
             comingSoonId = getComingSoonId(series.getOriginalTitle(), series.getStartYear(), true, throwTempError);
         }
 
@@ -162,14 +161,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
     @Override
     public boolean scanNFO(String nfoContent, IdMap idMap) {
         if (configService.getBooleanProperty("comingsoon.search.imdb", false)) {
-            try {
-                MovieScanner imdbScanner = metadataService.getMovieScanner(SOURCE_IMDB);
-                if (imdbScanner != null) { 
-                    imdbScanner.scanNFO(nfoContent, idMap);
-                }
-            } catch (Exception ex) {
-                LOG.error("Failed to scan for IMDb ID in NFO", ex);
-            }
+            metadataService.scanNFO(SOURCE_IMDB, nfoContent, idMap);
         }
 
         // if we already have the ID, skip the scanning of the NFO file

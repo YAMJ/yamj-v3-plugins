@@ -27,9 +27,7 @@ import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 import com.moviejukebox.allocine.model.FestivalAward;
 import com.moviejukebox.allocine.model.MovieInfos;
 import com.moviejukebox.allocine.model.MoviePerson;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,47 +79,19 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
             movie.setStudios(studios);
         }
 
-        // DIRECTORS
-        if (configService.isCastScanEnabled(JobType.DIRECTOR)) {
-            for (MoviePerson person : movieInfos.getDirectors()) {
-                addCredit(movie, person, JobType.DIRECTOR);
-            }
-        }
-        
-        // WRITERS
-        if (configService.isCastScanEnabled(JobType.WRITER)) {
-            for (MoviePerson person : movieInfos.getWriters()) {
-                addCredit(movie, person, JobType.WRITER);
-            }
-        }
-        
-        // ACTORS
+        // add actors
         if (configService.isCastScanEnabled(JobType.ACTOR)) {
             for (MoviePerson person : movieInfos.getActors()) {
                 addCredit(movie, person, JobType.ACTOR, person.getRole());
             }
         }
 
-        // PRODUCERS        
-        if (configService.isCastScanEnabled(JobType.PRODUCER)) {
-            for (MoviePerson person : movieInfos.getProducers()) {
-                addCredit(movie, person, JobType.PRODUCER);
-            }
-        }
-
-        // CAMERA    
-        if (configService.isCastScanEnabled(JobType.CAMERA)) {
-            for (MoviePerson person : movieInfos.getCamera()) {
-                addCredit(movie, person, JobType.CAMERA);
-            }
-        }
-        
-        // CAMERA    
-        if (configService.isCastScanEnabled(JobType.ART)) {
-            for (MoviePerson person : movieInfos.getArt()) {
-                addCredit(movie, person, JobType.ART);
-            }
-        }
+        // add other jobs
+        addCredits(movie, movieInfos.getDirectors(), JobType.DIRECTOR);
+        addCredits(movie, movieInfos.getWriters(), JobType.WRITER);
+        addCredits(movie, movieInfos.getProducers(), JobType.PRODUCER);
+        addCredits(movie, movieInfos.getCamera(), JobType.CAMERA);
+        addCredits(movie, movieInfos.getArt(), JobType.ART);
 
         // add awards
         if (movieInfos.getFestivalAwards() != null && configService.getBooleanProperty("allocine.movie.awards", false)) {
@@ -133,12 +103,20 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
         return true;
     }
 
+    private void addCredits(IMovie movie, Collection<MoviePerson> persons, JobType jobType) {
+        if (!persons.isEmpty() && configService.isCastScanEnabled(jobType)) {
+            for (MoviePerson person : persons) {
+                addCredit(movie, person, jobType);
+            }
+        }
+    }
+
     private static void addCredit(IMovie movie, MoviePerson person, JobType jobType) {
         addCredit(movie, person, jobType, null);
     }
 
     private static void addCredit(IMovie movie, MoviePerson person, JobType jobType, String role) {
-        String sourceId = person.getCode() > 0 ? String.valueOf(person.getCode()) : null;
+        String sourceId = person.getCode() > 0 ? Long.toString(person.getCode()) : null;
         movie.addCredit(sourceId, jobType, person.getName(), role);
     }
 }

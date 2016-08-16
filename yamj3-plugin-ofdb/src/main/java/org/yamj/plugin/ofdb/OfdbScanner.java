@@ -108,7 +108,7 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
             ofdbUrl = getOfdbIdByTitleAndYear(movie.getTitle(), movie.getYear(), throwTempError);
         }
 
-        if (!isValidMovieId(ofdbUrl) && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+        if (!isValidMovieId(ofdbUrl) && MetadataTools.isOriginalTitleScannable(movie)) {
             // try by original title and year
             ofdbUrl = getOfdbIdByTitleAndYear(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
@@ -370,14 +370,7 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
     @Override
     public boolean scanNFO(String nfoContent, IdMap idMap) {
         if (configService.getBooleanProperty("ofdb.search.imdb", false)) {
-            try {
-                MovieScanner imdbScanner = metadataService.getMovieScanner(SOURCE_IMDB);
-                if (imdbScanner != null) { 
-                    imdbScanner.scanNFO(nfoContent, idMap);
-                }
-            } catch (Exception ex) {
-                LOG.error("Failed to scan for IMDb ID in NFO", ex);
-            }
+            metadataService.scanNFO(SOURCE_IMDB, nfoContent, idMap);
         }
 
         // if we already have the ID, skip the scanning of the NFO file

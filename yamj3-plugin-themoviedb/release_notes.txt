@@ -2,5 +2,6 @@
 ** YAMJ 3 PlugIn: TheMovieDb
 ***************************************
 
+3.0.2   - Adjustment to plugin API changes
 3.0.1   - Use TheMovieDbApi 4.3
 3.0.0   - Initial commit

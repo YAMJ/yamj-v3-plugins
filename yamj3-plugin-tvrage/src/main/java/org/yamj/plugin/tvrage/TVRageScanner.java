@@ -88,7 +88,7 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
         }
 
         // try by original title
-        if ((showInfo == null || !showInfo.isValid()) && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
+        if ((showInfo == null || !showInfo.isValid()) && MetadataTools.isOriginalTitleScannable(series)) {
             showInfo = tvRageApiWrapper.getShowInfoByTitle(series.getOriginalTitle(), throwTempError);
         }
 

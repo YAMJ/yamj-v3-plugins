@@ -30,7 +30,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.SeriesArtworkScanner;
-import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.IEpisode;
 import org.yamj.plugin.api.model.ISeason;
 import org.yamj.plugin.api.model.ISeries;
@@ -84,10 +83,7 @@ public final class FanartTvSeriesArtworkScanner extends AbstractFanartTvArtworkS
     private String getTvdbId(ISeries series) {
         String tvdbId = series.getId(SOURCE_TVDB);
         if (StringUtils.isBlank(tvdbId)) {
-            SeriesScanner tvdbScanner = metadataService.getSeriesScanner(SOURCE_TVDB);
-            if (tvdbScanner != null) {
-                tvdbId = tvdbScanner.getSeriesId(series, false);
-            }
+            metadataService.getSeriesId(SOURCE_TVDB, series);
         }
         return tvdbId;
     }

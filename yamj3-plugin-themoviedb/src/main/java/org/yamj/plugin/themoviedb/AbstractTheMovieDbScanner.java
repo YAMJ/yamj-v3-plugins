@@ -36,7 +36,6 @@ import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsLocaleService;
 import org.yamj.plugin.api.NeedsMetadataService;
 import org.yamj.plugin.api.metadata.MetadataTools;
-import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.*;
 import org.yamj.plugin.api.model.type.JobType;
@@ -78,14 +77,7 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
     @Override
     public boolean scanNFO(String nfoContent, IdMap idMap) {
         if (configService.getBooleanProperty("themoviedb.search.imdb", false)) {
-            try {
-                MovieScanner imdbScanner = metadataService.getMovieScanner(SOURCE_IMDB);
-                if (imdbScanner != null) {
-                    imdbScanner.scanNFO(nfoContent, idMap);
-                }
-            } catch (Exception ex) {
-                LOG.error("Failed to scan for IMDb ID in NFO", ex);
-            }
+            metadataService.scanNFO(SOURCE_IMDB, nfoContent, idMap);
         }
 
         // if we already have the ID, skip the scanning of the NFO file
@@ -138,7 +130,7 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
             id = theMovieDbApiWrapper.getMovieId(movie.getTitle(), movie.getYear(), locale, throwTempError);
         }
 
-        if (id<0 && MetadataTools.isOriginalTitleScannable(movie.getTitle(), movie.getOriginalTitle())) {
+        if (id<0 && MetadataTools.isOriginalTitleScannable(movie)) {
             LOG.debug("No TMDb id found for '{}', searching original title with year {}", movie.getTitle(), movie.getYear());
             id = theMovieDbApiWrapper.getMovieId(movie.getOriginalTitle(), movie.getYear(), locale, throwTempError);
         }
@@ -162,7 +154,7 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
         LOG.debug("No TMDb id found for '{}', searching title with year {}", series.getTitle(), series.getStartYear());
         int id = theMovieDbApiWrapper.getSeriesId(series.getTitle(), series.getStartYear(), locale, throwTempError);
 
-        if (id<0 && MetadataTools.isOriginalTitleScannable(series.getTitle(), series.getOriginalTitle())) {
+        if (id<0 && MetadataTools.isOriginalTitleScannable(series)) {
             LOG.debug("No TMDb id found for '{}', searching original title with year {}", series.getTitle(), series.getStartYear());
             id = theMovieDbApiWrapper.getSeriesId(series.getOriginalTitle(), series.getStartYear(), locale, throwTempError);
         }
