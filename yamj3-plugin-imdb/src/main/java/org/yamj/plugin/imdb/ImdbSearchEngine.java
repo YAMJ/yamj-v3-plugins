@@ -73,7 +73,7 @@ public class ImdbSearchEngine {
      * @return the IMDb id
      */
     public String getImdbId(String title, int year, boolean isTVShow, boolean throwTempError) {
-        return getImdbId(title, year, (isTVShow ? CATEGORY_TV : CATEGORY_MOVIE), throwTempError);
+        return getImdbId(title, year, isTVShow?CATEGORY_TV:CATEGORY_MOVIE, throwTempError);
     }
 
     /**
@@ -281,12 +281,12 @@ public class ImdbSearchEngine {
                 foundMatch = true;
             } else if (SEARCH_EXACT.equalsIgnoreCase(searchMatch)) {
                 // exact match
-                foundMatch = (searchResult.toLowerCase().contains(formattedExact));
+                foundMatch = searchResult.toLowerCase().contains(formattedExact);
             } else {
                 // regular match: name and year match independent from each other
                 int nameIndex = searchResult.toLowerCase().indexOf(formattedName);
                 if (nameIndex != -1) {
-                    foundMatch = (searchResult.indexOf(formattedYear) > nameIndex);
+                    foundMatch = searchResult.indexOf(formattedYear) > nameIndex;
                 }
             }
 

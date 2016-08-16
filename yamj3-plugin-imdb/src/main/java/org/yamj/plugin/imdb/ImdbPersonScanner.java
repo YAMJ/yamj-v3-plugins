@@ -120,7 +120,7 @@ public final class ImdbPersonScanner extends AbstractImdbScanner implements Pers
         Locale locale = localeService.getLocale();
         List<ImdbFilmography> imdbFilmography = this.imdbApiWrapper.getFilmopgraphy(imdbId, locale, throwTempError);
         if (imdbFilmography == null || imdbFilmography.isEmpty()) {
-            return null;
+            return null; //NOSONAR
         }
         
         List<FilmographyDTO> result = new ArrayList<>();

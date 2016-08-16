@@ -205,46 +205,34 @@ public abstract class AbstractImdbScanner implements NfoScanner, NeedsConfigServ
             
             switch (credit.getToken()) {
                 case "cast":
-                    result.put(JobType.ACTOR, credit.getCredits());
+                    fillJobs(result, JobType.ACTOR, credit);
                     break;
                 case "writers":
-                    result.put(JobType.WRITER, credit.getCredits());
+                    fillJobs(result, JobType.WRITER, credit);
                     break;
                 case "directors":
-                    result.put(JobType.DIRECTOR, credit.getCredits());
+                    fillJobs(result, JobType.DIRECTOR, credit);
                     break;
                 case "cinematographers":
-                    result.put(JobType.CAMERA, credit.getCredits());
+                    fillJobs(result, JobType.CAMERA, credit);
                     break;
                 case "editors":
-                    result.put(JobType.EDITING, credit.getCredits());
+                    fillJobs(result, JobType.EDITING, credit);
                     break;
                 case "producers":
                 case "casting_directors":
-                    if (result.containsKey(JobType.PRODUCER)) {
-                        result.get(JobType.PRODUCER).addAll(credit.getCredits());
-                    } else {
-                        result.put(JobType.PRODUCER, credit.getCredits());
-                    }
+                    fillJobs(result, JobType.PRODUCER, credit);
                     break;
                 case "music_original":
-                    result.put(JobType.SOUND, credit.getCredits());
+                    fillJobs(result, JobType.SOUND, credit);
                     break;
                 case "production_designers":
                 case "art_directors":
                 case "set_decorators":
-                    if (result.containsKey(JobType.ART)) {
-                        result.get(JobType.ART).addAll(credit.getCredits());
-                    } else {
-                        result.put(JobType.ART, credit.getCredits());
-                    }
+                    fillJobs(result, JobType.ART, credit);
                     break;
                 case "costume_designers":
-                    if (result.containsKey(JobType.COSTUME_MAKEUP)) {
-                        result.get(JobType.COSTUME_MAKEUP).addAll(credit.getCredits());
-                    } else {
-                        result.put(JobType.COSTUME_MAKEUP, credit.getCredits());
-                    }
+                    fillJobs(result, JobType.COSTUME_MAKEUP, credit);
                     break;
                 case "assistant_directors":
                 case "production_managers":
@@ -262,23 +250,23 @@ public abstract class AbstractImdbScanner implements NfoScanner, NeedsConfigServ
                 case "transportation_department":
                 case "make_up_department":
                 case "miscellaneous":
-                    if (result.containsKey(JobType.CREW)) {
-                        result.get(JobType.CREW).addAll(credit.getCredits());
-                    } else {
-                        result.put(JobType.CREW, credit.getCredits());
-                    }
+                    fillJobs(result, JobType.CREW, credit);
                     break;
                 default:
-                    if (result.containsKey(JobType.UNKNOWN)) {
-                        result.get(JobType.UNKNOWN).addAll(credit.getCredits());
-                    } else {
-                        result.put(JobType.UNKNOWN, credit.getCredits());
-                    }
+                    fillJobs(result, JobType.UNKNOWN, credit);
                     break;
             }
         }
         
         return result;
+    }
+    
+    public static void fillJobs(EnumMap<JobType,List<ImdbCast>> jobs, JobType jobType, ImdbCredit credit) {
+        if (jobs.containsKey(jobType)) {
+            jobs.get(jobType).addAll(credit.getCredits());
+        } else {
+            jobs.put(jobType, credit.getCredits());
+        }
     }
     
     private void addCredits(ICredits credits, JobType jobType, EnumMap<JobType,List<ImdbCast>> jobs, boolean skipUncredited, boolean skipFaceless) {

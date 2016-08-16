@@ -56,12 +56,12 @@ public final class ImdbTrailerScanner extends AbstractImdbScanner implements Mov
     
     private List<TrailerDTO> getTrailerDTOS(String imdbId) {
         if (StringUtils.isBlank(imdbId)) { 
-            return null;
+            return null; //NOSONAR
         }
         
         ImdbMovieDetails movieDetails = imdbApiWrapper.getMovieDetails(imdbId, Locale.US, false);
         if (movieDetails == null || movieDetails.getTrailer() == null || MapUtils.isEmpty(movieDetails.getTrailer().getEncodings())) {
-            return null;
+            return null; //NOSONAR
         }
         
         String url = null;
@@ -97,7 +97,7 @@ public final class ImdbTrailerScanner extends AbstractImdbScanner implements Mov
         }
 
         if (url == null) {
-            return null;
+            return null; //NOSONAR
         }
         
         TrailerDTO dto = new TrailerDTO(SOURCE_IMDB, ContainerType.MP4, url, movieDetails.getTrailer().getTitle(), imdbId); 
