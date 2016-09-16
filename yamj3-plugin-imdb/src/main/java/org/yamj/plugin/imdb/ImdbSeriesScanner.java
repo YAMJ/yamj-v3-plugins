@@ -23,6 +23,7 @@
 package org.yamj.plugin.imdb;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.metadata.MetadataTools.*;
 
 import com.omertron.imdbapi.model.ImdbMovieDetails;
 import java.io.IOException;
@@ -33,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.IEpisode;
 import org.yamj.plugin.api.model.ISeason;
@@ -89,8 +89,8 @@ public final class ImdbSeriesScanner extends AbstractImdbScanner implements Seri
         // store for later use in season
         final String title = movieDetails.getTitle(); 
         final String originalTitle = parseOriginalTitle(headerXml);
-        final String plot = (movieDetails.getBestPlot() == null) ? null : MetadataTools.cleanPlot(movieDetails.getBestPlot().getSummary());
-        final String outline = (movieDetails.getPlot() == null) ? null : MetadataTools.cleanPlot(movieDetails.getPlot().getOutline());
+        final String plot = movieDetails.getBestPlot() == null ? null : cleanPlot(movieDetails.getBestPlot().getSummary());
+        final String outline = movieDetails.getPlot() == null ? null : cleanPlot(movieDetails.getPlot().getOutline());
 
         series.setTitle(title);
         series.setOriginalTitle(originalTitle);
@@ -141,7 +141,7 @@ public final class ImdbSeriesScanner extends AbstractImdbScanner implements Seri
                         publicationYear = episode.getReleaseDate();
                     }
                 }
-                season.setYear(MetadataTools.extractYearAsInt(publicationYear));
+                season.setYear(extractYearAsInt(publicationYear));
 
                 // mark season as done
                 season.setDone();
@@ -183,27 +183,27 @@ public final class ImdbSeriesScanner extends AbstractImdbScanner implements Seri
         episode.setTitle(movieDetails.getTitle());
         episode.setOriginalTitle(movieDetails.getTitle());
         episode.setTagline(movieDetails.getTagline());
-        episode.setRating(MetadataTools.parseRating(movieDetails.getRating()));
+        episode.setRating(parseRating(movieDetails.getRating()));
 
         // RELEASE DATE
         if (dto.getReleaseDate() == null && MapUtils.isNotEmpty(movieDetails.getReleaseDate())) {
-            final Date releaseDate = MetadataTools.parseToDate(movieDetails.getReleaseDate().get(LITERAL_NORMAL));
+            final Date releaseDate = parseToDate(movieDetails.getReleaseDate().get(LITERAL_NORMAL));
             episode.setRelease(releaseDate);
         }
 
         // PLOT
         if (movieDetails.getBestPlot() != null) {
-            episode.setPlot(MetadataTools.cleanPlot(movieDetails.getBestPlot().getSummary()));
+            episode.setPlot(cleanPlot(movieDetails.getBestPlot().getSummary()));
         }
 
         // OUTLINE
         if (movieDetails.getPlot() != null) {
-            episode.setOutline(MetadataTools.cleanPlot(movieDetails.getPlot().getOutline()));
+            episode.setOutline(cleanPlot(movieDetails.getPlot().getOutline()));
         }
 
         // QUOTE
         if (movieDetails.getQuote() != null && CollectionUtils.isNotEmpty(movieDetails.getQuote().getLines())) {
-            episode.setQuote(MetadataTools.cleanPlot(movieDetails.getQuote().getLines().get(0).getQuote()));
+            episode.setQuote(cleanPlot(movieDetails.getQuote().getLines().get(0).getQuote()));
         }
 
         // CAST/CREW

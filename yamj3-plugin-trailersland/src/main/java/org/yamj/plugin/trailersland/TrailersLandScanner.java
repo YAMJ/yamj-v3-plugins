@@ -22,6 +22,10 @@
  */
 package org.yamj.plugin.trailersland;
 
+import static org.yamj.api.common.tools.ResponseTools.isNotOK;
+import static org.yamj.api.common.tools.ResponseTools.isOK;
+import static org.yamj.plugin.api.metadata.MetadataTools.isOriginalTitleScannable;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -34,10 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsHttpClient;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.type.ContainerType;
 import org.yamj.plugin.api.service.PluginConfigService;
@@ -93,7 +95,7 @@ public final class TrailersLandScanner implements MovieTrailerScanner, NeedsConf
             trailersLandId = getTrailersLandId(movie.getTitle());
         }
 
-        if (StringUtils.isBlank(trailersLandId) && MetadataTools.isOriginalTitleScannable(movie)) { 
+        if (StringUtils.isBlank(trailersLandId) && isOriginalTitleScannable(movie)) { 
             trailersLandId = getTrailersLandId(movie.getOriginalTitle());
         }
 
@@ -115,7 +117,7 @@ public final class TrailersLandScanner implements MovieTrailerScanner, NeedsConf
         String xml;
         try {
             DigestedResponse response = httpClient.requestContent(searchUrl);
-            if (ResponseTools.isNotOK(response)) {
+            if (isNotOK(response)) {
                 LOG.warn("Failed to search for movie '{}'; status={}", title, response.getStatusCode());
                 return null;
             }
@@ -153,7 +155,7 @@ public final class TrailersLandScanner implements MovieTrailerScanner, NeedsConf
         String xml;
         try {
             DigestedResponse response = httpClient.requestContent(TL_BASE_URL + TL_MOVIE_URL + trailersLandId);
-            if (ResponseTools.isNotOK(response)) {
+            if (isNotOK(response)) {
                 LOG.warn("Failed to search for movie ID {}; status={}", trailersLandId, response.getStatusCode());
                 return Collections.emptyList();
             }
@@ -202,7 +204,7 @@ public final class TrailersLandScanner implements MovieTrailerScanner, NeedsConf
         for (TrailersLandTrailer trailer : trailerList) {
             try {
                 DigestedResponse response = httpClient.requestContent(trailer.getPageUrl());
-                if (ResponseTools.isOK(response)) {
+                if (isOK(response)) {
                     xml = response.getContent();
                 } else {
                     LOG.error("Failed retrieving trailer details for ID {}; status={}", trailersLandId);

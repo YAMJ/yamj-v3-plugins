@@ -23,11 +23,11 @@
 package org.yamj.plugin.moviemeter;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.metadata.MetadataTools.isOriginalTitleScannable;
 import static org.yamj.plugin.moviemeter.MovieMeterPlugin.SCANNER_NAME;
 
 import org.apache.commons.lang3.StringUtils;
 import org.yamj.plugin.api.NeedsConfigService;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.service.PluginConfigService;
 
@@ -69,7 +69,7 @@ public abstract class AbstractMovieMeterScanner implements NeedsConfigService {
         }
 
         // try to get the MovieMeter ID using original title and year
-        if (!isValidMovieId(movieMeterId) && MetadataTools.isOriginalTitleScannable(movie)) {
+        if (!isValidMovieId(movieMeterId) && isOriginalTitleScannable(movie)) {
             movieMeterId = movieMeterApiWrapper.getMovieIdByTitleAndYear(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
 

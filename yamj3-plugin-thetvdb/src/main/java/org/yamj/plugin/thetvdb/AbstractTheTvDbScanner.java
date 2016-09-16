@@ -24,6 +24,7 @@ package org.yamj.plugin.thetvdb;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.Constants.SOURCE_TVDB;
+import static org.yamj.plugin.api.metadata.MetadataTools.isOriginalTitleScannable;
 
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsLocaleService;
 import org.yamj.plugin.api.NeedsMetadataService;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.ISeries;
 import org.yamj.plugin.api.model.IdMap;
@@ -134,7 +134,7 @@ public abstract class AbstractTheTvDbScanner implements NfoScanner, NeedsConfigS
         }
         
         // search by original title
-        if (isNoValidTheTvDbId(tvdbId) && MetadataTools.isOriginalTitleScannable(series)) {
+        if (isNoValidTheTvDbId(tvdbId) && isOriginalTitleScannable(series)) {
             tvdbId = theTvDbApiWrapper.getSeriesId(series.getOriginalTitle(), series.getStartYear(), locale.getLanguage(), throwTempError);
         }
         

@@ -24,6 +24,8 @@ package org.yamj.plugin.themoviedb;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.Constants.SOURCE_TMDB;
+import static org.yamj.plugin.api.metadata.MetadataTools.isOriginalTitleScannable;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseToDate;
 
 import com.omertron.themoviedbapi.model.movie.MovieInfo;
 import java.util.Date;
@@ -35,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsLocaleService;
 import org.yamj.plugin.api.NeedsMetadataService;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.*;
 import org.yamj.plugin.api.model.type.JobType;
@@ -130,7 +131,7 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
             id = theMovieDbApiWrapper.getMovieId(movie.getTitle(), movie.getYear(), locale, throwTempError);
         }
 
-        if (id<0 && MetadataTools.isOriginalTitleScannable(movie)) {
+        if (id<0 && isOriginalTitleScannable(movie)) {
             LOG.debug("No TMDb id found for '{}', searching original title with year {}", movie.getTitle(), movie.getYear());
             id = theMovieDbApiWrapper.getMovieId(movie.getOriginalTitle(), movie.getYear(), locale, throwTempError);
         }
@@ -154,7 +155,7 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
         LOG.debug("No TMDb id found for '{}', searching title with year {}", series.getTitle(), series.getStartYear());
         int id = theMovieDbApiWrapper.getSeriesId(series.getTitle(), series.getStartYear(), locale, throwTempError);
 
-        if (id<0 && MetadataTools.isOriginalTitleScannable(series)) {
+        if (id<0 && isOriginalTitleScannable(series)) {
             LOG.debug("No TMDb id found for '{}', searching original title with year {}", series.getTitle(), series.getStartYear());
             id = theMovieDbApiWrapper.getSeriesId(series.getOriginalTitle(), series.getStartYear(), locale, throwTempError);
         }
@@ -193,7 +194,7 @@ public abstract class AbstractTheMovieDbScanner implements NfoScanner, NeedsConf
 
     protected static Date parseTMDbDate(String date) {
         if (StringUtils.isNotBlank(date) && !"1900-01-01".equals(date)) {
-            return MetadataTools.parseToDate(date);
+            return parseToDate(date);
         }
         return null;
     }

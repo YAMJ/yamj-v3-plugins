@@ -23,6 +23,9 @@
 package org.yamj.plugin.imdb;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.metadata.MetadataTools.cleanPlot;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseRating;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseToDate;
 
 import com.omertron.imdbapi.model.ImdbMovieDetails;
 import java.io.IOException;
@@ -33,7 +36,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.web.HTMLTools;
@@ -93,27 +95,27 @@ public final class ImdbMovieScanner extends AbstractImdbScanner implements Movie
         movie.setGenres(movieDetails.getGenres());
         movie.setStudios(imdbApiWrapper.getProductionStudios(imdbId));
         movie.setCountries(HTMLTools.extractTags(xml, "Country" + HTML_H4_END, HTML_DIV_END, "<a href=\"", HTML_A_END));
-        movie.setRating(MetadataTools.parseRating(movieDetails.getRating()));
+        movie.setRating(parseRating(movieDetails.getRating()));
 
         // RELEASE DATE
         if (MapUtils.isNotEmpty(movieDetails.getReleaseDate())) {
-            final Date releaseDate = MetadataTools.parseToDate(movieDetails.getReleaseDate().get(LITERAL_NORMAL));
+            final Date releaseDate = parseToDate(movieDetails.getReleaseDate().get(LITERAL_NORMAL));
             movie.setRelease(null, releaseDate);
         }
 
         // PLOT
         if (movieDetails.getBestPlot() != null) {
-            movie.setPlot(MetadataTools.cleanPlot(movieDetails.getBestPlot().getSummary()));
+            movie.setPlot(cleanPlot(movieDetails.getBestPlot().getSummary()));
         }
 
         // OUTLINE
         if (movieDetails.getPlot() != null) {
-            movie.setOutline(MetadataTools.cleanPlot(movieDetails.getPlot().getOutline()));
+            movie.setOutline(cleanPlot(movieDetails.getPlot().getOutline()));
         }
 
         // QUOTE
         if (movieDetails.getQuote() != null && CollectionUtils.isNotEmpty(movieDetails.getQuote().getLines())) {
-            movie.setQuote(MetadataTools.cleanPlot(movieDetails.getQuote().getLines().get(0).getQuote()));
+            movie.setQuote(cleanPlot(movieDetails.getQuote().getLines().get(0).getQuote()));
         }
 
         // TOP250

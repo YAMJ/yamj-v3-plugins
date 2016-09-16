@@ -23,6 +23,7 @@
 package org.yamj.plugin.allocine;
 
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseToDate;
 
 import com.moviejukebox.allocine.model.FestivalAward;
 import com.moviejukebox.allocine.model.MovieInfos;
@@ -31,7 +32,6 @@ import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.type.JobType;
@@ -68,7 +68,7 @@ public final class AllocineMovieScanner extends AbstractAllocineScanner implemen
         movie.setYear(movieInfos.getProductionYear());
         movie.setPlot(movieInfos.getSynopsis());
         movie.setOutline(movieInfos.getSynopsisShort());
-        movie.setRelease(movieInfos.getReleaseCountry(), MetadataTools.parseToDate(movieInfos.getReleaseDate()));
+        movie.setRelease(movieInfos.getReleaseCountry(), parseToDate(movieInfos.getReleaseDate()));
         movie.setGenres(movieInfos.getGenres());
         movie.setCountries(movieInfos.getNationalities());
         movie.addCertification(Locale.FRANCE.getCountry(), movieInfos.getCertification());

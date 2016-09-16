@@ -22,19 +22,21 @@
  */
 package org.yamj.plugin.comingsoon;
 
+import static org.apache.commons.lang3.text.WordUtils.capitalizeFully;
+import static org.yamj.api.common.tools.ResponseTools.isNotOK;
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
 import static org.yamj.plugin.api.Constants.UTF8;
+import static org.yamj.plugin.api.metadata.MetadataTools.extractYearAsInt;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseToDate;
 
 import java.io.IOException;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.DigestedResponse;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.PluginExtensionException;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.type.JobType;
@@ -65,9 +67,9 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
         try {
             final String url = COMINGSOON_BASE_URL + COMINGSOON_MOVIE_URL + COMINGSOON_KEY_PARAM + comingSoonId;
             DigestedResponse response = httpClient.requestContent(url, UTF8);
-            if (throwTempError && ResponseTools.isTemporaryError(response)) {
+            if (throwTempError && isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("ComingSoon service is temporary not available: " + response.getStatusCode());
-            } else if (ResponseTools.isNotOK(response)) {
+            } else if (isNotOK(response)) {
                 throw new PluginExtensionException("ComingSoon request failed: " + response.getStatusCode());
             }
             String xml = response.getContent();
@@ -87,7 +89,7 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
 
             final String plot = parsePlot(xml);
 
-            movie.setTitle(WordUtils.capitalizeFully(title));
+            movie.setTitle(capitalizeFully(title));
             movie.setOriginalTitle(parseTitleOriginal(xml));
             movie.setPlot(plot);
             movie.setOutline(plot);
@@ -97,8 +99,7 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
             movie.setGenres(parseGenres(xml));
 
             // RELEASE DATE
-            String dateToParse = HTMLTools.stripTags(HTMLTools.extractTag(xml, "<time itemprop=\"datePublished\">", "</time>"));
-            Date releaseDate = MetadataTools.parseToDate(dateToParse);
+            Date releaseDate = parseToDate(HTMLTools.stripTags(HTMLTools.extractTag(xml, "<time itemprop=\"datePublished\">", "</time>")));
             movie.setRelease(null, releaseDate);
             
             // YEAR
@@ -107,7 +108,7 @@ public final class ComingSoonMovieScanner extends AbstractComingSoonScanner impl
             if (intYear > 1900) {
                 movie.setYear(intYear);
             } else {
-                movie.setYear(MetadataTools.extractYearAsInt(releaseDate));
+                movie.setYear(extractYearAsInt(releaseDate));
             } 
 
             // DIRECTORS

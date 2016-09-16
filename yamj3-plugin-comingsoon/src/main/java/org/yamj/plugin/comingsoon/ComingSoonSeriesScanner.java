@@ -22,17 +22,18 @@
  */
 package org.yamj.plugin.comingsoon;
 
+import static org.apache.commons.lang3.text.WordUtils.capitalizeFully;
+import static org.yamj.api.common.tools.ResponseTools.isNotOK;
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
 import static org.yamj.plugin.api.Constants.UTF8;
 
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.DigestedResponse;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.PluginExtensionException;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.IEpisode;
@@ -65,9 +66,9 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
         try {
             final String url = COMINGSOON_BASE_URL + COMINGSOON_SERIES_URL + COMINGSOON_KEY_PARAM + comingSoonId;
             DigestedResponse response = httpClient.requestContent(url, UTF8);
-            if (throwTempError && ResponseTools.isTemporaryError(response)) {
+            if (throwTempError && isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("ComingSoon service is temporary not available: " + response.getStatusCode());
-            } else if (ResponseTools.isNotOK(response)) {
+            } else if (isNotOK(response)) {
                 throw new PluginExtensionException("ComingSoon request failed: " + response.getStatusCode());
             }
             String xml = response.getContent();
@@ -80,11 +81,11 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
             }
 
             String tag = xml.substring(beginIndex, xml.indexOf(">", beginIndex)+1);
-            String title = HTMLTools.extractTag(xml, tag, "</h1>").trim();
+            String title = HTMLTools.extractTag(xml, tag, "</h1>");
             if (StringUtils.isBlank(title)) {
                 return false;
             }
-            title = WordUtils.capitalizeFully(title);
+            title = capitalizeFully(title);
     
             final String originalTitle = parseTitleOriginal(xml);
             final String plot = parsePlot(xml);
@@ -187,7 +188,7 @@ public final class ComingSoonSeriesScanner extends AbstractComingSoonScanner imp
         String xml = null; 
         try {
             DigestedResponse response = httpClient.requestContent(url, UTF8);
-            if (ResponseTools.isNotOK(response)) {
+            if (isNotOK(response)) {
                 LOG.error("ComingSoon request failed for episodes of season {}-{}: {}", comingSoonId, season, response.getStatusCode());
             } else {
                 xml = response.getContent();

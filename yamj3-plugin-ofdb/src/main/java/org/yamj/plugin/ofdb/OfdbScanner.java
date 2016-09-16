@@ -22,8 +22,12 @@
  */
 package org.yamj.plugin.ofdb;
 
+import static org.yamj.api.common.tools.ResponseTools.isNotOK;
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.Constants.UTF8;
+import static org.yamj.plugin.api.metadata.MetadataTools.isOriginalTitleScannable;
+import static org.yamj.plugin.api.metadata.MetadataTools.toYear;
 
 import java.io.IOException;
 import java.util.*;
@@ -32,9 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.*;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.IdMap;
@@ -108,7 +110,7 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
             ofdbUrl = getOfdbIdByTitleAndYear(movie.getTitle(), movie.getYear(), throwTempError);
         }
 
-        if (!isValidMovieId(ofdbUrl) && MetadataTools.isOriginalTitleScannable(movie)) {
+        if (!isValidMovieId(ofdbUrl) && isOriginalTitleScannable(movie)) {
             // try by original title and year
             ofdbUrl = getOfdbIdByTitleAndYear(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
@@ -128,9 +130,9 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
     private String getOfdbIdByImdbId(String imdbId, boolean throwTempError) {
         try {
             DigestedResponse response = httpClient.requestContent("http://www.ofdb.de/view.php?page=suchergebnis&SText=" + imdbId + "&Kat=IMDb", UTF8);
-            if (throwTempError && ResponseTools.isTemporaryError(response)) {
+            if (throwTempError && isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("OFDb service is temporary not available: " + response.getStatusCode());
-            } else if (ResponseTools.isNotOK(response)) {
+            } else if (isNotOK(response)) {
                 LOG.error("Can't find movie id for imdb id due response status {}: {}", response.getStatusCode(), imdbId);
                 return null;
             }
@@ -173,9 +175,9 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
 
             
             DigestedResponse response = httpClient.requestContent(sb.toString(), UTF8);
-            if (throwTempError && ResponseTools.isTemporaryError(response)) {
+            if (throwTempError && isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("OFDb service is temporary not available: " + response.getStatusCode());
-            } else if (ResponseTools.isNotOK(response)) {
+            } else if (isNotOK(response)) {
                 LOG.error("Can't find movie id by title and year due response status {}: '{}'-{}", response.getStatusCode(), title, year);
                 return null;
             }
@@ -214,9 +216,9 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
         
         try {
             DigestedResponse response = httpClient.requestContent(ofdbUrl, UTF8);
-            if (throwTempError && ResponseTools.isTemporaryError(response)) {
+            if (throwTempError && isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("OFDb service is temporary not available: " + response.getStatusCode());
-            } else if (ResponseTools.isNotOK(response)) {
+            } else if (isNotOK(response)) {
                 throw new PluginExtensionException("OFDb request failed: " + response.getStatusCode());
             }
             
@@ -243,9 +245,9 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
             String plotMarker = HTMLTools.extractTag(xml, "<a href=\"plot/", 0, "\"");
             if (StringUtils.isNotBlank(plotMarker) ) {
                 response = httpClient.requestContent("http://www.ofdb.de/plot/" + plotMarker, UTF8);
-                if (throwTempError && ResponseTools.isTemporaryError(response)) {
+                if (throwTempError && isTemporaryError(response)) {
                     throw new TemporaryUnavailableException("OFDb service failed to get plot: " + response.getStatusCode());
-                } else if (ResponseTools.isNotOK(response)) {
+                } else if (isNotOK(response)) {
                     throw new PluginExtensionException("OFDb plot request failed: " + response.getStatusCode());
                 }
                 
@@ -269,9 +271,9 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
             
             String detailUrl = "http://www.ofdb.de/" + xml.substring(beginIndex, xml.indexOf('\"', beginIndex));
             response = httpClient.requestContent(detailUrl, UTF8);
-            if (throwTempError && ResponseTools.isTemporaryError(response)) {
+            if (throwTempError && isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("OFDb service failed to get details: " + response.getStatusCode());
-            } else if (ResponseTools.isNotOK(response)) {
+            } else if (isNotOK(response)) {
                 throw new PluginExtensionException("OFDb details request failed: " + response.getStatusCode());
             }
             
@@ -289,7 +291,7 @@ public final class OfdbScanner implements MovieScanner, NeedsConfigService, Need
     
                 if (tag.contains("Erscheinungsjahr")) {
                     String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, HTML_CLASS_DATEN, HTML_FONT)).trim();
-                    movie.setYear(MetadataTools.toYear(scraped));
+                    movie.setYear(toYear(scraped));
                 }
     
                 if (tag.contains("Genre(s)")) {

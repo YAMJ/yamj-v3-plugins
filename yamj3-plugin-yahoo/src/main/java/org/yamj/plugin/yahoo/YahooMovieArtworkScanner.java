@@ -22,13 +22,14 @@
  */
 package org.yamj.plugin.yahoo;
 
+import static org.yamj.api.common.tools.ResponseTools.isOK;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.NeedsHttpClient;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.artwork.MovieArtworkScanner;
@@ -64,7 +65,7 @@ public final class YahooMovieArtworkScanner implements MovieArtworkScanner, Need
             sb.append("+poster&fr=&ei=utf-8&js=1&x=wrt");
 
             DigestedResponse response = httpClient.requestContent(sb.toString());
-            if (ResponseTools.isOK(response)) {
+            if (isOK(response)) {
                 // TODO scan more posters at once
                 int beginIndex = response.getContent().indexOf("imgurl=");
                 if (beginIndex > 0) {

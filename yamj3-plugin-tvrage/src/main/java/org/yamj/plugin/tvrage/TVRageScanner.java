@@ -23,6 +23,9 @@
 package org.yamj.plugin.tvrage;
 
 import static org.yamj.plugin.api.Constants.SOURCE_TVRAGE;
+import static org.yamj.plugin.api.metadata.MetadataTools.extractYearAsInt;
+import static org.yamj.plugin.api.metadata.MetadataTools.isOriginalTitleScannable;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseRating;
 
 import com.omertron.tvrageapi.model.*;
 import java.util.*;
@@ -31,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsLocaleService;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.*;
 import org.yamj.plugin.api.service.PluginConfigService;
@@ -88,7 +90,7 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
         }
 
         // try by original title
-        if ((showInfo == null || !showInfo.isValid()) && MetadataTools.isOriginalTitleScannable(series)) {
+        if ((showInfo == null || !showInfo.isValid()) && isOriginalTitleScannable(series)) {
             showInfo = tvRageApiWrapper.getShowInfoByTitle(series.getOriginalTitle(), throwTempError);
         }
 
@@ -136,7 +138,7 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
         series.setPlot(showInfo.getSummary());
         series.setOutline(showInfo.getSummary());
         series.setStartYear(showInfo.getStarted());
-        series.setEndYear(MetadataTools.extractYearAsInt(showInfo.getEnded()));
+        series.setEndYear(extractYearAsInt(showInfo.getEnded()));
         series.setGenres(showInfo.getGenres());
         
         if (StringUtils.isNotBlank(showInfo.getOriginCountry())) {
@@ -173,7 +175,7 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
                 // get season year from minimal first aired of episodes
                 Episode tvRageEpisode = episodeList.getEpisode(season.getNumber(), 1);
                 if (tvRageEpisode != null && tvRageEpisode.getAirDate() != null) {
-                    season.setYear(MetadataTools.extractYearAsInt(tvRageEpisode.getAirDate()));
+                    season.setYear(extractYearAsInt(tvRageEpisode.getAirDate()));
                 }
             }
             
@@ -208,7 +210,7 @@ public final class TVRageScanner implements SeriesScanner, NeedsConfigService, N
                 episode.setTitle(tvRageEpisode.getTitle());
                 episode.setPlot(tvRageEpisode.getSummary());
                 episode.setRelease(tvRageEpisode.getAirDate());
-                episode.setRating(MetadataTools.parseRating(tvRageEpisode.getRating()));
+                episode.setRating(parseRating(tvRageEpisode.getRating()));
                 
                 // mark episode as done
                 episode.setDone();

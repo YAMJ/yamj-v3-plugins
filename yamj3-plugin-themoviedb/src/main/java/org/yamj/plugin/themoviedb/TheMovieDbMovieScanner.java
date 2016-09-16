@@ -24,6 +24,8 @@ package org.yamj.plugin.themoviedb;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.Constants.SOURCE_TMDB;
+import static org.yamj.plugin.api.metadata.MetadataTools.extractYearAsInt;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseRating;
 
 import com.omertron.themoviedbapi.model.Genre;
 import com.omertron.themoviedbapi.model.collection.Collection;
@@ -37,7 +39,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.MovieScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.type.JobType;
@@ -73,11 +74,11 @@ public final class TheMovieDbMovieScanner extends AbstractTheMovieDbScanner impl
         movie.addId(SOURCE_IMDB, movieInfo.getImdbID());
         movie.setTitle(movieInfo.getTitle());
         movie.setOriginalTitle(movieInfo.getOriginalTitle());
-        movie.setYear(MetadataTools.extractYearAsInt(movieInfo.getReleaseDate()));
+        movie.setYear(extractYearAsInt(movieInfo.getReleaseDate()));
         movie.setPlot(movieInfo.getOverview());
         movie.setOutline(movieInfo.getOverview());
         movie.setTagline(movieInfo.getTagline());
-        movie.setRating(MetadataTools.parseRating(movieInfo.getVoteAverage()));
+        movie.setRating(parseRating(movieInfo.getVoteAverage()));
 
         // RELEASE DATE
         Date releaseDate = null;

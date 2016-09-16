@@ -24,6 +24,9 @@ package org.yamj.plugin.thetvdb;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.Constants.SOURCE_TVDB;
+import static org.yamj.plugin.api.metadata.MetadataTools.extractYearAsInt;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseRating;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseToDate;
 
 import com.omertron.thetvdbapi.model.Actor;
 import com.omertron.thetvdbapi.model.Episode;
@@ -33,7 +36,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.IEpisode;
 import org.yamj.plugin.api.model.ISeason;
@@ -73,7 +75,7 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
         series.setTitle(tvdbSeries.getSeriesName());  
         series.setPlot(tvdbSeries.getOverview());
         series.setOutline(tvdbSeries.getOverview());
-        series.setRating(MetadataTools.parseRating(tvdbSeries.getRating()));
+        series.setRating(parseRating(tvdbSeries.getRating()));
         series.setGenres(tvdbSeries.getGenres());
 
         String faDate = tvdbSeries.getFirstAired();
@@ -118,7 +120,7 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
 
                 // get season year from minimal first aired of episodes
                 String year = theTvDbApiWrapper.getSeasonYear(tvdbId, season.getNumber(), locale.getLanguage());
-                season.setYear(MetadataTools.extractYearAsInt(year));
+                season.setYear(extractYearAsInt(year));
     
                 // mark season as done
                 season.setDone();
@@ -154,7 +156,7 @@ public final class TheTvDbSeriesScanner extends AbstractTheTvDbScanner implement
             episode.setTitle(tvdbEpisode.getEpisodeName());
             episode.setPlot(tvdbEpisode.getOverview());
             episode.setOutline(tvdbEpisode.getOverview());
-            episode.setRelease(MetadataTools.parseToDate(tvdbEpisode.getFirstAired()));
+            episode.setRelease(parseToDate(tvdbEpisode.getFirstAired()));
 
             // directors
             addCredits(episode, JobType.DIRECTOR, tvdbEpisode.getDirectors());

@@ -22,6 +22,7 @@
  */
 package org.yamj.plugin.themoviedb;
 
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
 import static org.yamj.plugin.api.Constants.LANGUAGE_EN;
 
 import com.omertron.themoviedbapi.Compare;
@@ -44,7 +45,6 @@ import net.sf.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.tools.EhCacheWrapper;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
@@ -282,7 +282,7 @@ public class TheMovieDbApiWrapper {
     }
     
     private static void checkTempError(boolean throwTempError, MovieDbException ex) {
-        if (throwTempError && ResponseTools.isTemporaryError(ex)) {
+        if (throwTempError && isTemporaryError(ex)) {
             throw new TemporaryUnavailableException("TheMovieDb service temporary not available: " + ex.getResponseCode(), ex);
         }
     }

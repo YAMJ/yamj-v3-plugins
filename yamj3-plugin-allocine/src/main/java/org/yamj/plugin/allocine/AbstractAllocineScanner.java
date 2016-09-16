@@ -24,6 +24,7 @@ package org.yamj.plugin.allocine;
 
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.metadata.MetadataTools.isOriginalTitleScannable;
 
 import java.util.Locale;
 import java.util.concurrent.locks.Lock;
@@ -36,7 +37,6 @@ import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsHttpClient;
 import org.yamj.plugin.api.NeedsMetadataService;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.*;
 import org.yamj.plugin.api.service.PluginConfigService;
@@ -130,7 +130,7 @@ public abstract class AbstractAllocineScanner implements NfoScanner, NeedsConfig
         
         int id = allocineApiWrapper.getAllocineMovieId(movie.getTitle(), movie.getYear(), throwTempError);
 
-        if (id < 0 && MetadataTools.isOriginalTitleScannable(movie)) {
+        if (id < 0 && isOriginalTitleScannable(movie)) {
             // try with original title
             id = allocineApiWrapper.getAllocineMovieId(movie.getOriginalTitle(), movie.getYear(), throwTempError);
         }
@@ -158,7 +158,7 @@ public abstract class AbstractAllocineScanner implements NfoScanner, NeedsConfig
         
         int id = allocineApiWrapper.getAllocineSeriesId(series.getTitle(), series.getStartYear(), throwTempError);
 
-        if (id < 0 && MetadataTools.isOriginalTitleScannable(series)) {
+        if (id < 0 && isOriginalTitleScannable(series)) {
             // try with original title
             id = allocineApiWrapper.getAllocineSeriesId(series.getOriginalTitle(), series.getStartYear(), throwTempError);
         }

@@ -22,6 +22,8 @@
  */
 package org.yamj.plugin.moviemeter;
 
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
+
 import com.omertron.moviemeter.MovieMeterApi;
 import com.omertron.moviemeter.MovieMeterException;
 import com.omertron.moviemeter.model.FilmInfo;
@@ -32,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.tools.EhCacheWrapper;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 
@@ -120,7 +121,7 @@ public class MovieMeterApiWrapper {
     }
 
     private static void checkTempError(boolean throwTempError, MovieMeterException ex) {
-        if (throwTempError && ResponseTools.isTemporaryError(ex)) {
+        if (throwTempError && isTemporaryError(ex)) {
             throw new TemporaryUnavailableException("MovieMeter service temporary not available: " + ex.getResponseCode(), ex);
         }
     }

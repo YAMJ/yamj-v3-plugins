@@ -22,8 +22,11 @@
  */
 package org.yamj.plugin.comingsoon;
 
+import static org.yamj.api.common.tools.ResponseTools.isNotOK;
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.Constants.UTF8;
+import static org.yamj.plugin.api.metadata.MetadataTools.isOriginalTitleScannable;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,10 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsHttpClient;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.IMovie;
 import org.yamj.plugin.api.model.ISeries;
@@ -92,7 +93,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
         comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear(), false, throwTempError);
 
         // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(movie)) {
+        if (isNoValidComingSoonId(comingSoonId) && isOriginalTitleScannable(movie)) {
             comingSoonId = getComingSoonId(movie.getOriginalTitle(), movie.getYear(), false, throwTempError);
         }
 
@@ -130,7 +131,7 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
         comingSoonId = getComingSoonId(series.getTitle(), series.getStartYear(), true, throwTempError);
 
         // search coming soon site by original title
-        if (isNoValidComingSoonId(comingSoonId) && MetadataTools.isOriginalTitleScannable(series)) {
+        if (isNoValidComingSoonId(comingSoonId) && isOriginalTitleScannable(series)) {
             comingSoonId = getComingSoonId(series.getOriginalTitle(), series.getStartYear(), true, throwTempError);
         }
 
@@ -235,9 +236,9 @@ public abstract class AbstractComingSoonScanner implements NfoScanner, NeedsConf
 
                 LOG.debug("Fetching ComingSoon search page {}/{} - URL: {}", searchPage, COMINGSOON_MAX_SEARCH_PAGES, urlPage.toString());
                 DigestedResponse response = httpClient.requestContent(urlPage.toString(), UTF8);
-                if (throwTempError && ResponseTools.isTemporaryError(response)) {
+                if (throwTempError && isTemporaryError(response)) {
                     throw new TemporaryUnavailableException("ComingSoon service is temporary not available: " + response.getStatusCode());
-                } else if (ResponseTools.isNotOK(response)) {
+                } else if (isNotOK(response)) {
                     LOG.error("Can't find ComingSoon ID due response status {}", response.getStatusCode());
                     return null;
                 }

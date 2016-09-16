@@ -23,6 +23,8 @@
 package org.yamj.plugin.themoviedb;
 
 import static org.yamj.plugin.api.Constants.*;
+import static org.yamj.plugin.api.metadata.MetadataTools.extractYearAsInt;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseRating;
 
 import com.omertron.themoviedbapi.model.Genre;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
@@ -32,11 +34,12 @@ import com.omertron.themoviedbapi.model.movie.ProductionCompany;
 import com.omertron.themoviedbapi.model.tv.TVEpisodeInfo;
 import com.omertron.themoviedbapi.model.tv.TVInfo;
 import com.omertron.themoviedbapi.model.tv.TVSeasonInfo;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.IEpisode;
 import org.yamj.plugin.api.model.ISeason;
@@ -85,7 +88,7 @@ public final class TheMovieDbSeriesScanner extends AbstractTheMovieDbScanner imp
         series.setCountries(tvInfo.getOriginCountry());
 
         if (tvInfo.getVoteAverage() > 0) {
-            series.setRating(MetadataTools.parseRating(tvInfo.getVoteAverage()));
+            series.setRating(parseRating(tvInfo.getVoteAverage()));
         }
 
         if (CollectionUtils.isNotEmpty(tvInfo.getGenres())) {
@@ -105,11 +108,9 @@ public final class TheMovieDbSeriesScanner extends AbstractTheMovieDbScanner imp
         }
 
         // first air date
-        Date date = parseTMDbDate(tvInfo.getFirstAirDate());
-        series.setStartYear(MetadataTools.extractYearAsInt(date));
+        series.setStartYear(extractYearAsInt(parseTMDbDate(tvInfo.getFirstAirDate())));
         // last air date
-        date = parseTMDbDate(tvInfo.getLastAirDate());
-        series.setEndYear(MetadataTools.extractYearAsInt(date));
+        series.setEndYear(extractYearAsInt(parseTMDbDate(tvInfo.getLastAirDate())));
 
         // SCAN SEASONS
         scanSeasons(series, tvInfo, locale);
@@ -135,7 +136,7 @@ public final class TheMovieDbSeriesScanner extends AbstractTheMovieDbScanner imp
                     season.setOriginalTitle(tvInfo.getOriginalName());
                     season.setPlot(seasonInfo.getOverview());
                     season.setOutline(seasonInfo.getOverview());
-                    season.setYear(MetadataTools.extractYearAsInt(parseTMDbDate(seasonInfo.getAirDate())));
+                    season.setYear(extractYearAsInt(parseTMDbDate(seasonInfo.getAirDate())));
         
                     // mark season as done
                     season.setDone();
@@ -177,7 +178,7 @@ public final class TheMovieDbSeriesScanner extends AbstractTheMovieDbScanner imp
             episode.setPlot(episodeInfo.getOverview());
             episode.setOutline(episodeInfo.getOverview());
             episode.setRelease(parseTMDbDate(episodeInfo.getAirDate()));
-            episode.setRating(MetadataTools.parseRating(episodeInfo.getVoteAverage()));
+            episode.setRating(parseRating(episodeInfo.getVoteAverage()));
             
             // CAST & CREW
             MediaCreditList credits = episodeInfo.getCredits();

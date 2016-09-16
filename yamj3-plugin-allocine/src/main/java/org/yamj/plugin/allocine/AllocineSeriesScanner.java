@@ -23,6 +23,7 @@
 package org.yamj.plugin.allocine;
 
 import static org.yamj.plugin.allocine.AllocinePlugin.SCANNER_NAME;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseToDate;
 
 import com.moviejukebox.allocine.model.*;
 import java.util.Collections;
@@ -31,7 +32,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.SeriesScanner;
 import org.yamj.plugin.api.model.IEpisode;
 import org.yamj.plugin.api.model.ISeason;
@@ -156,7 +156,7 @@ public final class AllocineSeriesScanner extends AbstractAllocineScanner impleme
             episode.setOriginalTitle(episodeInfos.getOriginalTitle());
             episode.setPlot(episodeInfos.getSynopsis());
             episode.setOutline(episodeInfos.getSynopsisShort());
-            episode.setRelease(MetadataTools.parseToDate(episodeInfos.getOriginalBroadcastDate()));
+            episode.setRelease(parseToDate(episodeInfos.getOriginalBroadcastDate()));
 
             //  parse credits
             parseCredits(episode, episodeInfos.getEpisode().getCastMember());

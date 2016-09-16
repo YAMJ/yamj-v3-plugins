@@ -22,6 +22,8 @@
  */
 package org.yamj.plugin.allocine;
 
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
+
 import com.moviejukebox.allocine.AllocineApi;
 import com.moviejukebox.allocine.AllocineException;
 import com.moviejukebox.allocine.model.*;
@@ -29,7 +31,6 @@ import net.sf.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.tools.EhCacheWrapper;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 
@@ -47,7 +48,7 @@ public class AllocineApiWrapper {
     }
     
     protected static void checkTempError(boolean throwTempError, AllocineException ex) {
-        if (throwTempError && ResponseTools.isTemporaryError(ex)) {
+        if (throwTempError && isTemporaryError(ex)) {
             throw new TemporaryUnavailableException("Allocine service temporary not available: " + ex.getResponseCode(), ex);
         }
     }

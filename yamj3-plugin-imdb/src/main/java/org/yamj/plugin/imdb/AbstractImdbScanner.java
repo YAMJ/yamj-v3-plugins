@@ -23,6 +23,7 @@
 package org.yamj.plugin.imdb;
 
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+import static org.yamj.plugin.api.metadata.MetadataTools.isOriginalTitleScannable;
 
 import com.omertron.imdbapi.model.ImdbCast;
 import com.omertron.imdbapi.model.ImdbCredit;
@@ -35,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.plugin.api.NeedsConfigService;
 import org.yamj.plugin.api.NeedsLocaleService;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.metadata.NfoScanner;
 import org.yamj.plugin.api.model.*;
 import org.yamj.plugin.api.model.type.JobType;
@@ -121,7 +121,7 @@ public abstract class AbstractImdbScanner implements NfoScanner, NeedsConfigServ
         }
         
         // search by original title
-        if (isNoValidImdbId(imdbId) && MetadataTools.isOriginalTitleScannable(movie)) {
+        if (isNoValidImdbId(imdbId) && isOriginalTitleScannable(movie)) {
             imdbId = imdbSearchEngine.getImdbId(movie.getOriginalTitle(), movie.getYear(), false, throwTempError);
             movie.addId(SOURCE_IMDB, imdbId);
         }

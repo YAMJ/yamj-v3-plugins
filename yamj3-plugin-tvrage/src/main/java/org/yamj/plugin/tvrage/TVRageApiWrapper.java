@@ -22,6 +22,8 @@
  */
 package org.yamj.plugin.tvrage;
 
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
+
 import com.omertron.tvrageapi.TVRageApi;
 import com.omertron.tvrageapi.TVRageException;
 import com.omertron.tvrageapi.model.EpisodeList;
@@ -30,7 +32,6 @@ import java.util.List;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.web.HTMLTools;
 import org.yamj.plugin.api.web.TemporaryUnavailableException;
 
@@ -58,7 +59,7 @@ public class TVRageApiWrapper {
                 }
             }
         } catch (TVRageException ex) {
-            if (throwTempError && ResponseTools.isTemporaryError(ex)) {
+            if (throwTempError && isTemporaryError(ex)) {
                 throw new TemporaryUnavailableException("TVRage service temporary not available: " + ex.getResponseCode(), ex);
             }
             LOG.error("Failed to get TVRage ID by title '{}': {}", title, ex.getMessage());
@@ -72,7 +73,7 @@ public class TVRageApiWrapper {
         try {
             showInfo = tvRageApi.getShowInfo(NumberUtils.toInt(tvRageId));
         } catch (TVRageException ex) {
-            if (throwTempError && ResponseTools.isTemporaryError(ex)) {
+            if (throwTempError && isTemporaryError(ex)) {
                 throw new TemporaryUnavailableException("TVRage service temporary not available: " + ex.getResponseCode(), ex);
             }
             LOG.error("Failed to get show info using TVRage ID {}: {}", tvRageId, ex.getMessage());
@@ -86,7 +87,7 @@ public class TVRageApiWrapper {
         try {
             showInfo = tvRageApi.getShowInfo(vanityUrl);
         } catch (TVRageException ex) {
-            if (throwTempError && ResponseTools.isTemporaryError(ex)) {
+            if (throwTempError && isTemporaryError(ex)) {
                 throw new TemporaryUnavailableException("TVRage service temporary not available: " + ex.getResponseCode(), ex);
             }
             LOG.error("Failed to get show info using TVRage vanity url {}: {}", vanityUrl, ex.getMessage());
@@ -100,7 +101,7 @@ public class TVRageApiWrapper {
         try {
             episodeList = tvRageApi.getEpisodeList(tvRageId);
         } catch (TVRageException ex) {
-            if (throwTempError && ResponseTools.isTemporaryError(ex)) {
+            if (throwTempError && isTemporaryError(ex)) {
                 throw new TemporaryUnavailableException("TVRage service temporary not available: " + ex.getResponseCode(), ex);
             }
             LOG.error("Failed to get episodes using TVRage ID {}: {}", tvRageId, ex.getMessage());

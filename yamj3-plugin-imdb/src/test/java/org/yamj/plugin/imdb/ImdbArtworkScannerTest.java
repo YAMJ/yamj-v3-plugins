@@ -22,6 +22,8 @@
  */
 package org.yamj.plugin.imdb;
 
+import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
+
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -31,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.HttpClientWrapper;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
-import org.yamj.plugin.api.Constants;
 import org.yamj.plugin.api.artwork.ArtworkDTO;
 import org.yamj.plugin.api.model.mock.MovieMock;
 import org.yamj.plugin.api.service.mock.PluginConfigServiceMock;
@@ -77,7 +78,7 @@ public class ImdbArtworkScannerTest {
     @Test
     public void testMoviePosters() {
         MovieMock movie = new MovieMock();
-        movie.addId(Constants.SOURCE_IMDB, "tt0499549");
+        movie.addId(SOURCE_IMDB, "tt0499549");
 
         List<ArtworkDTO> dtos = artworkScanner.getPosters(movie);
         logArtworks(dtos, getClass());
@@ -86,7 +87,7 @@ public class ImdbArtworkScannerTest {
     @Test
     public void testMovieFanarts() {
         MovieMock movie = new MovieMock();
-        movie.addId(Constants.SOURCE_IMDB, "tt0499549");
+        movie.addId(SOURCE_IMDB, "tt0499549");
 
         List<ArtworkDTO> dtos = artworkScanner.getFanarts(movie);
         logArtworks(dtos, getClass());

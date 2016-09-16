@@ -22,8 +22,12 @@
  */
 package org.yamj.plugin.imdb;
 
+import static org.yamj.api.common.tools.ResponseTools.isNotOK;
+import static org.yamj.api.common.tools.ResponseTools.isOK;
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
 import static org.yamj.plugin.api.Constants.SOURCE_IMDB;
 import static org.yamj.plugin.api.Constants.UTF8;
+import static org.yamj.plugin.api.metadata.MetadataTools.parseToDate;
 
 import com.omertron.imdbapi.ImdbApi;
 import com.omertron.imdbapi.ImdbException;
@@ -37,9 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.PluginExtensionException;
-import org.yamj.plugin.api.metadata.MetadataTools;
 import org.yamj.plugin.api.model.ICombined;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
@@ -228,7 +230,7 @@ public class ImdbApiWrapper {
                     episode.setImdbId(movie.getImdbId());
                     episode.setTitle(movie.getTitle());
                     episode.setYear(movie.getYear());
-                    episode.setRelease(locale.getCountry(), MetadataTools.parseToDate(movie.getReleaseDate()));
+                    episode.setRelease(locale.getCountry(), parseToDate(movie.getReleaseDate()));
                     episodes.add(episode);
                 }
                 result.put(seasonId, episodes);
@@ -242,7 +244,7 @@ public class ImdbApiWrapper {
         String webpage = null;
         try {
             final DigestedResponse response = httpClient.requestContent(getImdbUrl(imdbId, "releaseinfo"), UTF8);
-            if (ResponseTools.isOK(response)) {
+            if (isOK(response)) {
                 webpage = response.getContent();
             } else {
                 LOG.warn("Requesting release infos failed with status {}: {}", response.getStatusCode(), imdbId);
@@ -271,13 +273,13 @@ public class ImdbApiWrapper {
         Set<String> studios = new LinkedHashSet<>();
         try {
             DigestedResponse response = httpClient.requestContent(getImdbUrl(imdbId, "companycredits"), UTF8);
-            if (ResponseTools.isNotOK(response)) {
-                LOG.warn("Requesting studios failed with status {}: {}", response.getStatusCode(), imdbId);
-            } else {
+            if (isOK(response)) {
                 List<String> tags = HTMLTools.extractTags(response.getContent(), "Production Companies</h4>", "</ul>", HTML_A_START, HTML_A_END);
                 for (String tag : tags) {
                     studios.add(HTMLTools.removeHtmlTags(tag));
                 }
+            } else {
+                LOG.warn("Requesting studios failed with status {}: {}", response.getStatusCode(), imdbId);
             }
         } catch (Exception ex) {
             LOG.error("Failed to retrieve studios: " + imdbId, ex);
@@ -299,7 +301,7 @@ public class ImdbApiWrapper {
         
         try {
             DigestedResponse response = httpClient.requestContent(getImdbUrl(imdbId, "parentalguide#certification"), UTF8);
-            if (ResponseTools.isNotOK(response)) {
+            if (isNotOK(response)) {
                 LOG.warn("Requesting certifications failed with status {}: {}", response.getStatusCode(), imdbId);
             } else {
                 if (this.configService.getBooleanProperty("yamj3.certification.mpaa", false)) {
@@ -372,7 +374,7 @@ public class ImdbApiWrapper {
         
         try {
             DigestedResponse response = httpClient.requestContent(ImdbApiWrapper.getImdbUrl(imdbId, "awards"), UTF8);
-            if (ResponseTools.isNotOK(response)) {
+            if (isNotOK(response)) {
                 LOG.warn("Requesting certifications failed with status {}: {}", response.getStatusCode(), imdbId);
             } else if (response.getContent().contains("<h1 class=\"header\">Awards</h1>")) {
                 List<String> awardBlocks = HTMLTools.extractTags(response.getContent(), "<h1 class=\"header\">Awards</h1>", "<div class=\"article\"", "<h3>", "</table>", false);
@@ -409,15 +411,15 @@ public class ImdbApiWrapper {
     }
 
     private static void checkTempError(boolean throwTempError, DigestedResponse response) {
-        if (throwTempError && ResponseTools.isTemporaryError(response)) {
+        if (throwTempError && isTemporaryError(response)) {
             throw new TemporaryUnavailableException("IMDb service is temporary not available: " + response.getStatusCode());
-        } else if (ResponseTools.isNotOK(response)) {
+        } else if (isNotOK(response)) {
             throw new PluginExtensionException("IMDb request failed: " + response.getStatusCode());
         }
     }
 
     private static void checkTempError(boolean throwTempError, ImdbException ex) {
-        if (throwTempError && ResponseTools.isTemporaryError(ex)) {
+        if (throwTempError && isTemporaryError(ex)) {
             throw new TemporaryUnavailableException("IMDb service temporary not available: " + ex.getResponseCode(), ex);
         }
     }

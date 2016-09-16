@@ -22,6 +22,9 @@
  */
 package org.yamj.plugin.imdb;
 
+import static org.yamj.api.common.tools.ResponseTools.isNotOK;
+import static org.yamj.api.common.tools.ResponseTools.isOK;
+import static org.yamj.api.common.tools.ResponseTools.isTemporaryError;
 import static org.yamj.plugin.api.Constants.ALL;
 
 import java.io.IOException;
@@ -33,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.CommonHttpClient;
 import org.yamj.api.common.http.DigestedResponse;
-import org.yamj.api.common.tools.ResponseTools;
 import org.yamj.plugin.api.service.PluginConfigService;
 import org.yamj.plugin.api.service.PluginLocaleService;
 import org.yamj.plugin.api.web.HTMLTools;
@@ -117,7 +119,7 @@ public class ImdbSearchEngine {
 
                 LOG.debug("Querying IMDB for '{}'", sb.toString());
                 DigestedResponse response = httpClient.requestContent(sb.toString());
-                if (ResponseTools.isOK(response)) {
+                if (isOK(response)) {
                     
                     // Check if this is an exact match (we got a person page instead of a results list)
                     Matcher personMatch = PERSON_REGEX.matcher(response.getContent());
@@ -130,7 +132,7 @@ public class ImdbSearchEngine {
                     if (StringUtils.isNotBlank(firstPersonId)) {
                         return firstPersonId;
                     }
-                } else if (throwTempError && ResponseTools.isTemporaryError(response)) {
+                } else if (throwTempError && isTemporaryError(response)) {
                     throw new TemporaryUnavailableException("IMDb service temporary not available: " + response.getStatusCode());
                 }
             }
@@ -213,9 +215,9 @@ public class ImdbSearchEngine {
         String xml;
         try {
             DigestedResponse response = httpClient.requestContent(sb.toString());
-            if (throwTempError && ResponseTools.isTemporaryError(response)) {
+            if (throwTempError && isTemporaryError(response)) {
                 throw new TemporaryUnavailableException("IMDb service temporary not available: " + response.getStatusCode());
-            } else if (ResponseTools.isNotOK(response)) {
+            } else if (isNotOK(response)) {
                 LOG.error("Can't find IMDb id due response status {} for '{}'", response.getStatusCode(), title);
                 return null;
             }
