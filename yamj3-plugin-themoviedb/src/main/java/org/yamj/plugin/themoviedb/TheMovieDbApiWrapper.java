@@ -320,7 +320,8 @@ public class TheMovieDbApiWrapper {
         return tmdbApi.createImageUrl(artwork.getFilePath(), requiredSize);
     }
 
-    public ResultList<Artwork> getMovieImages(int tmdbId) {
+    @SuppressWarnings("unchecked")
+	public ResultList<Artwork> getMovieImages(int tmdbId) {
         try {
             final String cacheKey = "movie###"+tmdbId;
             ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);
@@ -337,7 +338,8 @@ public class TheMovieDbApiWrapper {
         }
     }
 
-    public ResultList<Artwork> getSeriesImages(int tmdbId) {
+    @SuppressWarnings("unchecked")
+	public ResultList<Artwork> getSeriesImages(int tmdbId) {
         try {
             final String cacheKey = "series###"+tmdbId;
             ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);
@@ -354,7 +356,8 @@ public class TheMovieDbApiWrapper {
         }
     }
 
-    public ResultList<Artwork> getSeasonImages(int tmdbId, int season) {
+    @SuppressWarnings("unchecked")
+	public ResultList<Artwork> getSeasonImages(int tmdbId, int season) {
         try {
             final String cacheKey = "season###"+tmdbId+"###"+season;
             ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);
@@ -371,7 +374,8 @@ public class TheMovieDbApiWrapper {
         }
     }
 
-    public ResultList<Artwork> getEpisodeImages(int tmdbId, int season, int episode) {
+    @SuppressWarnings("unchecked")
+	public ResultList<Artwork> getEpisodeImages(int tmdbId, int season, int episode) {
         try {
             final String cacheKey = "episode###"+tmdbId+"###"+season+"###"+episode;
             ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);
@@ -398,7 +402,8 @@ public class TheMovieDbApiWrapper {
         }
     }
     
-    public ResultList<Artwork> getCollectionImages(int tmdbId) {
+    @SuppressWarnings("unchecked")
+	public ResultList<Artwork> getCollectionImages(int tmdbId) {
         try {
             final String cacheKey = "boxset###"+tmdbId;
             ResultList<Artwork> resultList = cache.get(cacheKey, ResultList.class);

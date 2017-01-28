@@ -158,7 +158,8 @@ public class ImdbApiWrapper {
         return imdbFilmography;
     }
 
-    public Map<String,Integer> getTop250(Locale locale, boolean throwTempError) {
+    @SuppressWarnings("unchecked")
+	public Map<String,Integer> getTop250(Locale locale, boolean throwTempError) {
         try {
             final String cacheKey = "top250###"+locale.getLanguage();
             HashMap<String,Integer> result = cache.get(cacheKey, HashMap.class);
@@ -182,7 +183,8 @@ public class ImdbApiWrapper {
         }
     }
     
-    public List<ImdbImage> getTitlePhotos(String imdbId, Locale locale) {
+    @SuppressWarnings("unchecked")
+	public List<ImdbImage> getTitlePhotos(String imdbId, Locale locale) {
         List<ImdbImage> titlePhotos = null;
         try {
             final String cacheKey = "titlephotos###"+imdbId+"###"+locale.getLanguage();
@@ -198,7 +200,8 @@ public class ImdbApiWrapper {
         return titlePhotos == null ? new ArrayList<ImdbImage>(0) : titlePhotos;
     }
 
-    public Map<Integer,List<ImdbEpisodeDTO>> getTitleEpisodes(String imdbId, Locale locale) {
+    @SuppressWarnings("unchecked")
+	public Map<Integer,List<ImdbEpisodeDTO>> getTitleEpisodes(String imdbId, Locale locale) {
         final String cacheKey = "episodes###"+imdbId+"###"+locale.getLanguage();
         Map<Integer,List<ImdbEpisodeDTO>> result = cache.get(cacheKey, Map.class);
         if (result != null) {
